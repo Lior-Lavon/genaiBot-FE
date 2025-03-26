@@ -1,0 +1,73 @@
+/* * {
+  padding: 0;
+  margin: 0;
+} */
+
+@import "tailwindcss";
+@tailwindcss /typography
+
+body {
+  padding: 0;
+  margin: 0;
+}
+
+.gm-style-iw button[aria-label="Close"] {
+  display: none !important;
+}
+
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-base: 1px;
+  --breakpoint-sm: 320px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 976px;
+  --color-primary: #00ffff;
+  --color-secondary: #ff0000;
+  --spacing: 0.25rem;
+}
+
+.sans-regular {
+  font-family: "Public Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+.sans-bold {
+  font-family: "Public Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: bold;
+}
+
+/* Optional: add to your CSS file */
+.prose table {
+  @apply table-auto border-collapse w-full text-left;
+  font-size: 0.875rem; /* text-sm */
+}
+
+.prose th,
+.prose td {
+  @apply border px-4 py-2;
+}
+
+/* user by the ImageViewer */
+input[type="range"].slider-thumb::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #4b5563; /* Tailwind gray-700 */
+  border-radius: 9999px;
+  cursor: pointer;
+  border: none;
+  margin-top: -6px;
+}
+
+/* user by the ImageViewer */
+input[type="range"].slider-thumb::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #4b5563;
+  border-radius: 9999px;
+  cursor: pointer;
+  border: none;
+}

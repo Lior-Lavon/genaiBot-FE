@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ZoomPanImage from "./ZoomPanImage";
-import { X as ResetIcon } from "lucide-react";
+import { LogIn, X as ResetIcon } from "lucide-react";
 import { removeImage } from "../../features/dashboard/dashboardSlice";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -21,14 +21,17 @@ const ImageViewer = ({ imageId }) => {
   const [aspectRatio, setAspectRatio] = useState(null);
   const [imgObj, setImgObj] = useState(null);
 
-  const { imageList } = useSelector((store) => store.dashboard);
+  const questionId = 0;
 
-  // first Get the image
+  const { chatList } = useSelector((store) => store.dashboard);
 
   useEffect(() => {
-    const imgObj = imageList.find((img) => img.id == imageId);
+    // extract the image based on Id
+    const imgObj = chatList[questionId].images?.find(
+      (img) => img.id == imageId
+    );
     setImgObj(imgObj);
-  }, [imageList]);
+  }, [chatList]);
 
   useEffect(() => {
     const load = async () => {

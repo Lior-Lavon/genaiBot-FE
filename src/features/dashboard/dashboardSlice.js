@@ -8,16 +8,6 @@ const initialState = {
   showImage: { show: false, id: 0 },
   chatList: [],
   isLoading: false,
-  imageList: [
-    // {
-    //   id: "1",
-    //   src: Img1,
-    // },
-    // {
-    //   id: "2",
-    //   src: Img2,
-    // },
-  ],
 };
 
 const dashboardSlice = createSlice({
@@ -46,16 +36,19 @@ const dashboardSlice = createSlice({
     },
     updateResponse: (state, { payload }) => {
       const pos = payload.id - 1;
-      const pChat = { ...state.chatList[pos], response: payload.response };
+      const pChat = {
+        ...state.chatList[pos],
+        response: payload.response,
+      };
       state.chatList[pos] = pChat;
     },
-    addResponseImage: (state, { payload }) => {
-      // const pos = payload.id - 1;
-      // const pChat = { ...state.chatList[pos] };
-      // const pImages = [...pChat.images];
-      // pImages.push({ id: pImages.length + 1, img: payload.image });
-      // pChat.images = pImages;
-      // state.chatList[pos] = pChat;
+    updateResponseImages: (state, { payload }) => {
+      const pos = payload.id - 1;
+      const pChat = {
+        ...state.chatList[pos],
+        images: payload.images,
+      };
+      state.chatList[pos] = pChat;
     },
   },
 });
@@ -66,6 +59,6 @@ export const {
   removeImage,
   addNewQuestion,
   updateResponse,
-  addResponseImage,
+  updateResponseImages,
 } = dashboardSlice.actions;
 export default dashboardSlice.reducer;

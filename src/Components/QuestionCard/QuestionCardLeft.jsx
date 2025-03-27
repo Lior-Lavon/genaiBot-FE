@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  addResponseImage,
   setDrawer,
   updateResponse,
+  updateResponseImages,
 } from "../../features/dashboard/dashboardSlice";
 import { debounce } from "lodash";
 import ReactMarkdown from "react-markdown";
@@ -26,11 +26,12 @@ const QuestionCardLeft = ({ chatItem }) => {
 
   const outputRef = useRef(null);
   const wsRef = useRef(null);
+  const markdownRef = useRef(null);
 
   let rowIndex = -1;
 
   const handleDrawer = () => {
-    dispatch(setDrawer());
+    // dispatch(setDrawer());
   };
 
   const connectWebSocket = (url) => {
@@ -112,17 +113,45 @@ const QuestionCardLeft = ({ chatItem }) => {
 
   useEffect(() => {
     if (streamComplete) {
-      dispatch(updateResponse({ id, response }));
-      console.log("update markdown here");
+      setTimeout(() => {
+        dispatch(updateResponse({ id, response }));
+        getAllImages();
+        console.log("update markdown here");
+      }, 1000);
     }
   }, [streamComplete]);
 
-  // const debouncedAddResponseImage = debounce((payload) => {
-  //   dispatch(addResponseImage(payload));
-  // }, 300); // 300ms debounce
+  const getAllImages = () => {
+    if (markdownRef.current) {
+      const imgs = markdownRef.current.querySelectorAll("img");
+      const imgArray = Array.from(imgs);
+
+      const imageList = [];
+      // extract the blob from the images
+      for (let i = 0; i < imgArray.length; i++) {
+        const base64Data = imgArray[i].src;
+        imageList.push({ id: i + 1, src: base64Data });
+      }
+
+      dispatch(updateResponseImages({ id, images: imageList }));
+    }
+  };
+
+  const extractBase64Image = (bufferText, index) => {
+    // This regex matches base64 image data URIs
+    const base64Images = bufferText.match(
+      /data:image\/[a-zA-Z]+;base64,[A-Za-z0-9+/=]+/g
+    );
+
+    if (!base64Images || index < 0 || index >= base64Images.length) {
+      throw new Error("Invalid index or no images found.");
+    }
+
+    return base64Images[index];
+  };
 
   return (
-    <div className="m-1 flex-1 bg-gray-100 rounded-xl" onClick={handleDrawer}>
+    <div className="m-1 w-[1200px] bg-gray-100 rounded-xl">
       {/* prompt */}
       <div className="w-full">
         <div className="w-full m-4 p-4 text-left rounded-2xl text-xl border-l-3 border-blue-400 ">
@@ -134,7 +163,10 @@ const QuestionCardLeft = ({ chatItem }) => {
 
       {/* answer */}
       <div className="w-full">
-        <div className="m-4 p-4 text-left rounded-2xl text-lg border-l-2 ">
+        <div
+          ref={markdownRef}
+          className="m-4 p-4 text-left rounded-2xl text-lg border-l-2"
+        >
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw]}
@@ -147,18 +179,11 @@ const QuestionCardLeft = ({ chatItem }) => {
                 if (!finalSrc || finalSrc.trim() === "") {
                   if (props.srcSet) {
                     // Extract first URL from srcSet
-                    const firstCandidate = props.srcSet
-                      .split(",")[0]
-                      .trim()
-                      .split(" ")[0];
-                    finalSrc = firstCandidate;
+                    finalSrc = extractBase64Image(props.srcSet, 0);
                   } else {
                     console.warn("⚠️ Empty image src and no srcSet available.");
                   }
                 }
-
-                // store the image
-                dispatch(addResponseImage({ id: 1, image: finalSrc }));
 
                 return (
                   <div className="relative w-full my-4">

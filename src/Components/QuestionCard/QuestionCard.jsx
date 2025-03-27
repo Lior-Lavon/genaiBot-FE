@@ -6,7 +6,7 @@ const QuestionCard = ({ chatItem }) => {
   return (
     <div className="w-full flex">
       <QuestionCardLeft chatItem={chatItem} />
-      <QuestionCardRight />
+      <QuestionCardRight chatItem={chatItem} />
     </div>
   );
 };

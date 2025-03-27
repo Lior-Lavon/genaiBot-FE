@@ -2,10 +2,10 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setImage } from "../../features/dashboard/dashboardSlice";
 
-const QuestionCardRight = () => {
+const QuestionCardRight = ({ chatItem }) => {
   const dispatch = useDispatch();
 
-  const { isDrawerOpen, imageList } = useSelector((store) => store.dashboard);
+  const { isDrawerOpen } = useSelector((store) => store.dashboard);
 
   const handleImageClick = (e) => {
     const imgId = e.target.id;
@@ -13,12 +13,12 @@ const QuestionCardRight = () => {
   };
   return (
     <div
-      className={`mx-1 transition-all duration-300 ease-in-out ${
+      className={`mx-1 transition-all duration-300 ease-in-out bg-gray-100 ${
         isDrawerOpen ? "w-40" : "w-0"
       }`}
     >
       <div className="w-full h-full flex flex-col gap-2">
-        {imageList.map((imgItem) => {
+        {chatItem?.images.map((imgItem) => {
           return (
             <img
               key={imgItem.id}

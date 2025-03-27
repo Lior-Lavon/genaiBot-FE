@@ -1,6 +1,4 @@
 import React from "react";
-import Img1 from "../../assets/img-1.png";
-import Img2 from "../../assets/img-2.png";
 
 const RightBar = ({ rightOpen }) => {
   return (

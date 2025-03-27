@@ -2,10 +2,10 @@ import React from "react";
 import QuestionCardLeft from "./QuestionCardLeft";
 import QuestionCardRight from "./QuestionCardRight";
 
-const QuestionCard = () => {
+const QuestionCard = ({ chatItem }) => {
   return (
-    <div className="w-full h-[250px] flex">
-      <QuestionCardLeft />
+    <div className="w-full flex">
+      <QuestionCardLeft chatItem={chatItem} />
       <QuestionCardRight />
     </div>
   );

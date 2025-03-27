@@ -1,11 +1,20 @@
 import React from "react";
+import { useDispatch } from "react-redux";
+import { addNewQuestion } from "../../features/dashboard/dashboardSlice";
 
 const Kickstarters = () => {
+  const dispatch = useDispatch();
   const cards = [
-    "Positional attribute summary for my brands",
+    // "Positional attribute summary for my brands",
+    "How is my brand performing ?",
     "YoY trends for my brands",
     "Top 10 brands with best pulse score trend",
   ];
+
+  const handleKickStart = (e) => {
+    const prompt = e.target.textContent;
+    dispatch(addNewQuestion({ prompt }));
+  };
 
   return (
     <div className="max-w-md mx-auto">
@@ -16,6 +25,7 @@ const Kickstarters = () => {
           <div
             key={index}
             className=" text-[0.7rem] bg-indigo-50 hover:bg-indigo-100 text-gray-800 font-medium text-center px-1 py-2 rounded-xl border-l-4 border-gray-800 shadow-sm cursor-pointer transition-all duration-400"
+            onClick={handleKickStart}
           >
             {text}
           </div>

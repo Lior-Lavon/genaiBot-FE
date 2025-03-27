@@ -5,6 +5,7 @@ import Img2 from "../../assets/img-2.png";
 
 const initialState = {
   isDrawerOpen: false,
+  isLeftDrawer: true,
   showImage: { show: false, id: 0 },
   chatList: [],
   isLoading: false,
@@ -16,6 +17,9 @@ const dashboardSlice = createSlice({
   reducers: {
     setDrawer: (state) => {
       state.isDrawerOpen = !state.isDrawerOpen;
+    },
+    setLeftDrawer: (state) => {
+      state.isLeftDrawer = !state.isLeftDrawer;
     },
     setImage: (state, { payload }) => {
       state.showImage = payload;
@@ -55,6 +59,7 @@ const dashboardSlice = createSlice({
 
 export const {
   setDrawer,
+  setLeftDrawer,
   setImage,
   removeImage,
   addNewQuestion,

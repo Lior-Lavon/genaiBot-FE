@@ -6,7 +6,7 @@ const ContentArea = () => {
   const { chatList } = useSelector((store) => store.dashboard);
 
   return (
-    <div className="text-center px-2">
+    <div className="text-center px-2 overflow-y-auto">
       {chatList.map((chat) => {
         return <QuestionCard key={chat.id} chatItem={chat} />;
       })}

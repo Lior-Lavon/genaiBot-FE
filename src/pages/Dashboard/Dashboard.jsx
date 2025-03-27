@@ -1,20 +1,42 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Menu } from "lucide-react";
 import { useState } from "react";
 
 import TopBar from "../../Components/TopBar/TopBar";
 import { ContentArea, ImageViewer, LeftBar } from "../../Components";
-import { setDrawer } from "../../features/dashboard/dashboardSlice";
+import {
+  setDrawer,
+  setLeftDrawer,
+} from "../../features/dashboard/dashboardSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const [leftOpen, setLeftOpen] = useState(true);
-  const { showImage } = useSelector((store) => store.dashboard);
+  const { showImage, isLeftDrawer } = useSelector((store) => store.dashboard);
+  const [width, setWidth] = useState(0);
+
+  const leftBarRef = useRef(null);
 
   const handleDrawer = () => {
     dispatch(setDrawer());
+  };
+
+  useEffect(() => {
+    calculateContentWidth();
+  }, []);
+  useEffect(() => {
+    calculateContentWidth();
+  }, [isLeftDrawer]);
+
+  const calculateContentWidth = () => {
+    setTimeout(() => {
+      if (leftBarRef.current) {
+        const leftRight = leftBarRef.current.getBoundingClientRect().right;
+        const screenWidth = window.innerWidth;
+        setWidth(screenWidth - leftRight);
+      }
+    }, 300);
   };
 
   return (
@@ -23,13 +45,15 @@ const Dashboard = () => {
       <TopBar />
 
       {/* Main Area */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex overflow-hidden">
         {/* Left Sidebar */}
-        <LeftBar leftOpen={leftOpen} />
+        <div className={`h-[calc(100vh-72px)]`}>
+          <LeftBar leftBarRef={leftBarRef} />
+        </div>
 
-        <div className="w-full flex flex-col">
-          <div className="flex justify-between py-4 ">
-            <button onClick={() => setLeftOpen(!leftOpen)} size="sm">
+        <div className="h-full flex flex-col " style={{ width: `${width}px` }}>
+          <div className="w-full flex justify-between py-4 ">
+            <button onClick={() => dispatch(setLeftDrawer())} size="sm">
               <Menu className="w-8 h-8 mr-2" />
             </button>
             <button onClick={() => handleDrawer()} size="sm">
@@ -37,14 +61,10 @@ const Dashboard = () => {
             </button>
           </div>
 
-          {/* Content Area */}
-          <main className="flex-1 bg-white overflow-auto">
+          <main className="w-full flex-1 overflow-y-auto">
             <ContentArea />
           </main>
         </div>
-
-        {/* Right Sidebar */}
-        {/* <RightBar rightOpen={rightOpen} /> */}
       </div>
 
       {/*  */}

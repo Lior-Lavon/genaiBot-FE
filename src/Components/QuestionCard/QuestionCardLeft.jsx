@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Plus, Minus, RotateCw } from "lucide-react"; // Optional: icons
 import {
   setDrawer,
   updateResponse,
@@ -19,16 +20,18 @@ const QuestionCardLeft = ({ chatItem }) => {
   const [response, setResponse] = useState("");
   const [streamComplete, setStreamComplete] = useState(false);
   // const [isWaiting, setIsWaiting] = useState(false);
-
-  // const { chatList } = useSelector((store) => store.dashboard);
+  const [zoom, setZoom] = useState(1);
+  const answerRef = useRef(null);
 
   const url = import.meta.env.VITE_SERVER_CHAT_URL;
 
   const outputRef = useRef(null);
   const wsRef = useRef(null);
-  const markdownRef = useRef(null);
 
   let rowIndex = -1;
+  const ZOOM_STEP = 0.1;
+  const MIN_ZOOM = 0.2;
+  const MAX_ZOOM = 2;
 
   const handleDrawer = () => {
     // dispatch(setDrawer());
@@ -106,9 +109,19 @@ const QuestionCardLeft = ({ chatItem }) => {
   };
 
   useEffect(() => {
-    if (!streamComplete && outputRef.current) {
-      outputRef.current.scrollTop = outputRef.current.scrollHeight;
+    if (answerRef.current) {
+      const container = answerRef.current;
+      const content = container.querySelector("div"); // the actual markdown content
+      if (content && container.offsetWidth < content.scrollWidth) {
+        const scaleRatio = container.offsetWidth / content.scrollWidth;
+
+        setZoom(Math.max(scaleRatio * 0.95, MIN_ZOOM));
+      }
     }
+
+    // if (!streamComplete && outputRef.current) {
+    //   outputRef.current.scrollTop = outputRef.current.scrollHeight;
+    // }
   }, [response, streamComplete]);
 
   useEffect(() => {
@@ -122,8 +135,8 @@ const QuestionCardLeft = ({ chatItem }) => {
   }, [streamComplete]);
 
   const getAllImages = () => {
-    if (markdownRef.current) {
-      const imgs = markdownRef.current.querySelectorAll("img");
+    if (answerRef.current) {
+      const imgs = answerRef.current.querySelectorAll("img");
       const imgArray = Array.from(imgs);
 
       const imageList = [];
@@ -150,101 +163,145 @@ const QuestionCardLeft = ({ chatItem }) => {
     return base64Images[index];
   };
 
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(prev + ZOOM_STEP, MAX_ZOOM));
+  };
+
+  const handleZoomOut = () => {
+    setZoom((prev) => Math.max(prev - ZOOM_STEP, MIN_ZOOM));
+  };
+
+  const handleZoomReset = () => {
+    setZoom(0.95);
+  };
+
   return (
-    <div className="m-1 w-[1200px] bg-gray-100 rounded-xl">
+    <div className="m-1 w-full bg-gray-100 rounded-xl">
       {/* prompt */}
       <div className="w-full">
         <div className="w-full m-4 p-4 text-left rounded-2xl text-xl border-l-3 border-blue-400 ">
           {prompt}
         </div>
       </div>
-
       <div className="m-4 h-[.2rem] bg-gray-200 rounded-full"></div>
 
       {/* answer */}
-      <div className="w-full">
+      <div className="answer w-full relative">
+        {/* Zoom Controls */}
+        <div className="absolute top-2 right-2 z-10 flex gap-2">
+          <button
+            onClick={handleZoomIn}
+            className="bg-blue-500 text-white rounded px-2 py-1 shadow hover:bg-blue-600"
+          >
+            <Plus size={16} />
+          </button>
+          <button
+            onClick={handleZoomOut}
+            className="bg-blue-500 text-white rounded px-2 py-1 shadow hover:bg-blue-600"
+          >
+            <Minus size={16} />
+          </button>
+          <button
+            onClick={handleZoomReset}
+            className="bg-blue-500 text-white rounded px-2 py-1 shadow hover:bg-blue-600"
+          >
+            <RotateCw size={16} />
+          </button>
+        </div>
+
         <div
-          ref={markdownRef}
-          className="m-4 p-4 text-left rounded-2xl text-lg border-l-2"
+          ref={answerRef}
+          className="relative m-4 p-4 text-left rounded-2xl text-lg border-l-2 bg-red-200 overflow-x-auto"
+          style={{
+            width: "100%",
+          }}
         >
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw]}
-            components={{
-              img({ node, ...props }) {
-                const [loading, setLoading] = useState(true);
-                const isBase64 = props.src?.startsWith("data:image");
-
-                let finalSrc = props.src;
-                if (!finalSrc || finalSrc.trim() === "") {
-                  if (props.srcSet) {
-                    // Extract first URL from srcSet
-                    finalSrc = extractBase64Image(props.srcSet, 0);
-                  } else {
-                    console.warn("⚠️ Empty image src and no srcSet available.");
-                  }
-                }
-
-                return (
-                  <div className="relative w-full my-4">
-                    {loading && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded border">
-                        <div className="animate-spin h-6 w-6 border-2 border-gray-500 border-t-transparent rounded-full" />
-                      </div>
-                    )}
-                    <img
-                      loading="lazy"
-                      decoding="async"
-                      {...props}
-                      src={finalSrc}
-                      onLoad={() => setLoading(false)}
-                      className={`rounded shadow max-w-full transition-opacity duration-300 ${
-                        loading ? "opacity-0" : "opacity-100"
-                      } ${isBase64 ? "border" : ""}`}
-                      alt={props.alt || "Image"}
-                    />
-                  </div>
-                );
-              },
-              table: ({ node, ...props }) => (
-                <table
-                  className="w-full border-collapse table-auto"
-                  {...props}
-                />
-              ),
-              thead: ({ node, ...props }) => (
-                <thead className="bg-[#00000] text-left" {...props} />
-              ),
-              th: ({ node, ...props }) => (
-                <th
-                  className="px-2 py-2 border-b border-blue-300 font-bold text-blue-700 text-sm whitespace-nowrap"
-                  {...props}
-                />
-              ),
-              td: ({ node, ...props }) => (
-                <td
-                  className="px-2 py-2 border-b border-blue-200 text-sm text-blue-800 whitespace-nowrap"
-                  {...props}
-                />
-              ),
-              tr: ({ node, ...props }) => {
-                rowIndex++;
-                const isHeader = rowIndex === 0;
-                const bgColor = isHeader
-                  ? ""
-                  : rowIndex % 2 === 0
-                  ? "bg-[#00000]"
-                  : "bg-[#d0ecea]";
-                return <tr className={bgColor} {...props} />;
-              },
+          {/* Scaled content wrapper */}
+          <div
+            style={{
+              transform: `scale(${zoom})`,
+              transformOrigin: "top left",
+              width: "100%",
+              display: "inline-block",
             }}
           >
-            {response}
-          </ReactMarkdown>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw]}
+              components={{
+                img({ node, ...props }) {
+                  const [loading, setLoading] = useState(true);
+                  const isBase64 = props.src?.startsWith("data:image");
 
-          {/* <pre className="whitespace-pre-wrap font-mono text-sm text-black">
-            {response}
-          </pre> */}
+                  let finalSrc = props.src;
+                  if (!finalSrc || finalSrc.trim() === "") {
+                    if (props.srcSet) {
+                      // Extract first URL from srcSet
+                      finalSrc = extractBase64Image(props.srcSet, 0);
+                    } else {
+                      console.warn(
+                        "⚠️ Empty image src and no srcSet available."
+                      );
+                    }
+                  }
+
+                  return (
+                    <div className="relative w-full my-4">
+                      {loading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded border">
+                          <div className="animate-spin h-6 w-6 border-2 border-gray-500 border-t-transparent rounded-full" />
+                        </div>
+                      )}
+                      <img
+                        loading="lazy"
+                        decoding="async"
+                        {...props}
+                        src={finalSrc}
+                        onLoad={() => setLoading(false)}
+                        className={`rounded shadow max-w-full transition-opacity duration-300 ${
+                          loading ? "opacity-0" : "opacity-100"
+                        } ${isBase64 ? "border" : ""}`}
+                        alt={props.alt || "Image"}
+                      />
+                    </div>
+                  );
+                },
+                table: ({ node, ...props }) => (
+                  <table
+                    className="w-full border-collapse table-auto"
+                    {...props}
+                  />
+                ),
+                thead: ({ node, ...props }) => (
+                  <thead className="bg-[#00000] text-left" {...props} />
+                ),
+                th: ({ node, ...props }) => (
+                  <th
+                    className="px-2 py-2 border-b border-blue-300 font-bold text-blue-700 text-sm whitespace-nowrap"
+                    {...props}
+                  />
+                ),
+                td: ({ node, ...props }) => (
+                  <td
+                    className="px-2 py-2 border-b border-blue-200 text-sm text-blue-800 whitespace-nowrap"
+                    {...props}
+                  />
+                ),
+                tr: ({ node, ...props }) => {
+                  rowIndex++;
+                  const isHeader = rowIndex === 0;
+                  const bgColor = isHeader
+                    ? ""
+                    : rowIndex % 2 === 0
+                    ? "bg-[#00000]"
+                    : "bg-[#d0ecea]";
+                  return <tr className={bgColor} {...props} />;
+                },
+              }}
+            >
+              {response}
+            </ReactMarkdown>
+          </div>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  setDrawer,
+  setRightDrawer,
   updateResponse,
   updateResponseImages,
 } from "../../features/dashboard/dashboardSlice";
@@ -29,7 +29,7 @@ const QuestionCardLeft = ({ chatItem }) => {
   let rowIndex = -1;
 
   const handleDrawer = () => {
-    // dispatch(setDrawer());
+    // dispatch(setRightDrawer());
   };
 
   const connectWebSocket = (url) => {

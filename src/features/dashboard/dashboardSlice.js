@@ -4,7 +4,7 @@ import Img1 from "../../assets/img-1.png";
 import Img2 from "../../assets/img-2.png";
 
 const initialState = {
-  isDrawerOpen: false,
+  isRightDrawerOpen: false,
   isLeftDrawer: true,
   showImage: { show: false, id: 0 },
   chatList: [],
@@ -15,8 +15,8 @@ const dashboardSlice = createSlice({
   name: "dashboard",
   initialState,
   reducers: {
-    setDrawer: (state) => {
-      state.isDrawerOpen = !state.isDrawerOpen;
+    setRightDrawer: (state) => {
+      state.isRightDrawerOpen = !state.isRightDrawerOpen;
     },
     setLeftDrawer: (state) => {
       state.isLeftDrawer = !state.isLeftDrawer;
@@ -58,7 +58,7 @@ const dashboardSlice = createSlice({
 });
 
 export const {
-  setDrawer,
+  setRightDrawer,
   setLeftDrawer,
   setImage,
   removeImage,

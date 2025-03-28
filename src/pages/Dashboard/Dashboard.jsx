@@ -5,7 +5,7 @@ import { useState } from "react";
 import TopBar from "../../Components/TopBar/TopBar";
 import { ContentArea, ImageViewer, LeftBar } from "../../Components";
 import {
-  setDrawer,
+  setRightDrawer,
   setLeftDrawer,
 } from "../../features/dashboard/dashboardSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,7 +19,7 @@ const Dashboard = () => {
   const leftBarRef = useRef(null);
 
   const handleDrawer = () => {
-    dispatch(setDrawer());
+    dispatch(setRightDrawer());
   };
 
   useEffect(() => {
@@ -51,7 +51,10 @@ const Dashboard = () => {
           <LeftBar leftBarRef={leftBarRef} />
         </div>
 
-        <div className="h-full flex flex-col " style={{ width: `${width}px` }}>
+        <div
+          className="w-full h-full flex flex-col "
+          style={{ width: `${width}px` }}
+        >
           <div className="w-full flex justify-between py-4 ">
             <button onClick={() => dispatch(setLeftDrawer())} size="sm">
               <Menu className="w-8 h-8 mr-2" />

@@ -6,6 +6,7 @@ import LauncherCard from "./LauncherCard/LauncherCard";
 import Kickstarters from "./Kickstarters/Kickstarters";
 import QuestionCard from "./QuestionCard/QuestionCard";
 import ImageViewer from "./ImageViewer/ImageViewer";
+import Spinner from "./Spinner/Spinner";
 
 export {
   TopBar,
@@ -16,4 +17,5 @@ export {
   Kickstarters,
   QuestionCard,
   ImageViewer,
+  Spinner,
 };

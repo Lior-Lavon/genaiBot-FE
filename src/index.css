@@ -5,6 +5,7 @@
 
 @import "tailwindcss";
 @tailwindcss /typography
+/* @plugin "daisyui"; */
 
 body {
   padding: 0;
@@ -94,4 +95,23 @@ input[type="range"].slider-thumb::-moz-range-thumb {
   padding-left: 4px;
   padding-right: 4px;
   white-space: nowrap;
+}
+
+/* ----- */
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.typing-animation {
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 3s steps(30, end) forwards;
 }

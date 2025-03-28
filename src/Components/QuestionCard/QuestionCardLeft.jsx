@@ -60,6 +60,20 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
           return;
         }
 
+        // Skip metadata blocks
+        const ignoreKeywords = [
+          "CONTEXT REPHRASER",
+          "MEMORY",
+          "SELECTER",
+          "ROUTER",
+          "TOOL CONTEXT LLM",
+        ];
+
+        // If the text contains any system keywords, ignore it
+        if (ignoreKeywords.some((keyword) => text.includes(keyword))) {
+          return;
+        }
+
         // Otherwise, keep streaming it
         setResponse((prev) => prev + text);
       };
@@ -181,7 +195,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
   return (
     <div
-      className="m-1 transition-all duration-300 ease-in-out bg-gray-100 rounded-xl "
+      className="m-1 bg-gray-100 rounded-xl "
       style={{ width: `${leftWidth}px` }}
     >
       {/* prompt */}
@@ -276,37 +290,55 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                       </div>
                     );
                   },
-                  // table: ({ node, ...props }) => (
-                  //   <table
-                  //     className="w-full border-collapse table-auto"
-                  //     {...props}
-                  //   />
-                  // ),
-                  // thead: ({ node, ...props }) => (
-                  //   <thead className="bg-[#00000] text-left" {...props} />
-                  // ),
-                  // th: ({ node, ...props }) => (
-                  //   <th
-                  //     className="px-2 py-2 border-b border-blue-300 font-bold text-blue-700 text-sm whitespace-nowrap"
-                  //     {...props}
-                  //   />
-                  // ),
-                  // td: ({ node, ...props }) => (
-                  //   <td
-                  //     className="px-2 py-2 border-b border-blue-200 text-sm text-blue-800 whitespace-nowrap"
-                  //     {...props}
-                  //   />
-                  // ),
-                  // tr: ({ node, ...props }) => {
-                  //   rowIndex++;
-                  //   const isHeader = rowIndex === 0;
-                  //   const bgColor = isHeader
-                  //     ? ""
-                  //     : rowIndex % 2 === 0
-                  //     ? "bg-[#00000]"
-                  //     : "bg-[#d0ecea]";
-                  //   return <tr className={bgColor} {...props} />;
-                  // },
+                  table: ({ node, ...props }) => (
+                    <table className="border-collapse table-auto" {...props} />
+                  ),
+                  thead: ({ node, ...props }) => (
+                    <thead className="bg-[#00000] text-left" {...props} />
+                  ),
+                  th: ({ node, ...props }) => (
+                    <th
+                      className="px-2 py-2 border-b border-blue-300 font-bold text-blue-700 text-sm"
+                      {...props}
+                    />
+                  ),
+                  td: ({ node, ...props }) => (
+                    <td
+                      className="px-2 py-2 border-b border-blue-200 text-sm text-blue-800"
+                      {...props}
+                    />
+                  ),
+                  tr: ({ node, ...props }) => {
+                    rowIndex++;
+                    const isHeader = rowIndex === 0;
+                    const bgColor = isHeader
+                      ? ""
+                      : rowIndex % 2 === 0
+                      ? "bg-[#00000]"
+                      : "bg-[#d0ecea]";
+                    return <tr className={bgColor} {...props} />;
+                  },
+                  h1: ({ node, ...props }) => (
+                    <h1 className="text-4xl" {...props} />
+                  ),
+                  h2: ({ node, ...props }) => (
+                    <h2 className="text-2xl mt-4" {...props} />
+                  ),
+                  h3: ({ node, ...props }) => (
+                    <h3 className="text-xl mt-4" {...props} />
+                  ),
+                  h4: ({ node, ...props }) => (
+                    <h4 className="text-xl mt-2" {...props} />
+                  ),
+                  p: ({ node, ...props }) => (
+                    <p className="text-sm mt-1" {...props} />
+                  ),
+                  ul: ({ node, ...props }) => (
+                    <ul className="mt-1" {...props} />
+                  ),
+                  li: ({ node, ...props }) => (
+                    <li className="text-sm list-disc my-1 ml-2" {...props} />
+                  ),
                 }}
               >
                 {response}

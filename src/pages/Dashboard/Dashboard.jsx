@@ -3,18 +3,25 @@ import { Menu } from "lucide-react";
 import { useState } from "react";
 
 import TopBar from "../../Components/TopBar/TopBar";
-import { ContentArea, ImageViewer, LeftBar } from "../../Components";
+import {
+  ContentArea,
+  ImageViewer,
+  LeftBar,
+  PromptView,
+} from "../../Components";
 import {
   setRightDrawer,
   setLeftDrawer,
 } from "../../features/dashboard/dashboardSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
+import { GoTriangleLeft, GoTriangleRight } from "react-icons/go";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
   const { showImage, isLeftDrawer } = useSelector((store) => store.dashboard);
   const [width, setWidth] = useState(0);
+  const [showToggle, setShowToggle] = useState(false);
 
   const leftBarRef = useRef(null);
 
@@ -39,6 +46,18 @@ const Dashboard = () => {
     }, 300);
   };
 
+  // Watch isLeftDrawer and delay setting showToggle
+  useEffect(() => {
+    let timeout;
+    if (!isLeftDrawer) {
+      timeout = setTimeout(() => setShowToggle(true), 300);
+    } else {
+      setShowToggle(false);
+    }
+
+    return () => clearTimeout(timeout); // cleanup if state changes quickly
+  }, [isLeftDrawer]);
+
   return (
     <div className="h-screen flex flex-col">
       {/* Top Bar */}
@@ -46,31 +65,42 @@ const Dashboard = () => {
 
       {/* Main Area */}
       <div className="flex overflow-hidden">
-        {/* Left Sidebar */}
-        <div className={`h-[calc(100vh-72px)]`}>
+        {/* Sidebar */}
+        <div
+          className={`
+      leftBar transition-transform duration-300 h-[calc(100vh-72px)]
+      ${isLeftDrawer ? "translate-x-0" : "-translate-x-full"}
+    `}
+        >
           <LeftBar leftBarRef={leftBarRef} />
         </div>
 
+        {/* Content Area */}
         <div
-          className="w-full h-full flex flex-col "
-          style={{ width: `${width}px` }}
+          className={`h-[calc(100vh-72px)] flex flex-col absolute top-[72px] transition-all duration-300 ${
+            isLeftDrawer ? "left-[320px] w-[calc(100%-320px)]" : "left-0 w-full"
+          }`}
         >
-          <div className="w-full flex justify-between py-4 ">
-            <button onClick={() => dispatch(setLeftDrawer())} size="sm">
-              <Menu className="w-8 h-8 mr-2" />
-            </button>
-            <button onClick={() => handleDrawer()} size="sm">
-              <Menu className="w-8 h-8 mr-2" />
-            </button>
-          </div>
+          {/* Toggle Button */}
+          {showToggle && (
+            <div
+              className="w-10 cursor-pointer absolute left-0 top-0 z-50"
+              onClick={() => dispatch(setLeftDrawer())}
+            >
+              <GoTriangleRight className="w-10 h-10 shadow-2xl" />
+            </div>
+          )}
 
-          <main className="w-full flex-1 overflow-y-auto">
+          {/* Main content */}
+          <main className="contentArea w-full flex-1 overflow-y-auto relative">
             <ContentArea />
+            <div className="w-[80%] h-14 absolute bottom-0 mb-10">
+              <PromptView />
+            </div>
           </main>
         </div>
       </div>
 
-      {/*  */}
       <AnimatePresence>
         {showImage?.show && (
           <motion.div

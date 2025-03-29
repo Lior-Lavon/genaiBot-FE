@@ -18,7 +18,7 @@ const QuestionCardRight = ({ chatItem, ref }) => {
   return (
     <div
       ref={ref}
-      className={`mx-1 transition-all duration-300 ease-in-out bg-white ${
+      className={`mx-1 transition-all duration-300 ease-in-out bg-blue-400 ${
         isRightDrawerOpen ? "w-40" : "w-0"
       }`}
     >

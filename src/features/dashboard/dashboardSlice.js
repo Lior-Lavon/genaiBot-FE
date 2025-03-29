@@ -6,6 +6,7 @@ import Img2 from "../../assets/img-2.png";
 const initialState = {
   isRightDrawerOpen: false,
   isLeftDrawer: true,
+  isPromptView: true,
   showImage: { show: false, id: 0 },
   chatList: [],
   isLoading: false,
@@ -21,6 +22,9 @@ const dashboardSlice = createSlice({
     setLeftDrawer: (state) => {
       state.isLeftDrawer = !state.isLeftDrawer;
     },
+    setPromptView: (state) => {
+      state.isPromptView = !state.isPromptView;
+    },
     setImage: (state, { payload }) => {
       state.showImage = payload;
     },
@@ -29,13 +33,13 @@ const dashboardSlice = createSlice({
     },
     addNewQuestion: (state, { payload }) => {
       const tmpList = [...state.chatList];
-      payload = {
+      const newPayload = {
         ...payload,
         id: tmpList.length + 1,
         response: "",
         images: [],
       };
-      tmpList.push(payload);
+      tmpList.push(newPayload);
       state.chatList = tmpList;
     },
     updateResponse: (state, { payload }) => {
@@ -65,5 +69,6 @@ export const {
   addNewQuestion,
   updateResponse,
   updateResponseImages,
+  setPromptView,
 } = dashboardSlice.actions;
 export default dashboardSlice.reducer;

@@ -194,13 +194,10 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   };
 
   return (
-    <div
-      className="m-1 bg-gray-100 rounded-xl "
-      style={{ width: `${leftWidth}px` }}
-    >
+    <div className="bg-gray-100" style={{ width: `${leftWidth}px` }}>
       {/* prompt */}
       <div className="w-full">
-        <div className="w-full m-4 p-4 text-left rounded-2xl text-xl border-l-3 flex items-center justify-between border-blue-400 ">
+        <div className="w-full m-4 p-4 text-left rounded-2xl text-xl border-l-3 flex items-center justify-between ">
           {prompt}
 
           {isWaiting && (
@@ -216,26 +213,28 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
         {/* answer */}
         <div className="relative">
-          {/* Zoom Controls */}
-          <div className="absolute top-0 right-4 z-10 flex gap-2">
-            <button
-              onClick={handleZoomIn}
-              className="bg-blue-500 text-white rounded px-2 py-1 shadow hover:bg-blue-600"
-            >
-              <Plus size={16} />
-            </button>
-            <button
-              onClick={handleZoomOut}
-              className="bg-blue-500 text-white rounded px-2 py-1 shadow hover:bg-blue-600"
-            >
-              <Minus size={16} />
-            </button>
-            <button
-              onClick={handleZoomReset}
-              className="bg-blue-500 text-white rounded px-2 py-1 shadow hover:bg-blue-600"
-            >
-              <RotateCw size={16} />
-            </button>
+          {/* Zoom Controls Wrapper */}
+          <div className="sticky top-0 z-10 flex justify-end pr-4">
+            <div className="inline-flex gap-2 bg-white/80 backdrop-blur-sm p-2 rounded shadow-md">
+              <button
+                onClick={handleZoomIn}
+                className="bg-blue-500 text-white rounded px-2 py-1 shadow-sm hover:bg-blue-600"
+              >
+                <Plus size={16} />
+              </button>
+              <button
+                onClick={handleZoomOut}
+                className="bg-blue-500 text-white rounded px-2 py-1 shadow-sm hover:bg-blue-600"
+              >
+                <Minus size={16} />
+              </button>
+              <button
+                onClick={handleZoomReset}
+                className="bg-blue-500 text-white rounded px-2 py-1 shadow-sm hover:bg-blue-600"
+              >
+                <RotateCw size={16} />
+              </button>
+            </div>
           </div>
 
           <div
@@ -319,7 +318,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                     return <tr className={bgColor} {...props} />;
                   },
                   h1: ({ node, ...props }) => (
-                    <h1 className="text-4xl" {...props} />
+                    <h1 className="text-2xl" {...props} />
                   ),
                   h2: ({ node, ...props }) => (
                     <h2 className="text-2xl mt-4" {...props} />

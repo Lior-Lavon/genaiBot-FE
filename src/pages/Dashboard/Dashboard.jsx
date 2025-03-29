@@ -12,6 +12,7 @@ import {
 import {
   setRightDrawer,
   setLeftDrawer,
+  addNewQuestion,
 } from "../../features/dashboard/dashboardSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,6 +21,7 @@ import { GoTriangleLeft, GoTriangleRight } from "react-icons/go";
 const Dashboard = () => {
   const dispatch = useDispatch();
   const { showImage, isLeftDrawer } = useSelector((store) => store.dashboard);
+
   const [width, setWidth] = useState(0);
   const [showToggle, setShowToggle] = useState(false);
 
@@ -31,7 +33,23 @@ const Dashboard = () => {
 
   useEffect(() => {
     calculateContentWidth();
+
+    // read the input
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const base64Str = params.get("startupParameter");
+      const inputJson = decodeBase64ToJson(base64Str);
+      if (inputJson != null || inputJson != "") {
+        if (inputJson.Question != "") {
+          dispatch(addNewQuestion({ prompt: inputJson.Question }));
+        }
+      }
+    } catch (error) {
+      console.error("Invalid url:", error);
+      return null;
+    }
   }, []);
+
   useEffect(() => {
     calculateContentWidth();
   }, [isLeftDrawer]);
@@ -57,6 +75,17 @@ const Dashboard = () => {
 
     return () => clearTimeout(timeout); // cleanup if state changes quickly
   }, [isLeftDrawer]);
+
+  const decodeBase64ToJson = (base64Str) => {
+    try {
+      const decodedStr = atob(base64Str); // Decode Base64 to string
+      const jsonObj = JSON.parse(decodedStr); // Parse string to JSON
+      return jsonObj;
+    } catch (error) {
+      console.error("Invalid Base64 or JSON:", error);
+      return null;
+    }
+  };
 
   return (
     <div className="h-screen flex flex-col">
@@ -102,7 +131,7 @@ const Dashboard = () => {
       </div>
 
       <AnimatePresence>
-        {showImage?.show && (
+        {showImage.show && (
           <motion.div
             className="fixed inset-0 flex items-center justify-center z-50"
             style={{ backgroundColor: "rgba(0, 0, 0, 0.2)" }}
@@ -117,7 +146,7 @@ const Dashboard = () => {
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <ImageViewer imageId={showImage?.id} />
+              <ImageViewer imageSrc={showImage.src} />
             </motion.div>
           </motion.div>
         )}

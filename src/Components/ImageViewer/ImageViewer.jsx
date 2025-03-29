@@ -15,29 +15,26 @@ const getImageDimensions = (imageSrc) => {
   });
 };
 
-const ImageViewer = ({ imageId }) => {
+const ImageViewer = ({ imageSrc }) => {
   const dispatch = useDispatch();
   const ImgWidthFromScreen = 0.65;
   const [aspectRatio, setAspectRatio] = useState(null);
-  const [imgObj, setImgObj] = useState(null);
-
-  const questionId = 0;
-
-  const { chatList } = useSelector((store) => store.dashboard);
-
-  useEffect(() => {
-    // extract the image based on Id
-    const imgObj = chatList[questionId].images?.find(
-      (img) => img.id == imageId
-    );
-    setImgObj(imgObj);
-  }, [chatList]);
+  // const [imgObj, setImgObj] = useState(null);
+  // const questionId = 0;
+  // const { chatList } = useSelector((store) => store.dashboard);
+  // useEffect(() => {
+  //   // extract the image based on Id
+  //   const imgObj = chatList[questionId].images?.find(
+  //     (img) => img.id == imageId
+  //   );
+  //   setImgObj(imgObj);
+  // }, [chatList]);
 
   useEffect(() => {
     const load = async () => {
-      if (imgObj?.src) {
+      if (imageSrc) {
         try {
-          const { width, height } = await getImageDimensions(imgObj?.src);
+          const { width, height } = await getImageDimensions(imageSrc);
           setAspectRatio(height / width);
         } catch (err) {
           console.error("Failed to load image", err);
@@ -45,7 +42,7 @@ const ImageViewer = ({ imageId }) => {
       }
     };
     load();
-  }, [imgObj]);
+  }, [imageSrc]);
 
   const getHeight = () => {
     return Math.floor(window.innerWidth * ImgWidthFromScreen * aspectRatio);
@@ -70,7 +67,7 @@ const ImageViewer = ({ imageId }) => {
             height: `${getHeight()}px`,
           }}
         >
-          <ZoomPanImage src={imgObj?.src} />
+          <ZoomPanImage src={imageSrc} />
         </div>
       </div>
     </div>

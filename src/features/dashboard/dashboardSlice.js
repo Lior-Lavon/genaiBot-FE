@@ -7,7 +7,7 @@ const initialState = {
   isRightDrawerOpen: false,
   isLeftDrawer: true,
   isPromptView: true,
-  showImage: { show: false, id: 0 },
+  showImage: { show: false, src: "" },
   chatList: [],
   isLoading: false,
 };
@@ -26,10 +26,11 @@ const dashboardSlice = createSlice({
       state.isPromptView = !state.isPromptView;
     },
     setImage: (state, { payload }) => {
+      // payload == { show: true, src: "" }
       state.showImage = payload;
     },
     removeImage: (state) => {
-      state.showImage = { show: false, id: 0 };
+      state.showImage = { show: false, src: "" };
     },
     addNewQuestion: (state, { payload }) => {
       const tmpList = [...state.chatList];

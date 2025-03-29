@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Plus, Minus, RotateCw } from "lucide-react"; // Optional: icons
 import {
+  setImage,
   setRightDrawer,
   updateResponse,
   updateResponseImages,
@@ -146,7 +147,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
       setTimeout(() => {
         dispatch(updateResponse({ id, response }));
-        getAllImages();
+        // getAllImages();
         console.log("update markdown here");
       }, 1000);
     }
@@ -193,11 +194,17 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     setZoom(0.95);
   };
 
+  const handleImageClick = (e) => {
+    const pImg = e.target;
+    const imgBase64Data = pImg.src;
+    dispatch(setImage({ show: true, src: imgBase64Data }));
+  };
+
   return (
     <div className="bg-gray-100" style={{ width: `${leftWidth}px` }}>
       {/* prompt */}
       <div className="w-full">
-        <div className="w-full m-4 p-4 text-left rounded-2xl text-xl border-l-3 flex items-center justify-between ">
+        <div className="w-full m-4 p-4 text-left rounded-2xl text-xl border-l-3 border-blue-500 flex items-center justify-between bg-[#eef2ff] ">
           {prompt}
 
           {isWaiting && (
@@ -281,10 +288,11 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                           {...props}
                           src={finalSrc}
                           onLoad={() => setLoading(false)}
-                          className={`rounded shadow max-w-full transition-opacity duration-300 ${
+                          className={`rounded shadow max-w-full transition-opacity duration-300 cursor-pointer ${
                             loading ? "opacity-0" : "opacity-100"
                           } ${isBase64 ? "border" : ""}`}
                           alt={props.alt || "Image"}
+                          onClick={handleImageClick}
                         />
                       </div>
                     );

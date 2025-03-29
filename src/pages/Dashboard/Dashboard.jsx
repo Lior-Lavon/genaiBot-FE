@@ -68,7 +68,7 @@ const Dashboard = () => {
         {/* Sidebar */}
         <div
           className={`
-      leftBar transition-transform duration-300 h-[calc(100vh-72px)]
+      leftBar transition-transform duration-300 h-[calc(100vh-72px)] shadow-[4px_0_10px_rgba(0,0,0,.1)]
       ${isLeftDrawer ? "translate-x-0" : "-translate-x-full"}
     `}
         >
@@ -87,7 +87,7 @@ const Dashboard = () => {
               className="w-10 cursor-pointer absolute left-0 top-0 z-50"
               onClick={() => dispatch(setLeftDrawer())}
             >
-              <GoTriangleRight className="w-10 h-10 shadow-2xl" />
+              <GoTriangleRight className="w-10 h-10 shadow-2xl transition-all duration-300 ease-in-out text-gray-700 hover:text-gray-900" />
             </div>
           )}
 

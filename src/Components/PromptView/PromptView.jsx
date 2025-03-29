@@ -11,6 +11,12 @@ const PromptView = () => {
   const [prompt, setPrompt] = useState("How is my brand performing ?");
   const { isPromptView } = useSelector((store) => store.dashboard);
 
+  useEffect(() => {
+    setTimeout(() => {
+      dispatch(setPromptView());
+    }, 800);
+  }, []);
+
   const handleOnChange = (e) => {
     setPrompt(e.target.value);
   };
@@ -21,9 +27,15 @@ const PromptView = () => {
     }, 300);
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handlePrompt();
+    }
+  };
+
   return (
     <div
-      className={`h-full rounded-tr-2xl rounded-br-2xl bg-white flex overflow-hidden transition-all duration-500 ease-in-out shadow-xl ${
+      className={`h-full rounded-tr-2xl rounded-br-2xl bg-white flex overflow-hidden transition-all duration-600 ease-in-out shadow-xl ${
         isPromptView ? "translate-x-0" : "-translate-x-[98%]"
       }`}
     >
@@ -33,6 +45,7 @@ const PromptView = () => {
             type="text"
             value={prompt}
             onChange={handleOnChange}
+            onKeyDown={handleKeyDown}
             placeholder="Type here your question..."
             className="w-full border border-gray-300 rounded-md  px-4 py-2 bg-white"
           />

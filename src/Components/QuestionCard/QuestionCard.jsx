@@ -37,7 +37,7 @@ const QuestionCard = ({ chatItem, initWidth }) => {
   };
 
   return (
-    <div ref={currentRef} className="w-full flex">
+    <div ref={currentRef} className="w-full flex bg-white">
       <QuestionCardLeft chatItem={chatItem} leftWidth={width} />
       <QuestionCardRight chatItem={chatItem} ref={rightCardRef} />
     </div>

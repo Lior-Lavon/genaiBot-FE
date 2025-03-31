@@ -201,9 +201,9 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   };
 
   return (
-    <div className="bg-gray-100" style={{ width: `${leftWidth}px` }}>
+    <div className="bg-white" style={{ width: `${leftWidth}px` }}>
       {/* prompt */}
-      <div className="w-full">
+      <div className="w-full bg-white">
         <div className="w-full m-4 p-4 text-left rounded-2xl text-xl border-l-3 border-blue-500 flex items-center justify-between bg-[#eef2ff] ">
           {prompt}
 

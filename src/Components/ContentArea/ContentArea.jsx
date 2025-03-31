@@ -17,7 +17,7 @@ const ContentArea = () => {
   }, []);
 
   return (
-    <div ref={currentRef} className="w-full h-full overflow-y-auto ">
+    <div ref={currentRef} className="w-full h-full overflow-y-auto bg-white">
       {chatList.map((chat) => {
         return <QuestionCard key={chat.id} chatItem={chat} initWidth={width} />;
       })}

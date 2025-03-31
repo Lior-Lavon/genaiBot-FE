@@ -10,6 +10,7 @@ const initialState = {
   showImage: { show: false, src: "" },
   chatList: [],
   isLoading: false,
+  filters: null,
 };
 
 const dashboardSlice = createSlice({
@@ -59,6 +60,10 @@ const dashboardSlice = createSlice({
       };
       state.chatList[pos] = pChat;
     },
+    initFilters: (state, { payload }) => {
+      console.log(payload);
+      state.filters = payload;
+    },
   },
 });
 
@@ -71,5 +76,6 @@ export const {
   updateResponse,
   updateResponseImages,
   setPromptView,
+  initFilters,
 } = dashboardSlice.actions;
 export default dashboardSlice.reducer;

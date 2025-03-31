@@ -1,0 +1,26 @@
+Customers_Id,Customers_Name,Products_Id,Products_Name,Categories_Id,Categories_Name,Customer_Folder,Product_Folder,Category_Folder
+3,White Label,3,Brand Equity Pulse,32,Skin Care US,white_label,brand_pulse,US_skincare
+6,Elida Beauty,3,Brand Equity Pulse,19,Deodorant UK,elida_beauty,brand_pulse,GB_mistspray
+6,Elida Beauty,3,Brand Equity Pulse,11,Hair Care UK,elida_beauty,brand_pulse,GB_haircare
+8,Unilever,3,Brand Equity Pulse,63,Hair Care BR,,,
+8,Unilever,3,Brand Equity Pulse,68,Hair Care ID,,,
+8,Unilever,3,Brand Equity Pulse,62,Hair Care IN,,,
+8,Unilever,3,Brand Equity Pulse,65,Hair Care MX,,,
+8,Unilever,3,Brand Equity Pulse,46,Hair Care UK,unilever,brand_pulse,GB_haircare
+8,Unilever,3,Brand Equity Pulse,31,Hair Care US,unilever,brand_pulse,US_haircare
+8,Unilever,3,Brand Equity Pulse,64,Skin Care BR,,,
+8,Unilever,3,Brand Equity Pulse,57,Skin Care IN,,,
+8,Unilever,3,Brand Equity Pulse,66,Skin Care MX,,,
+8,Unilever,3,Brand Equity Pulse,47,Skin Care UK,unilever,brand_pulse,GB_skincare
+8,Unilever,3,Brand Equity Pulse,42,Skin Care US,unilever,brand_pulse,US_skincare
+15,Liquid I.V.,3,Brand Equity Pulse,48,Hydration US,liquidiv,brand_pulse,US_hydration
+17,The Coca-Cola Company,3,Brand Equity Pulse,51,Beverages US,cocacola,brand_pulse,US_beverages
+17,The Coca-Cola Company,3,Brand Equity Pulse,52,Sparkling Soft Drinks US,cocacola,brand_pulse,US_softdrink
+20,Unilever ice-cream,3,Brand Equity Pulse,67,Ice Cream FR,,,
+20,Unilever ice-cream,3,Brand Equity Pulse,56,Ice Cream UK,unilever,brand_pulse,GB_icecream
+20,Unilever ice-cream,3,Brand Equity Pulse,55,Ice Cream US,unilever,brand_pulse,US_icecream
+21,Bayer AG,3,AAA,58,A111,bayer,brand_pulse,DE_vms
+21,Bayer AG,3,AAA,59,A222,bayer,brand_pulse,DE_vms
+21,Bayer AG,4,BBB,60,B111,bayer,brand_pulse,FR_vms
+21,Bayer AG,4,BBB,61,B222,bayer,brand_pulse,FR_vms
+21,Bayer AG,5,CCC,62,C111,bayer,brand_pulse,IT_vms

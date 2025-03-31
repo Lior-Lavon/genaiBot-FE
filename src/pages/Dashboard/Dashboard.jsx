@@ -2,6 +2,9 @@ import React, { useEffect, useRef } from "react";
 import { Menu } from "lucide-react";
 import { useState } from "react";
 
+import BOT_Mapping from "../../cache/BOT_Mapping.csv?raw";
+import parseCSVToStructure from "../../utills/filterCSVData.js";
+
 import TopBar from "../../Components/TopBar/TopBar";
 import {
   ContentArea,
@@ -13,6 +16,7 @@ import {
   setRightDrawer,
   setLeftDrawer,
   addNewQuestion,
+  initFilters,
 } from "../../features/dashboard/dashboardSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -38,16 +42,29 @@ const Dashboard = () => {
     try {
       const params = new URLSearchParams(window.location.search);
       const base64Str = params.get("startupParameter");
-      const inputJson = decodeBase64ToJson(base64Str);
-      if (inputJson != null || inputJson != "") {
-        if (inputJson.Question != "") {
-          dispatch(addNewQuestion({ prompt: inputJson.Question }));
+      if (base64Str != null) {
+        const inputJson = decodeBase64ToJson(base64Str);
+        if (inputJson != null || inputJson != "") {
+          if (inputJson.Question != "") {
+            console.log(inputJson);
+
+            dispatch(addNewQuestion({ prompt: inputJson.Question }));
+          }
         }
       }
     } catch (error) {
       console.error("Invalid url:", error);
       return null;
     }
+
+    // load the csv and process it
+    const filters = parseCSVToStructure(BOT_Mapping, {
+      Customers_Id: 21,
+      Products_Id: 3,
+      Categories_Id: 58,
+    });
+
+    dispatch(initFilters({ filters }));
   }, []);
 
   useEffect(() => {
@@ -121,7 +138,7 @@ const Dashboard = () => {
           )}
 
           {/* Main content */}
-          <main className="contentArea w-full flex-1 overflow-y-auto relative">
+          <main className="contentArea w-full flex-1 overflow-y-auto relative bg-white">
             <ContentArea />
             <div className="w-[80%] h-14 absolute bottom-0 mb-10">
               <PromptView />

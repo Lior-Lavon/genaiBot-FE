@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { Menu } from "lucide-react";
 import { useState } from "react";
 
-import BOT_Mapping from "../../cache/BOT_Mapping.csv?raw";
+// import BOT_Mapping from "../../cache/BOT_Mapping.csv?raw";
 import parseCSVToStructure from "../../utills/filterCSVData.js";
 
 import TopBar from "../../Components/TopBar/TopBar";
@@ -17,6 +17,7 @@ import {
   setLeftDrawer,
   addNewQuestion,
   initFilters,
+  fetchMapping,
 } from "../../features/dashboard/dashboardSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,7 +25,9 @@ import { GoTriangleLeft, GoTriangleRight } from "react-icons/go";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const { showImage, isLeftDrawer } = useSelector((store) => store.dashboard);
+  const { showImage, isLeftDrawer, botMapping, folders } = useSelector(
+    (store) => store.dashboard
+  );
 
   const [width, setWidth] = useState(0);
   const [showToggle, setShowToggle] = useState(false);
@@ -38,6 +41,9 @@ const Dashboard = () => {
   useEffect(() => {
     calculateContentWidth();
 
+    // Load the BotMapping
+    dispatch(fetchMapping());
+
     // read the input
     try {
       const params = new URLSearchParams(window.location.search);
@@ -46,9 +52,15 @@ const Dashboard = () => {
         const inputJson = decodeBase64ToJson(base64Str);
         if (inputJson != null || inputJson != "") {
           if (inputJson.Question != "") {
-            console.log(inputJson);
-
-            dispatch(addNewQuestion({ prompt: inputJson.Question }));
+            if (folders == null) {
+              ReactSwal.fire({
+                icon: "warning",
+                title: "Heads up!",
+                text: "Please select a client, product and category from the sidebar before asking questions.",
+              });
+            } else {
+              dispatch(addNewQuestion({ prompt: inputJson.Question }));
+            }
           }
         }
       }
@@ -56,16 +68,19 @@ const Dashboard = () => {
       console.error("Invalid url:", error);
       return null;
     }
-
-    // load the csv and process it
-    const filters = parseCSVToStructure(BOT_Mapping, {
-      Customers_Id: 21,
-      Products_Id: 3,
-      Categories_Id: 58,
-    });
-
-    dispatch(initFilters({ filters }));
   }, []);
+
+  useEffect(() => {
+    if (botMapping != null) {
+      const filters = parseCSVToStructure(botMapping, {
+        Customers_Id: 6,
+        Products_Id: 3,
+        Categories_Id: 19,
+      });
+
+      dispatch(initFilters({ filters }));
+    }
+  }, [botMapping]);
 
   useEffect(() => {
     calculateContentWidth();

@@ -1,7 +1,6 @@
-import { createSlice } from "@reduxjs/toolkit";
-
-import Img1 from "../../assets/img-1.png";
-import Img2 from "../../assets/img-2.png";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { cacheDataThunk, fetchMappingThunk } from "./dashboardThunk";
+// import { toast } from "react-toastify";
 
 const initialState = {
   isRightDrawerOpen: false,
@@ -11,7 +10,28 @@ const initialState = {
   chatList: [],
   isLoading: false,
   filters: null,
+  folders: null,
+  // {
+  //   Category_Folder: "GB_haircare",
+  //   Customer_Folder: "elida_beauty",
+  //   Product_Folder: "brand_pulse"
+  // }
+  botMapping: null,
 };
+
+export const fetchMapping = createAsyncThunk(
+  "dashboard/fetchMapping",
+  async (thunkAPI) => {
+    return fetchMappingThunk("/download-mapping", thunkAPI);
+  }
+);
+
+export const cacheData = createAsyncThunk(
+  "dashboard/cacheData",
+  async (thunkAPI) => {
+    return cacheDataThunk("/cache-data", thunkAPI);
+  }
+);
 
 const dashboardSlice = createSlice({
   name: "dashboard",
@@ -34,15 +54,17 @@ const dashboardSlice = createSlice({
       state.showImage = { show: false, src: "" };
     },
     addNewQuestion: (state, { payload }) => {
-      const tmpList = [...state.chatList];
-      const newPayload = {
-        ...payload,
-        id: tmpList.length + 1,
-        response: "",
-        images: [],
-      };
-      tmpList.push(newPayload);
-      state.chatList = tmpList;
+      if (state.folders != null) {
+        const tmpList = [...state.chatList];
+        const newPayload = {
+          ...payload,
+          id: tmpList.length + 1,
+          response: "",
+          images: [],
+        };
+        tmpList.push(newPayload);
+        state.chatList = tmpList;
+      }
     },
     updateResponse: (state, { payload }) => {
       const pos = payload.id - 1;
@@ -61,9 +83,33 @@ const dashboardSlice = createSlice({
       state.chatList[pos] = pChat;
     },
     initFilters: (state, { payload }) => {
-      console.log(payload);
       state.filters = payload;
     },
+    setFolders: (state, { payload }) => {
+      state.folders = payload;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchMapping.pending, (state) => {
+        // console.log("fetchMapping - pending");
+      })
+      .addCase(fetchMapping.fulfilled, (state, { payload }) => {
+        // console.log("fetchMapping - fulfilled");
+        state.botMapping = payload;
+      })
+      .addCase(fetchMapping.rejected, (state) => {
+        console.log("fetchMapping - rejected");
+      })
+      .addCase(cacheData.pending, (state) => {
+        console.log("cacheData - pending");
+      })
+      .addCase(cacheData.fulfilled, (state, { payload }) => {
+        console.log("cacheData - fulfilled : ", payload);
+      })
+      .addCase(cacheData.rejected, (state) => {
+        console.log("cacheData - rejected");
+      });
   },
 });
 
@@ -77,5 +123,6 @@ export const {
   updateResponseImages,
   setPromptView,
   initFilters,
+  setFolders,
 } = dashboardSlice.actions;
 export default dashboardSlice.reducer;

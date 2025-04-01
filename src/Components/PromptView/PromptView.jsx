@@ -5,11 +5,12 @@ import {
   setPromptView,
 } from "../../features/dashboard/dashboardSlice";
 import myBg from "../../assets/pattern.png";
+import ReactSwal from "../../utills/alert";
 
 const PromptView = () => {
   const dispatch = useDispatch();
   const [prompt, setPrompt] = useState("How is my brand performing ?");
-  const { isPromptView } = useSelector((store) => store.dashboard);
+  const { isPromptView, folders } = useSelector((store) => store.dashboard);
 
   useEffect(() => {
     setTimeout(() => {
@@ -21,10 +22,18 @@ const PromptView = () => {
     setPrompt(e.target.value);
   };
   const handlePrompt = () => {
-    dispatch(addNewQuestion({ prompt }));
-    setTimeout(() => {
-      dispatch(setPromptView());
-    }, 300);
+    if (folders == null) {
+      ReactSwal.fire({
+        icon: "warning",
+        title: "Heads up!",
+        text: "Please select a client, product and category from the sidebar before asking questions.",
+      });
+    } else {
+      dispatch(addNewQuestion({ prompt }));
+      setTimeout(() => {
+        dispatch(setPromptView());
+      }, 300);
+    }
   };
 
   const handleKeyDown = (e) => {

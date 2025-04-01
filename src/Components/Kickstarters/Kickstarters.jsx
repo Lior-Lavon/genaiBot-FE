@@ -1,9 +1,11 @@
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addNewQuestion } from "../../features/dashboard/dashboardSlice";
+import ReactSwal from "../../utills/alert";
 
 const Kickstarters = () => {
   const dispatch = useDispatch();
+  const { folders } = useSelector((store) => store.dashboard);
   const cards = [
     // "Positional attribute summary for my brands",
     "How is my brand performing ?",
@@ -12,8 +14,16 @@ const Kickstarters = () => {
   ];
 
   const handleKickStart = (e) => {
-    const prompt = e.target.textContent;
-    dispatch(addNewQuestion({ prompt }));
+    if (folders == null) {
+      ReactSwal.fire({
+        icon: "warning",
+        title: "Heads up!",
+        text: "Please select a client, product and category from the sidebar before asking questions.",
+      });
+    } else {
+      const prompt = e.target.textContent;
+      dispatch(addNewQuestion({ prompt }));
+    }
   };
 
   return (

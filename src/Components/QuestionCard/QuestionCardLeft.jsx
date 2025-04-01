@@ -17,6 +17,8 @@ import Spinner from "../Spinner/Spinner";
 
 const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   const dispatch = useDispatch();
+  const { folders } = useSelector((store) => store.dashboard);
+
   const { id, prompt } = chatItem;
 
   const [isConnected, setIsConnected] = useState(false);
@@ -121,7 +123,11 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     setResponse("");
     setStreamComplete(false);
     setIsWaiting(true);
-    wsRef.current.send(prompt);
+    // wsRef.current.send(prompt);
+
+    const promptWithFolders = { ...folders, Prompt: prompt };
+    console.log("promptWithFolders : ", promptWithFolders);
+    wsRef.current.send(JSON.stringify(promptWithFolders));
   };
 
   useEffect(() => {

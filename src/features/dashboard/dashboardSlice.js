@@ -85,30 +85,34 @@ const dashboardSlice = createSlice({
     initFilters: (state, { payload }) => {
       state.filters = payload;
     },
-    setFolders: (state, { payload }) => {
-      state.folders = payload;
-    },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchMapping.pending, (state) => {
         // console.log("fetchMapping - pending");
+        state.isLoading = true;
       })
       .addCase(fetchMapping.fulfilled, (state, { payload }) => {
         // console.log("fetchMapping - fulfilled");
+        state.isLoading = false;
         state.botMapping = payload;
       })
       .addCase(fetchMapping.rejected, (state) => {
         console.log("fetchMapping - rejected");
+        state.isLoading = false;
       })
       .addCase(cacheData.pending, (state) => {
         console.log("cacheData - pending");
+        state.isLoading = true;
       })
       .addCase(cacheData.fulfilled, (state, { payload }) => {
-        console.log("cacheData - fulfilled : ", payload);
+        // console.log("cacheData - fulfilled : ");
+        state.folders = payload.folders;
+        state.isLoading = false;
       })
       .addCase(cacheData.rejected, (state) => {
         console.log("cacheData - rejected");
+        state.isLoading = false;
       });
   },
 });
@@ -123,6 +127,5 @@ export const {
   updateResponseImages,
   setPromptView,
   initFilters,
-  setFolders,
 } = dashboardSlice.actions;
 export default dashboardSlice.reducer;

@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  cacheData,
-  fetchMapping,
-  setFolders,
-} from "../../features/dashboard/dashboardSlice";
+import { cacheData } from "../../features/dashboard/dashboardSlice";
 
 const LauncherCard = () => {
   const dispatch = useDispatch();
@@ -101,8 +97,6 @@ const LauncherCard = () => {
     // console.log("Product Id: ", defaultProduct);
     // console.log("Category Id: ", defaultCategory);
     const foldersInfo = getAdditionalInfo(defaultProduct, defaultCategory);
-    // store the foldersInfo to the store
-    dispatch(setFolders(foldersInfo));
     // send an API call to cache the csv based on the folder info
     dispatch(cacheData(foldersInfo));
   };

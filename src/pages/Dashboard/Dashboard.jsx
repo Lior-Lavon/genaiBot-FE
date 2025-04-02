@@ -44,10 +44,6 @@ const Dashboard = () => {
 
     // Load the BotMapping
     dispatch(fetchMapping());
-    setTimeout(() => {
-      console.log("calling testFunc");
-      dispatch(testFunc(folders));
-    }, 1000);
 
     // read the input
     try {
@@ -74,6 +70,13 @@ const Dashboard = () => {
       return null;
     }
   }, []);
+
+  useEffect(() => {
+    if (folders != null) {
+      console.log("calling testFunc with :", folders);
+      dispatch(testFunc(folders));
+    }
+  }, [folders]);
 
   useEffect(() => {
     if (botMapping != null) {

@@ -33,7 +33,7 @@ export const cacheData = createAsyncThunk(
 
     console.log("url : ", url);
 
-    return cacheDataThunk(url, thunkAPI);
+    return fetchMappingThunk(url, thunkAPI);
   }
 );
 

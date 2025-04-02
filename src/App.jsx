@@ -1,4 +1,4 @@
-import { Dashboard, HelloWorld } from "./pages";
+import { HelloWorld } from "./pages";
 // import { ToastContainer } from "react-toastify";
 // import "react-toastify/dist/ReactToastify.css";
 

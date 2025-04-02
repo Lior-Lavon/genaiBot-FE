@@ -44,8 +44,10 @@ const Dashboard = () => {
 
     // Load the BotMapping
     dispatch(fetchMapping());
-    console.log("calling testFunc");
-    dispatch(testFunc(folders));
+    setTimeout(() => {
+      console.log("calling testFunc");
+      dispatch(testFunc(folders));
+    }, 1000);
 
     // read the input
     try {

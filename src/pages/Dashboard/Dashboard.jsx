@@ -47,7 +47,12 @@ const Dashboard = () => {
 
     setTimeout(() => {
       console.log("calling testFunc with :", folders);
-      dispatch(testFunc({ Customer_Folder: "elida_beauty" }));
+      dispatch(
+        testFunc({
+          Customer_Folder: "elida_beauty",
+          Product_Folder: "brand_pulse",
+        })
+      );
     }, 1000);
 
     // read the input

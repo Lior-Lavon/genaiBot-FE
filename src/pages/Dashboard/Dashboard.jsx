@@ -43,7 +43,7 @@ const Dashboard = () => {
     calculateContentWidth();
 
     // Load the BotMapping
-    dispatch(fetchMapping());
+    // dispatch(fetchMapping());
     console.log("calling testFunc");
     dispatch(testFunc());
 

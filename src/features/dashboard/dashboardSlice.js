@@ -40,7 +40,9 @@ export const cacheData = createAsyncThunk(
 export const testFunc = createAsyncThunk(
   "dashboard/testFunc",
   async (thunkAPI) => {
-    return fetchMappingThunk("/testfunc?name=lior", thunkAPI);
+    const url = `/testfunc?Customer_Folder=${"cf-1"}`;
+
+    return fetchMappingThunk(url, thunkAPI);
   }
 );
 

@@ -18,6 +18,7 @@ import {
   addNewQuestion,
   initFilters,
   fetchMapping,
+  testFunc,
 } from "../../features/dashboard/dashboardSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -43,6 +44,8 @@ const Dashboard = () => {
 
     // Load the BotMapping
     dispatch(fetchMapping());
+    console.log("calling testFunc");
+    dispatch(testFunc());
 
     // read the input
     try {

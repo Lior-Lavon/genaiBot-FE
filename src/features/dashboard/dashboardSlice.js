@@ -37,6 +37,13 @@ export const cacheData = createAsyncThunk(
   }
 );
 
+export const testFunc = createAsyncThunk(
+  "dashboard/testFunc",
+  async (thunkAPI) => {
+    return testThunk("/testfunc", thunkAPI);
+  }
+);
+
 const dashboardSlice = createSlice({
   name: "dashboard",
   initialState,
@@ -106,17 +113,26 @@ const dashboardSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(cacheData.pending, (state) => {
-        // console.log("cacheData - pending");
+        console.log("cacheData - pending");
         state.isLoading = true;
       })
       .addCase(cacheData.fulfilled, (state, { payload }) => {
-        // console.log("cacheData - fulfilled : ");
+        console.log("cacheData - fulfilled : ");
         state.folders = payload.folders;
         state.isLoading = false;
       })
       .addCase(cacheData.rejected, (state) => {
-        // console.log("cacheData - rejected");
+        console.log("cacheData - rejected");
         state.isLoading = false;
+      })
+      .addCase(testFunc.pending, (state) => {
+        console.log("testFunc - pending");
+      })
+      .addCase(testFunc.fulfilled, (state, { payload }) => {
+        console.log("testFunc - fulfilled : ");
+      })
+      .addCase(testFunc.rejected, (state) => {
+        console.log("testFunc - rejected");
       });
   },
 });

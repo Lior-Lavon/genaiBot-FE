@@ -26,25 +26,21 @@ export const fetchMapping = createAsyncThunk(
   }
 );
 
-export const cacheData = createAsyncThunk(
-  "dashboard/cacheData",
-  async (folder, thunkAPI) => {
-    const url = `/cache-data?Customer_Folder=${folder.Customer_Folder}&Product_Folder=${folder.Product_Folder}&Category_Folder=${folder.Category_Folder}`;
+// export const cacheData = createAsyncThunk(
+//   "dashboard/cacheData",
+//   async (folder, thunkAPI) => {
+//     const url = `/cache-data?Customer_Folder=${folder.Customer_Folder}&Product_Folder=${folder.Product_Folder}&Category_Folder=${folder.Category_Folder}`;
 
-    console.log("url : ", url);
+//     console.log("url : ", url);
 
-    return fetchMappingThunk(url, thunkAPI);
-  }
-);
+//     return fetchMappingThunk(url, thunkAPI);
+//   }
+// );
 
 export const testFunc = createAsyncThunk(
   "dashboard/testFunc",
   async (folders, thunkAPI) => {
-    console.log("folders : ", folders);
-
-    // const url = `/testfunc?folders=${folders.Customer_Folder},${folders.Product_Folder},${folders.Category_Folder}`;
     const url = `/testfunc?folders=${folders.Customer_Folder},${folders.Product_Folder},${folders.Category_Folder}`;
-
     return fetchMappingThunk(url, thunkAPI);
   }
 );
@@ -117,27 +113,18 @@ const dashboardSlice = createSlice({
         // console.log("fetchMapping - rejected");
         state.isLoading = false;
       })
-      .addCase(cacheData.pending, (state) => {
-        console.log("cacheData - pending");
-        state.isLoading = true;
-      })
-      .addCase(cacheData.fulfilled, (state, { payload }) => {
-        console.log("cacheData - fulfilled : ");
-        state.folders = payload.folders;
-        state.isLoading = false;
-      })
-      .addCase(cacheData.rejected, (state) => {
-        console.log("cacheData - rejected");
-        state.isLoading = false;
-      })
       .addCase(testFunc.pending, (state) => {
         console.log("testFunc - pending");
+        state.isLoading = true;
       })
       .addCase(testFunc.fulfilled, (state, { payload }) => {
         console.log("testFunc - fulfilled : ");
+        state.folders = payload.folders;
+        state.isLoading = false;
       })
       .addCase(testFunc.rejected, (state) => {
         console.log("testFunc - rejected");
+        state.isLoading = false;
       });
   },
 });

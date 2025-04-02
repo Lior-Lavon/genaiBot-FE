@@ -3,3 +3,5 @@
   to = "http://3.122.218.179:8000/api/:splat"
   status = 200
   force = true
+  headers = { X-From = "Netlify" }
+  methods = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]

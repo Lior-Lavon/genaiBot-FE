@@ -40,7 +40,7 @@ export const cacheData = createAsyncThunk(
 export const testFunc = createAsyncThunk(
   "dashboard/testFunc",
   async (thunkAPI) => {
-    return testThunk("/testfunc", thunkAPI);
+    return fetchMappingThunk("/download-mapping", thunkAPI);
   }
 );
 

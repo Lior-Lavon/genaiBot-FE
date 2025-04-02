@@ -44,7 +44,7 @@ export const testFunc = createAsyncThunk(
 
     // const url = `/testfunc?folders=${folders.Customer_Folder},${folders.Product_Folder},${folders.Category_Folder}`;
     // const url = `/testfunc?folders=${folders.Customer_Folder},${folders.Product_Folder},${folders.Category_Folder}`;
-    const url = `/cache-data?folders=${folders.Customer_Folder},${folders.Product_Folder},${folders.Category_Folder}`;
+    const url = `/cachedata?folders=${folders.Customer_Folder},${folders.Product_Folder},${folders.Category_Folder}`;
 
     return fetchMappingThunk(url, thunkAPI);
   }

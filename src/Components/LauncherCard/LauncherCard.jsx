@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { cacheData, testFunc } from "../../features/dashboard/dashboardSlice";
+import { testFunc } from "../../features/dashboard/dashboardSlice";
 
 const LauncherCard = () => {
   const dispatch = useDispatch();

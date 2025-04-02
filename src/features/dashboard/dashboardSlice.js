@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { cacheDataThunk, fetchMappingThunk } from "./dashboardThunk";
+import { fetchMappingThunk } from "./dashboardThunk";
 // import { toast } from "react-toastify";
 
 const initialState = {
@@ -25,17 +25,6 @@ export const fetchMapping = createAsyncThunk(
     return fetchMappingThunk("/download-mapping", thunkAPI);
   }
 );
-
-// export const cacheData = createAsyncThunk(
-//   "dashboard/cacheData",
-//   async (folder, thunkAPI) => {
-//     const url = `/cache-data?Customer_Folder=${folder.Customer_Folder}&Product_Folder=${folder.Product_Folder}&Category_Folder=${folder.Category_Folder}`;
-
-//     console.log("url : ", url);
-
-//     return fetchMappingThunk(url, thunkAPI);
-//   }
-// );
 
 export const testFunc = createAsyncThunk(
   "dashboard/testFunc",
@@ -118,7 +107,7 @@ const dashboardSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(testFunc.fulfilled, (state, { payload }) => {
-        console.log("testFunc - fulfilled : ");
+        console.log("testFunc - fulfilled : ", payload);
         state.folders = payload.folders;
         state.isLoading = false;
       })

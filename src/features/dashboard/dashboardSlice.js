@@ -40,9 +40,10 @@ export const cacheData = createAsyncThunk(
 export const testFunc = createAsyncThunk(
   "dashboard/testFunc",
   async (folders, thunkAPI) => {
-    console.log("folders : ", folder);
+    console.log("folders : ", folders);
 
-    const url = `/testfunc?folders=${folders.Customer_Folder},${folders.Product_Folder},${folders.Category_Folder}`;
+    // const url = `/testfunc?folders=${folders.Customer_Folder},${folders.Product_Folder},${folders.Category_Folder}`;
+    const url = `/testfunc?folders=lior`;
 
     return fetchMappingThunk(url, thunkAPI);
   }

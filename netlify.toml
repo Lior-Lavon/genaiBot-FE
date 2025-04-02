@@ -5,3 +5,8 @@
   force = true
   headers = { X-From = "Netlify" }
   methods = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

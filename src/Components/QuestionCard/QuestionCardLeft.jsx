@@ -111,7 +111,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
   useEffect(() => {
     if (isConnected) {
-      handleSendPrompt();
+      //LIOR handleSendPrompt();
     }
   }, [isConnected]);
 

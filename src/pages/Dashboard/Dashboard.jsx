@@ -45,17 +45,6 @@ const Dashboard = () => {
     // Load the BotMapping
     dispatch(fetchMapping());
 
-    setTimeout(() => {
-      console.log("calling testFunc with :", folders);
-      dispatch(
-        testFunc({
-          Customer_Folder: "elida_beauty",
-          Product_Folder: "brand_pulse",
-          Category_Folder: "GB_mistspray",
-        })
-      );
-    }, 1000);
-
     // read the input
     try {
       const params = new URLSearchParams(window.location.search);

@@ -98,11 +98,11 @@ const dashboardSlice = createSlice({
         state.botMapping = payload;
       })
       .addCase(fetchMapping.rejected, (state) => {
-        console.log("fetchMapping - rejected");
+        // console.log("fetchMapping - rejected");
         state.isLoading = false;
       })
       .addCase(cacheData.pending, (state) => {
-        console.log("cacheData - pending");
+        // console.log("cacheData - pending");
         state.isLoading = true;
       })
       .addCase(cacheData.fulfilled, (state, { payload }) => {
@@ -111,7 +111,7 @@ const dashboardSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(cacheData.rejected, (state) => {
-        console.log("cacheData - rejected");
+        // console.log("cacheData - rejected");
         state.isLoading = false;
       });
   },

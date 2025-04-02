@@ -45,6 +45,11 @@ const Dashboard = () => {
     // Load the BotMapping
     dispatch(fetchMapping());
 
+    setTimeout(() => {
+      console.log("calling testFunc with :", folders);
+      dispatch(testFunc({ Customer_Folder: "elida_beauty" }));
+    }, 1000);
+
     // read the input
     try {
       const params = new URLSearchParams(window.location.search);
@@ -70,13 +75,6 @@ const Dashboard = () => {
       return null;
     }
   }, []);
-
-  useEffect(() => {
-    if (folders != null) {
-      console.log("calling testFunc with :", folders);
-      dispatch(testFunc(folders));
-    }
-  }, [folders]);
 
   useEffect(() => {
     if (botMapping != null) {

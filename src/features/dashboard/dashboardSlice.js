@@ -42,7 +42,7 @@ export const testFunc = createAsyncThunk(
   async (folder, thunkAPI) => {
     console.log("folder : ", folder);
 
-    const url = `/testfunc?Customer_Folder=${folder.Customer_Folder}&Product_Folder=${folder.Product_Folder}`;
+    const url = `/testfunc?Customer_Folder=${folder.Customer_Folder}&Product_Folder=${folder.Product_Folder}&Category_Folder=${Category_Folder}`;
 
     return fetchMappingThunk(url, thunkAPI);
   }

@@ -51,6 +51,7 @@ const Dashboard = () => {
         testFunc({
           Customer_Folder: "elida_beauty",
           Product_Folder: "brand_pulse",
+          Category_Folder: "GB_mistspray",
         })
       );
     }, 1000);

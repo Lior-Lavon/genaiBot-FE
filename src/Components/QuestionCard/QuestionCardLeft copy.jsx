@@ -139,49 +139,20 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   };
 
   useEffect(() => {
-    const container = answerRef.current;
-    if (!container) return;
+    if (answerRef.current) {
+      const container = answerRef.current;
+      const content = container.querySelector("div"); // the actual markdown content
+      if (content && container.offsetWidth < content.scrollWidth) {
+        const scaleRatio = container.offsetWidth / content.scrollWidth;
 
-    const contentEl = container.querySelector(".zoom-wrapper");
-    if (!contentEl) return;
-
-    let intervalId;
-
-    const resize = () => {
-      const scaledHeight = contentEl.getBoundingClientRect().height;
-      container.style.height = `${scaledHeight + 40}px`; // extra space buffer
-    };
-
-    // ⏱️ 1. Resize periodically during streaming
-    if (!streamComplete) {
-      intervalId = setInterval(resize, 100);
+        setZoom(Math.max(scaleRatio * 0.95, MIN_ZOOM));
+      }
     }
 
-    // 📸 2. Resize on image load (even after streaming ends)
-    const observer = new MutationObserver(() => {
-      const imgs = contentEl.querySelectorAll("img");
-
-      imgs.forEach((img) => {
-        if (!img.dataset.resized) {
-          img.addEventListener("load", resize);
-          img.dataset.resized = "true"; // prevent double-listening
-        }
-      });
-    });
-
-    observer.observe(contentEl, {
-      childList: true,
-      subtree: true,
-    });
-
-    // Initial resize
-    resize();
-
-    return () => {
-      clearInterval(intervalId);
-      observer.disconnect();
-    };
-  }, [response, zoom, streamComplete]);
+    // if (!streamComplete && outputRef.current) {
+    //   outputRef.current.scrollTop = outputRef.current.scrollHeight;
+    // }
+  }, [response, streamComplete]);
 
   useEffect(() => {
     if (streamComplete) {
@@ -258,9 +229,11 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
         </div>
       </div>
 
-      <div className={`answer w-full ${response == "" ? "hidden" : ""}`}>
-        {/* seperation line */}
+      <div
+        className={`answer w-full bg-red-200 ${response == "" ? "hidden" : ""}`}
+      >
         <div className={`m-4 h-[.2rem] bg-gray-200 rounded-full`}></div>
+
         {/* answer */}
         <div className="relative">
           {/* Zoom Controls Wrapper */}
@@ -293,7 +266,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
           >
             {/* Scaled content wrapper */}
             <div
-              className="zoom-wrapper "
               style={{
                 transform: `scale(${zoom})`,
                 transformOrigin: "top left",

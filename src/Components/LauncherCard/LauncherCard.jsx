@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { testFunc } from "../../features/dashboard/dashboardSlice";
+import getFiltersAdditionalInfo from "../../utills/getFiltersAdditionalInfo";
 
 const LauncherCard = () => {
   const dispatch = useDispatch();
@@ -64,39 +65,19 @@ const LauncherCard = () => {
     setDefaultCategory(parseInt(e.target.value));
   };
 
-  const getAdditionalInfo = (defaultProduct, defaultCategory) => {
-    // get Customer_Folder,Product_Folder,Category_Folder
-    for (let i = 0; i < filters.filters.Products.length; i++) {
-      if (filters.filters.Products[i].Products_Id == defaultProduct) {
-        for (
-          let j = 0;
-          j < filters.filters.Products[i].Categories.length;
-          j++
-        ) {
-          if (
-            filters.filters.Products[i].Categories[j].Categories_Id ==
-            defaultCategory
-          ) {
-            return {
-              Customer_Folder:
-                filters.filters.Products[i].Categories[j].Customer_Folder,
-              Product_Folder:
-                filters.filters.Products[i].Categories[j].Product_Folder,
-              Category_Folder:
-                filters.filters.Products[i].Categories[j].Category_Folder,
-            };
-          }
-        }
-      }
-    }
-    return null;
-  };
-
   const handleLunchBtn = () => {
     // console.log("Customers Id : ", defaultCustomer);
+
+    // console.log("filters: ", filters);
     // console.log("Product Id: ", defaultProduct);
     // console.log("Category Id: ", defaultCategory);
-    const foldersInfo = getAdditionalInfo(defaultProduct, defaultCategory);
+    const foldersInfo = getFiltersAdditionalInfo(
+      filters,
+      defaultProduct,
+      defaultCategory
+    );
+    // console.log("foldersInfo : ", foldersInfo);
+
     // send an API call to cache the csv based on the folder info
     dispatch(testFunc(foldersInfo));
   };

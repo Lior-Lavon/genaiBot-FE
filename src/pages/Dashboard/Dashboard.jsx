@@ -19,13 +19,16 @@ import {
   initFilters,
   fetchMapping,
   testFunc,
+  initFolders,
 } from "../../features/dashboard/dashboardSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { GoTriangleLeft, GoTriangleRight } from "react-icons/go";
+import getFiltersAdditionalInfo from "../../utills/getFiltersAdditionalInfo.js";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
+  const [inputParam, setInputParam] = useState(null);
   const { showImage, isLeftDrawer, botMapping, folders } = useSelector(
     (store) => store.dashboard
   );
@@ -52,17 +55,7 @@ const Dashboard = () => {
       if (base64Str != null) {
         const inputJson = decodeBase64ToJson(base64Str);
         if (inputJson != null || inputJson != "") {
-          if (inputJson.Question != "") {
-            if (folders == null) {
-              ReactSwal.fire({
-                icon: "warning",
-                title: "Heads up!",
-                text: "Please select a client, product and category from the sidebar before asking questions.",
-              });
-            } else {
-              dispatch(addNewQuestion({ prompt: inputJson.Question }));
-            }
-          }
+          setInputParam(inputJson);
         }
       }
     } catch (error) {
@@ -72,14 +65,35 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (botMapping != null) {
-      const filters = parseCSVToStructure(botMapping, {
-        Customers_Id: 6,
-        Products_Id: 3,
-        Categories_Id: 19,
+    if (botMapping != null && inputParam != null) {
+      const filters = parseCSVToStructure(botMapping.data, {
+        Customers_Id: inputParam.ClientID,
+        Products_Id: inputParam.ProductID,
+        Categories_Id: inputParam.CategoryID,
       });
 
       dispatch(initFilters({ filters }));
+
+      // get the input folders
+      const foldersInfo = getFiltersAdditionalInfo(
+        { filters: filters },
+        inputParam.ProductID,
+        inputParam.CategoryID
+      );
+
+      // set folders based on input param
+      dispatch(
+        initFolders({
+          Customer_Folder: foldersInfo.Customer_Folder,
+          Product_Folder: foldersInfo.Product_Folder,
+          Category_Folder: foldersInfo.Category_Folder,
+        })
+      );
+
+      // post the question
+      setTimeout(() => {
+        dispatch(addNewQuestion({ prompt: inputParam.Question }));
+      }, 600);
     }
   }, [botMapping]);
 

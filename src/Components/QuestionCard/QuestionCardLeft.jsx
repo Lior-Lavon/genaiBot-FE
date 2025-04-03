@@ -126,7 +126,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     // wsRef.current.send(prompt);
 
     const promptWithFolders = { ...folders, Prompt: prompt };
-    console.log("promptWithFolders : ", promptWithFolders);
+    // console.log("promptWithFolders : ", promptWithFolders);
     wsRef.current.send(JSON.stringify(promptWithFolders));
   };
 

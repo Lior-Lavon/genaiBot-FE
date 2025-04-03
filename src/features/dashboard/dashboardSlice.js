@@ -83,6 +83,9 @@ const dashboardSlice = createSlice({
       };
       state.chatList[pos] = pChat;
     },
+    initFolders: (state, { payload }) => {
+      state.folders = payload;
+    },
     initFilters: (state, { payload }) => {
       state.filters = payload;
     },
@@ -96,7 +99,7 @@ const dashboardSlice = createSlice({
       .addCase(fetchMapping.fulfilled, (state, { payload }) => {
         // console.log("fetchMapping - fulfilled");
         state.isLoading = false;
-        state.botMapping = payload;
+        state.botMapping = { populate: false, data: payload };
       })
       .addCase(fetchMapping.rejected, (state) => {
         // console.log("fetchMapping - rejected");
@@ -128,5 +131,6 @@ export const {
   updateResponseImages,
   setPromptView,
   initFilters,
+  initFolders,
 } = dashboardSlice.actions;
 export default dashboardSlice.reducer;

@@ -180,7 +180,7 @@ const Dashboard = () => {
       <AnimatePresence>
         {showImage.show && (
           <motion.div
-            className="fixed inset-0 flex items-center justify-center z-50"
+            className="fixed inset-0 flex items-center justify-center z-2000"
             style={{ backgroundColor: "rgba(0, 0, 0, 0.2)" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

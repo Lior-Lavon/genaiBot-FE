@@ -97,7 +97,7 @@ const LauncherCard = () => {
           Genie Product:
         </label>
         <select
-          className=" text-black bg-white p-2 text-[.7rem] border border-gray-300 focus:outline-none"
+          className="w-[140px] text-black bg-white p-2 text-[.7rem] border border-gray-300 focus:outline-none"
           value={getDefaultProduct()}
           onChange={handleProductChange}
         >
@@ -115,7 +115,7 @@ const LauncherCard = () => {
           Product Category:
         </label>
         <select
-          className=" text-black bg-white p-2 text-[.7rem] border border-gray-300 focus:outline-none"
+          className="w-[140px] text-black bg-white p-2 text-[.7rem] border border-gray-300 focus:outline-none"
           value={getDefaultCategory()}
           onChange={handleCategoriesChange}
         >

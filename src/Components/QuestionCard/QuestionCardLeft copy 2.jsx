@@ -20,6 +20,7 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { div } from "framer-motion/client";
 import Spinner from "../Spinner/Spinner";
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 
 const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   const dispatch = useDispatch();
@@ -30,6 +31,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [response, setResponse] = useState("");
   const [streamComplete, setStreamComplete] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const [isWaiting, setIsWaiting] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -247,18 +249,36 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     <div className="bg-white" style={{ width: `${leftWidth}px` }}>
       {/* prompt */}
       <div className="w-full bg-white">
-        <div className="w-full m-4 p-4 text-left rounded-2xl text-xl border-l-3 border-[#5fbbc5] flex items-center justify-between bg-[#FFFABF] ">
+        <div className="w-full m-4 p-4 text-left rounded-2xl text-xl border-l-3 border-blue-500 flex items-center justify-between bg-[#eef2ff] ">
           {prompt}
 
-          {isWaiting && (
-            <div className={`mr-5`}>
-              <Spinner />
-            </div>
-          )}
+          <div className={`flex gap-2 items-center mr-5`}>
+            {isWaiting && <Spinner />}
+            {streamComplete && (
+              <button
+                onClick={() => setIsCollapsed((prev) => !prev)}
+                className="transition-transform duration-200"
+                title={isCollapsed ? "Show Answer" : "Hide Answer"}
+              >
+                {isCollapsed ? (
+                  <IoIosArrowDown className="w-8 h-8" />
+                ) : (
+                  <IoIosArrowUp className="w-8 h-8" />
+                )}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className={`answer w-full ${response == "" ? "hidden" : ""}`}>
+      {/* <div className={`answer w-full ${response == "" ? "hidden" : ""}`}> */}
+      <div
+        className={`answer w-full overflow-hidden transition-all duration-500 ease-in-out ${
+          response === "" || isCollapsed
+            ? "max-h-0 opacity-0"
+            : "max-h-[5000px] opacity-100"
+        }`}
+      >
         {/* seperation line */}
         <div className={`m-4 h-[.2rem] bg-gray-200 rounded-full`}></div>
         {/* answer */}
@@ -358,13 +378,13 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                   ),
                   th: ({ node, ...props }) => (
                     <th
-                      className="px-2 py-2 border-b bg-[#d0ecea] border-blue-300 font-bold text-gray-800 text-sm"
+                      className="px-2 py-2 border-b border-blue-300 font-bold text-blue-700 text-sm"
                       {...props}
                     />
                   ),
                   td: ({ node, ...props }) => (
                     <td
-                      className="px-2 py-2 border-b border-blue-200 text-sm text-gray-700"
+                      className="px-2 py-2 border-b border-blue-200 text-sm text-blue-800"
                       {...props}
                     />
                   ),
@@ -380,7 +400,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                       ? ""
                       : rowIndex % 2 === 0
                       ? "bg-[#00000]"
-                      : "bg-gray-100";
+                      : "bg-[#d0ecea]";
 
                     return <tr className={bgColor} {...props} />;
                   },
@@ -389,16 +409,16 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                     <h1 className="text-2xl" {...props} />
                   ),
                   h2: ({ node, ...props }) => (
-                    <h2 className="text-2xl my-10" {...props} />
+                    <h2 className="text-2xl mt-4" {...props} />
                   ),
                   h3: ({ node, ...props }) => (
-                    <h3 className="text-xl my-8" {...props} />
+                    <h3 className="text-xl mt-4" {...props} />
                   ),
                   h4: ({ node, ...props }) => (
-                    <h4 className="text-xl my-6" {...props} />
+                    <h4 className="text-xl mt-2" {...props} />
                   ),
                   p: ({ node, ...props }) => (
-                    <p className="text-sm my-1" {...props} />
+                    <p className="text-sm mt-1" {...props} />
                   ),
                   ul: ({ node, ...props }) => (
                     <ul className="mt-1" {...props} />

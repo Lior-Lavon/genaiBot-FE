@@ -1,5 +1,4 @@
 import React from "react";
-import LauncherCard from "../LauncherCard/LauncherCard";
 import Kickstarters from "../Kickstarters/Kickstarters";
 import { useDispatch, useSelector } from "react-redux";
 import { GoTriangleLeft } from "react-icons/go";
@@ -22,7 +21,7 @@ const LeftBar = ({ leftBarRef }) => {
       </div>
 
       <div className="h-[calc(100%-2.5rem)] p-4 flex flex-col items-center justify-between">
-        <LauncherCard />
+        {/* <LauncherCard /> */}
         <Kickstarters />
       </div>
     </aside>

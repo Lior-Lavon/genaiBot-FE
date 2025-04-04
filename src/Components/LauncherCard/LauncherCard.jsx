@@ -59,76 +59,81 @@ const LauncherCard = () => {
 
   const handleProductChange = (e) => {
     setDefaultProduct(parseInt(e.target.value));
+    setTimeout(() => {
+      handleLunchEvent();
+    }, 300);
   };
 
   const handleCategoriesChange = (e) => {
     setDefaultCategory(parseInt(e.target.value));
+    setTimeout(() => {
+      handleLunchEvent();
+    }, 1000);
   };
 
-  const handleLunchBtn = () => {
+  const handleLunchEvent = () => {
     // console.log("Customers Id : ", defaultCustomer);
-
-    // console.log("filters: ", filters);
     // console.log("Product Id: ", defaultProduct);
     // console.log("Category Id: ", defaultCategory);
-    const foldersInfo = getFiltersAdditionalInfo(
-      filters,
-      defaultProduct,
-      defaultCategory
-    );
-    // console.log("foldersInfo : ", foldersInfo);
+    // console.log("filters: ", filters);
+
+    console.log("handleLunchEvent");
+
+    // const foldersInfo = getFiltersAdditionalInfo(
+    //   filters,
+    //   defaultProduct,
+    //   defaultCategory
+    // );
 
     // send an API call to cache the csv based on the folder info
-    dispatch(testFunc(foldersInfo));
+    // dispatch(testFunc(foldersInfo));
   };
 
   return (
-    <div className="w-full mx-auto p-4 bg-white rounded-2xl shadow-md border border-gray-200">
-      <div className="space-y-4">
-        {/* Genie Product */}
-        <div>
-          <label className="block text-[.8rem] font-semibold text-gray-800 mb-1">
-            Genie Product
-          </label>
-          <select
-            className="w-full p-2 text-[.7rem] rounded-md bg-gray-100 border border-gray-300 focus:outline-none"
-            value={getDefaultProduct()}
-            onChange={handleProductChange}
-          >
-            {products?.map((opt) => (
-              <option key={opt.Products_Id} value={opt.Products_Id}>
-                {opt.Products_Name}
-              </option>
-            ))}
-          </select>
-        </div>
+    <div className="flex items-center gap-4 ">
+      {/* Genie Product */}
+      <div className="w-[260px] flex items-center border border-gray-200 rounded-xl p-2">
+        <label className="w-[150px] text-[.8rem] font-semibold text-gray-800 mb-1">
+          Genie Product:
+        </label>
+        <select
+          className=" text-black bg-white p-2 text-[.7rem] border border-gray-300 focus:outline-none"
+          value={getDefaultProduct()}
+          onChange={handleProductChange}
+        >
+          {products?.map((opt) => (
+            <option key={opt.Products_Id} value={opt.Products_Id}>
+              {opt.Products_Name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        {/* Product Category */}
-        <div>
-          <label className="block text-[.8rem] font-semibold text-gray-800 mb-1">
-            Product Category
-          </label>
-          <select
-            className="w-full p-2 text-[.7rem] rounded-md bg-gray-100 border border-gray-300 focus:outline-none"
-            value={getDefaultCategory()}
-            onChange={handleCategoriesChange}
-          >
-            {categories?.map((opt) => (
-              <option key={opt.Categories_Id} value={opt.Categories_Id}>
-                {opt.Categories_Name}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Product Category */}
+      <div className="w-[260px] flex items-center border border-gray-200 rounded-xl p-2">
+        <label className="w-[196px] block text-[.8rem] font-semibold text-gray-800 mb-1 ">
+          Product Category:
+        </label>
+        <select
+          className=" text-black bg-white p-2 text-[.7rem] border border-gray-300 focus:outline-none"
+          value={getDefaultCategory()}
+          onChange={handleCategoriesChange}
+        >
+          {categories?.map((opt) => (
+            <option key={opt.Categories_Id} value={opt.Categories_Id}>
+              {opt.Categories_Name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        {/* Launch Button */}
-        <button
+      {/* Launch Button */}
+      {/* <button
           className="w-full bg-gray-800 hover:bg-gray-900 text-sm text-white font-bold py-2 rounded-md shadow cursor-pointer"
           onClick={handleLunchBtn}
         >
           LAUNCH
-        </button>
-      </div>
+        </button> */}
     </div>
   );
 };

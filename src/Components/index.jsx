@@ -7,6 +7,7 @@ import QuestionCard from "./QuestionCard/QuestionCard";
 import ImageViewer from "./ImageViewer/ImageViewer";
 import Spinner from "./Spinner/Spinner";
 import PromptView from "./PromptView/PromptView";
+import ChatLoader from "./ChatLoader/ChatLoader";
 
 export {
   TopBar,
@@ -18,4 +19,5 @@ export {
   ImageViewer,
   Spinner,
   PromptView,
+  ChatLoader,
 };

@@ -5,31 +5,34 @@ import React, {
   useRef,
   useState,
 } from "react";
+import ChatLoader from "../ChatLoader/ChatLoader";
 import { useDispatch, useSelector } from "react-redux";
 import { Plus, Minus, RotateCw } from "lucide-react"; // Optional: icons
 import {
   setImage,
-  setRightDrawer,
   updateResponse,
   updateResponseImages,
 } from "../../features/dashboard/dashboardSlice";
-import { debounce } from "lodash";
 import ReactMarkdown from "react-markdown";
-import html2pdf from "html2pdf.js";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import { div } from "framer-motion/client";
 import Spinner from "../Spinner/Spinner";
+import { div } from "framer-motion/client";
 
 const QuestionCardLeft = ({ chatItem, leftWidth }) => {
+  // console.log("chatItem : ", chatItem);
+
   const dispatch = useDispatch();
   const { folders } = useSelector((store) => store.dashboard);
 
   const { id, prompt } = chatItem;
+  const [updatedPrompt, setUpdatedPrompt] = useState(null);
+  const [selectedBrand, setSelectedBrand] = useState(null);
 
   const [isConnected, setIsConnected] = useState(false);
   const [response, setResponse] = useState("");
   const [streamComplete, setStreamComplete] = useState(false);
+  const [showMyBrandFlow, setShowMyBrandFlow] = useState("");
 
   const [isWaiting, setIsWaiting] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -104,6 +107,17 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   };
 
   useEffect(() => {
+    // check for MY_BRAND question
+    if (prompt.includes("MY_BRAND")) {
+      setTimeout(() => {
+        setShowMyBrandFlow("loader");
+      }, 1000);
+    } else {
+      connect();
+    }
+  }, []);
+
+  const connect = () => {
     connectWebSocket(url)
       .then((ws) => {
         wsRef.current = ws;
@@ -115,7 +129,15 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
       .catch((err) => {
         console.error("Failed to connect:", err);
       });
-  }, []);
+  };
+
+  useEffect(() => {
+    if (showMyBrandFlow == "loader") {
+      setTimeout(() => {
+        setShowMyBrandFlow("my-brand-question");
+      }, 2000);
+    }
+  }, [showMyBrandFlow]);
 
   useEffect(() => {
     if (isConnected) {
@@ -133,7 +155,11 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     setIsWaiting(true);
     // wsRef.current.send(prompt);
 
-    const promptWithFolders = { ...folders, Prompt: prompt };
+    const promptWithFolders = {
+      ...folders,
+      Prompt: updatedPrompt == null ? prompt : updatedPrompt,
+    };
+    // setUpdatedPrompt(null);
     // console.log("promptWithFolders : ", promptWithFolders);
     wsRef.current.send(JSON.stringify(promptWithFolders));
   };
@@ -243,12 +269,32 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     dispatch(setImage({ show: true, src: imgBase64Data }));
   };
 
+  const getPromptText = (prompt) => {
+    let ret = prompt
+      .replace(/\[MY_BRAND\]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    // return ret.slice(0, 60);
+    return ret;
+  };
+
+  const handleBrandSelect = (e) => {
+    setSelectedBrand(e.target.textContent);
+    const newPrompt = chatItem.prompt.replace(
+      "[MY_BRAND]",
+      `: '${e.target.textContent}'`
+    );
+    // dispatch(updateQuestionPrompt({ id: chatItem.id, prompt: newPrompt }));
+    setUpdatedPrompt(newPrompt);
+    connect();
+  };
+
   return (
     <div className="bg-white" style={{ width: `${leftWidth}px` }}>
       {/* prompt */}
       <div className="w-full bg-white">
         <div className="w-full m-4 p-4 text-left rounded-2xl text-xl border-l-3 border-[#5fbbc5] flex items-center justify-between bg-[#FFFABF] ">
-          {prompt}
+          {getPromptText(prompt)}
 
           {isWaiting && (
             <div className={`mr-5`}>
@@ -257,6 +303,48 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
           )}
         </div>
       </div>
+
+      {showMyBrandFlow != "" &&
+        (showMyBrandFlow == "loader" ? (
+          <div className="w-full">
+            <ChatLoader />
+          </div>
+        ) : (
+          showMyBrandFlow == "my-brand-question" && (
+            <div
+              className={`w-full flex flex-col gap-2 justify-end items-end ${
+                updatedPrompt != null ? "pointer-events-none" : ""
+              }`}
+            >
+              <p className="w-fit bg-[#FFFABF] py-2 px-4 rounded-tr-2xl rounded-l-2xl ">
+                Please select one of your brands
+              </p>
+              <div className="w-full flex items-center gap-2 justify-end">
+                {folders?.Brands_Details?.My_Brands?.map((item, index) => {
+                  return (
+                    <div
+                      key={index}
+                      className={`text-sm w-fit  py-1 px-2 rounded-2xl cursor-pointer hover:bg-neutral-700 transition-colors duration-300 ${
+                        selectedBrand == item
+                          ? "bg-[#5fbbc5] text-black"
+                          : "bg-black text-white"
+                      }`}
+                      onClick={handleBrandSelect}
+                    >
+                      {item}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )
+        ))}
+
+      {response == "" && isConnected == true && (
+        <div className="w-full">
+          <ChatLoader />
+        </div>
+      )}
 
       <div className={`answer w-full ${response == "" ? "hidden" : ""}`}>
         {/* seperation line */}

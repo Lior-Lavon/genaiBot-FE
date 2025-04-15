@@ -29,7 +29,9 @@ export const fetchMapping = createAsyncThunk(
 export const testFunc = createAsyncThunk(
   "dashboard/testFunc",
   async (folders, thunkAPI) => {
-    const url = `/testfunc?folders=${folders.Customer_Folder},${folders.Product_Folder},${folders.Category_Folder}`;
+    console.log("testFunc called");
+
+    const url = `/cachedata?folders=${folders.Customer_Folder},${folders.Product_Folder},${folders.Category_Folder}`;
     return fetchMappingThunk(url, thunkAPI);
   }
 );
@@ -67,6 +69,13 @@ const dashboardSlice = createSlice({
         state.chatList = tmpList;
       }
     },
+    // updateQuestionPrompt: (state, { payload }) => {
+    //   console.log("state.chatList : ", state.chatList);
+    //   const tmpList = [...state.chatList];
+    //   const item = tmpList.find((op) => op.id == payload.id);
+    //   item.prompt = payload.prompt;
+    //   state.chatList = tmpList;
+    // },
     updateResponse: (state, { payload }) => {
       const pos = payload.id - 1;
       const pChat = {
@@ -127,6 +136,7 @@ export const {
   setImage,
   removeImage,
   addNewQuestion,
+  // updateQuestionPrompt,
   updateResponse,
   updateResponseImages,
   setPromptView,

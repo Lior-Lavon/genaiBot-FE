@@ -79,14 +79,14 @@ const LauncherCard = () => {
 
     console.log("handleLunchEvent");
 
-    // const foldersInfo = getFiltersAdditionalInfo(
-    //   filters,
-    //   defaultProduct,
-    //   defaultCategory
-    // );
+    const foldersInfo = getFiltersAdditionalInfo(
+      filters,
+      defaultProduct,
+      defaultCategory
+    );
 
     // send an API call to cache the csv based on the folder info
-    // dispatch(testFunc(foldersInfo));
+    dispatch(testFunc(foldersInfo));
   };
 
   return (

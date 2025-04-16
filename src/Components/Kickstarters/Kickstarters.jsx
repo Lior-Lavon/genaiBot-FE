@@ -40,7 +40,7 @@ const Kickstarters = () => {
       ReactSwal.fire({
         icon: "warning",
         title: "Heads up!",
-        text: "Please select a client, product and category from the sidebar before asking questions.",
+        text: "1 Please select a client, product and category from the sidebar before asking questions.",
       });
     } else {
       const prompt = cards.find((el) => el.id == id).prompt;

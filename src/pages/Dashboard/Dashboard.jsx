@@ -92,7 +92,7 @@ const Dashboard = () => {
 
       // post the question
       setTimeout(() => {
-        dispatch(addNewQuestion({ prompt: inputParam.Question }));
+        // dispatch(addNewQuestion({ prompt: inputParam.Question }));
       }, 600);
     }
   }, [botMapping]);

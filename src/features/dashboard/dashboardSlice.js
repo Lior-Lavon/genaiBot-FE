@@ -1,5 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { fetchMappingThunk } from "./dashboardThunk";
+import { fetchMappingThunk, getTokenThunk } from "./dashboardThunk";
+import {
+  getSessionFromLocalStorage,
+  setSessionInLocalStorage,
+} from "../../utills/localStorage";
 // import { toast } from "react-toastify";
 
 const initialState = {
@@ -17,7 +21,15 @@ const initialState = {
   //   Product_Folder: "brand_pulse"
   // }
   botMapping: null,
+  session: getSessionFromLocalStorage(),
 };
+
+export const sessionToken = createAsyncThunk(
+  "dashboard/getToken",
+  async (thunkAPI) => {
+    return getTokenThunk("/session", thunkAPI);
+  }
+);
 
 export const fetchMapping = createAsyncThunk(
   "dashboard/fetchMapping",
@@ -29,8 +41,6 @@ export const fetchMapping = createAsyncThunk(
 export const testFunc = createAsyncThunk(
   "dashboard/testFunc",
   async (folders, thunkAPI) => {
-    console.log("testFunc called");
-
     const url = `/cachedata?folders=${folders.Customer_Folder},${folders.Product_Folder},${folders.Category_Folder}`;
     return fetchMappingThunk(url, thunkAPI);
   }
@@ -126,6 +136,19 @@ const dashboardSlice = createSlice({
       .addCase(testFunc.rejected, (state) => {
         console.log("testFunc - rejected");
         state.isLoading = false;
+      })
+      .addCase(sessionToken.pending, (state) => {
+        console.log("getToken - pending");
+        // state.isLoading = true;
+      })
+      .addCase(sessionToken.fulfilled, (state, { payload }) => {
+        console.log("getToken - fulfilled : ", payload);
+        state.session = payload.token;
+        setSessionInLocalStorage(payload.token);
+      })
+      .addCase(sessionToken.rejected, (state) => {
+        console.log("getToken - rejected");
+        // state.isLoading = false;
       });
   },
 });

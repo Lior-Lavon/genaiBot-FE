@@ -55,8 +55,12 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     // dispatch(setRightDrawer());
   };
 
-  const connectWebSocket = (url) => {
+  const connectWebSocket = () => {
     return new Promise((resolve, reject) => {
+      // const token = getSessionFromLocalStorage();
+      // const newUrl = url + "/?token=" + token;
+      // console.log("newUrl : ", newUrl);
+
       const ws = new WebSocket(url);
 
       ws.onopen = () => {
@@ -118,7 +122,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   }, []);
 
   const connect = () => {
-    connectWebSocket(url)
+    connectWebSocket()
       .then((ws) => {
         wsRef.current = ws;
 

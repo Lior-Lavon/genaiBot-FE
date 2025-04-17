@@ -18,8 +18,8 @@ import {
   addNewQuestion,
   initFilters,
   fetchMapping,
-  testFunc,
   initFolders,
+  cacheData,
 } from "../../features/dashboard/dashboardSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -90,9 +90,15 @@ const Dashboard = () => {
         })
       );
 
+      // request the cache data
+      // lior
+      setTimeout(() => {
+        dispatch(cacheData(foldersInfo));
+      }, 300);
+
       // post the question
       setTimeout(() => {
-        // dispatch(addNewQuestion({ prompt: inputParam.Question }));
+        dispatch(addNewQuestion({ prompt: inputParam.Question }));
       }, 600);
     }
   }, [botMapping]);

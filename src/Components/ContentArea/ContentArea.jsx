@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import QuestionCard from "../QuestionCard/QuestionCard";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Spinner from "../Spinner/Spinner";
+import { slideContentToBottom } from "../../features/dashboard/dashboardSlice";
 
 const ContentArea = () => {
+  const dispatch = useDispatch();
   const currentRef = useRef(null);
-  const { chatList, isLoading } = useSelector((store) => store.dashboard);
+  const { chatList, isLoading, slideToBottom } = useSelector(
+    (store) => store.dashboard
+  );
 
   const [width, setWidth] = useState(0);
 
@@ -16,6 +20,18 @@ const ContentArea = () => {
       }
     }, 400);
   }, []);
+
+  useEffect(() => {
+    if (slideToBottom == true) {
+      currentRef.current.scrollTo({
+        top: currentRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+      setTimeout(() => {
+        dispatch(slideContentToBottom(false));
+      }, 600);
+    }
+  }, [slideToBottom]);
 
   return (
     <div className="w-full h-full flex items-center justify-center relative">

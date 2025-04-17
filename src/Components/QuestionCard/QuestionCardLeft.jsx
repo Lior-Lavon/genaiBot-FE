@@ -18,6 +18,7 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import Spinner from "../Spinner/Spinner";
 import { div } from "framer-motion/client";
+import { getSessionFromLocalStorage } from "../../utills/localStorage";
 
 const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   // console.log("chatItem : ", chatItem);
@@ -27,7 +28,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
   const { id, prompt } = chatItem;
   const [updatedPrompt, setUpdatedPrompt] = useState(null);
-  const [selectedBrand, setSelectedBrand] = useState(null);
+  const [selectedBrands, setSelectedBrands] = useState(null);
 
   const [isConnected, setIsConnected] = useState(false);
   const [response, setResponse] = useState("");
@@ -57,11 +58,10 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
   const connectWebSocket = () => {
     return new Promise((resolve, reject) => {
-      // const token = getSessionFromLocalStorage();
-      // const newUrl = url + "/?token=" + token;
-      // console.log("newUrl : ", newUrl);
+      const token = getSessionFromLocalStorage();
+      const newUrl = url + "?token=" + token;
 
-      const ws = new WebSocket(url);
+      const ws = new WebSocket(newUrl);
 
       ws.onopen = () => {
         // console.log("✅ WebSocket connected");
@@ -120,6 +120,18 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
       connect();
     }
   }, []);
+
+  useEffect(() => {
+    // loop over the brand list and transform the structure
+    const myBrands = [];
+    for (let i = 0; i < folders?.Brands_Details?.My_Brands.length; i++) {
+      myBrands.push({
+        name: folders?.Brands_Details?.My_Brands[i],
+        selected: false,
+      });
+    }
+    setSelectedBrands(myBrands);
+  }, [folders]);
 
   const connect = () => {
     connectWebSocket()
@@ -282,12 +294,23 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     return ret;
   };
 
-  const handleBrandSelect = (e) => {
-    setSelectedBrand(e.target.textContent);
-    const newPrompt = chatItem.prompt.replace(
-      "[MY_BRAND]",
-      `: '${e.target.textContent}'`
+  // handle clicks on brands
+  const handleBrandSelect = (item) => {
+    item.selected = !item.selected;
+    const tmpArr = selectedBrands.map((elm) =>
+      elm.name === item.name ? item : elm
     );
+    setSelectedBrands(tmpArr);
+  };
+
+  // submit prompt with my-brands
+  const submitBrandSelectPrompt = () => {
+    const brands = `[${selectedBrands
+      .filter((brand) => brand.selected)
+      .map((brand) => brand.name)
+      .join(", ")}]`;
+
+    const newPrompt = chatItem.prompt.replace("[MY_BRAND]", `: ${brands}`);
     // dispatch(updateQuestionPrompt({ id: chatItem.id, prompt: newPrompt }));
     setUpdatedPrompt(newPrompt);
     connect();
@@ -315,30 +338,38 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
           </div>
         ) : (
           showMyBrandFlow == "my-brand-question" && (
-            <div
-              className={`w-full flex flex-col gap-2 justify-end items-end ${
-                updatedPrompt != null ? "pointer-events-none" : ""
-              }`}
-            >
-              <p className="w-fit bg-[#FFFABF] py-2 px-4 rounded-tr-2xl rounded-l-2xl ">
-                Please select one of your brands
-              </p>
-              <div className="w-full flex items-center gap-2 justify-end">
-                {folders?.Brands_Details?.My_Brands?.map((item, index) => {
-                  return (
-                    <div
-                      key={index}
-                      className={`text-sm w-fit  py-1 px-2 rounded-2xl cursor-pointer hover:bg-neutral-700 transition-colors duration-300 ${
-                        selectedBrand == item
-                          ? "bg-[#5fbbc5] text-black"
-                          : "bg-black text-white"
-                      }`}
-                      onClick={handleBrandSelect}
-                    >
-                      {item}
-                    </div>
-                  );
-                })}
+            <div className="w-full ml-4 flex flex-col justify-start gap-2 border-t-[.05rem]">
+              <div
+                className={`mt-2 w-full flex gap-2 items-center ${
+                  updatedPrompt != null ? "pointer-events-none" : ""
+                }`}
+              >
+                <p className="w-fit py-1">Please select your brands :</p>
+                <div className="flex items-center gap-2 ">
+                  {selectedBrands?.map((item, index) => {
+                    return (
+                      <div
+                        key={index}
+                        className={`text-sm w-fit px-2 py-1 rounded-2xl cursor-pointer transition-colors duration-300 ${
+                          item.selected
+                            ? "bg-[#5fbbc5] text-black"
+                            : "bg-black text-white"
+                        }`}
+                        onClick={() => handleBrandSelect(item)}
+                      >
+                        {item.name}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div>
+                <button
+                  className="bg-indigo-50 py-1 px-4 text-blue-900 rounded-2xl shadow-sm cursor-pointer hover:bg-indigo-100 transition-all duration-400 mb-2"
+                  onClick={submitBrandSelectPrompt}
+                >
+                  Proceed
+                </button>
               </div>
             </div>
           )

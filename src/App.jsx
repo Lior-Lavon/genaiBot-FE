@@ -7,8 +7,6 @@ import { sessionToken } from "./features/dashboard/dashboardSlice";
 
 function App() {
   const { session } = useSelector((store) => store.dashboard);
-  console.log("session : ", session);
-
   const dispatch = useDispatch();
 
   useEffect(() => {

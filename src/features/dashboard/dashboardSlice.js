@@ -22,6 +22,7 @@ const initialState = {
   // }
   botMapping: null,
   session: getSessionFromLocalStorage(),
+  slideToBottom: false,
 };
 
 export const sessionToken = createAsyncThunk(
@@ -38,8 +39,8 @@ export const fetchMapping = createAsyncThunk(
   }
 );
 
-export const testFunc = createAsyncThunk(
-  "dashboard/testFunc",
+export const cacheData = createAsyncThunk(
+  "dashboard/cachedata",
   async (folders, thunkAPI) => {
     const url = `/cachedata?folders=${folders.Customer_Folder},${folders.Product_Folder},${folders.Category_Folder}`;
     return fetchMappingThunk(url, thunkAPI);
@@ -108,6 +109,9 @@ const dashboardSlice = createSlice({
     initFilters: (state, { payload }) => {
       state.filters = payload;
     },
+    slideContentToBottom: (state, { payload }) => {
+      state.slideToBottom = payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -124,25 +128,25 @@ const dashboardSlice = createSlice({
         // console.log("fetchMapping - rejected");
         state.isLoading = false;
       })
-      .addCase(testFunc.pending, (state) => {
-        console.log("testFunc - pending");
+      .addCase(cacheData.pending, (state) => {
+        console.log("cacheData - pending");
         state.isLoading = true;
       })
-      .addCase(testFunc.fulfilled, (state, { payload }) => {
-        console.log("testFunc - fulfilled : ", payload);
+      .addCase(cacheData.fulfilled, (state, { payload }) => {
+        console.log("cacheData - fulfilled : ", payload);
         state.folders = payload.folders;
         state.isLoading = false;
       })
-      .addCase(testFunc.rejected, (state) => {
-        console.log("testFunc - rejected");
+      .addCase(cacheData.rejected, (state) => {
+        console.log("cacheData - rejected");
         state.isLoading = false;
       })
       .addCase(sessionToken.pending, (state) => {
-        console.log("getToken - pending");
+        // console.log("getToken - pending");
         // state.isLoading = true;
       })
       .addCase(sessionToken.fulfilled, (state, { payload }) => {
-        console.log("getToken - fulfilled : ", payload);
+        // console.log("getToken - fulfilled : ", payload);
         state.session = payload.token;
         setSessionInLocalStorage(payload.token);
       })
@@ -165,5 +169,6 @@ export const {
   setPromptView,
   initFilters,
   initFolders,
+  slideContentToBottom,
 } = dashboardSlice.actions;
 export default dashboardSlice.reducer;

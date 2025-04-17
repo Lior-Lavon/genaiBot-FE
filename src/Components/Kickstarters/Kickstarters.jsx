@@ -1,7 +1,13 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addNewQuestion } from "../../features/dashboard/dashboardSlice";
+import {
+  addNewQuestion,
+  slideContentToBottom,
+} from "../../features/dashboard/dashboardSlice";
 import ReactSwal from "../../utills/alert";
+import { Tooltip } from "react-tooltip"; // ✅ correct
+import "react-tooltip/dist/react-tooltip.css"; // ✅ also make sure styles are imported
+import { div } from "framer-motion/client";
 
 const Kickstarters = () => {
   const dispatch = useDispatch();
@@ -45,6 +51,7 @@ const Kickstarters = () => {
     } else {
       const prompt = cards.find((el) => el.id == id).prompt;
       dispatch(addNewQuestion({ prompt }));
+      dispatch(slideContentToBottom(true));
     }
   };
 
@@ -63,12 +70,13 @@ const Kickstarters = () => {
       <h2 className="text-xl font-bold text-gray-800 mb-3">Kickstarters</h2>
       <div className="space-y-4">
         {cards.map((op) => (
-          <div
-            key={op.id}
-            className="text-[0.7rem] text-left bg-indigo-50 hover:bg-indigo-100 text-gray-800 font-medium px-4 py-2 rounded-xl border-l-4 border-gray-800 shadow-sm cursor-pointer transition-all duration-400"
-            onClick={() => handleKickStart(op.id)}
-          >
-            {getPromptText(op.prompt)}
+          <div key={op.id}>
+            <div
+              className="text-[0.7rem] text-left bg-indigo-50 hover:bg-indigo-100 text-gray-800 font-medium px-4 py-2 rounded-xl border-l-4 border-gray-800 shadow-sm cursor-pointer transition-all duration-400"
+              onClick={() => handleKickStart(op.id)}
+            >
+              {getPromptText(op.prompt)}
+            </div>
           </div>
         ))}
       </div>

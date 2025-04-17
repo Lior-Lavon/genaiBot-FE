@@ -6,6 +6,7 @@ import {
 } from "../../features/dashboard/dashboardSlice";
 import myBg from "../../assets/pattern.png";
 import ReactSwal from "../../utills/alert";
+import { FaQuestion } from "react-icons/fa";
 
 const PromptView = () => {
   const dispatch = useDispatch();
@@ -13,9 +14,9 @@ const PromptView = () => {
   const { isPromptView, folders } = useSelector((store) => store.dashboard);
 
   useEffect(() => {
-    setTimeout(() => {
-      dispatch(setPromptView());
-    }, 800);
+    // setTimeout(() => {
+    //   dispatch(setPromptView());
+    // }, 800);
   }, []);
 
   const handleOnChange = (e) => {
@@ -30,9 +31,9 @@ const PromptView = () => {
       });
     } else {
       dispatch(addNewQuestion({ prompt }));
-      setTimeout(() => {
-        dispatch(setPromptView());
-      }, 300);
+      // setTimeout(() => {
+      //   dispatch(setPromptView());
+      // }, 300);
     }
   };
 
@@ -67,12 +68,16 @@ const PromptView = () => {
         </div>
       </div>
       <div
-        className="w-6 h-full rounded-tr-2xl rounded-br-2xl bg-cover bg-center cursor-pointer"
+        className="w-6 h-full flex items-center justify-center rounded-tr-2xl rounded-br-2xl bg-cover bg-center cursor-pointer"
         style={{ backgroundImage: `url(${myBg})`, backgroundColor: "red" }}
         onClick={() => {
           dispatch(setPromptView());
         }}
-      ></div>
+      >
+        <div className="w-5 h-5 ml-1">
+          <FaQuestion />
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { testFunc } from "../../features/dashboard/dashboardSlice";
+import { cacheData } from "../../features/dashboard/dashboardSlice";
 import getFiltersAdditionalInfo from "../../utills/getFiltersAdditionalInfo";
 
 const LauncherCard = () => {
@@ -77,8 +77,6 @@ const LauncherCard = () => {
     // console.log("Category Id: ", defaultCategory);
     // console.log("filters: ", filters);
 
-    console.log("handleLunchEvent");
-
     const foldersInfo = getFiltersAdditionalInfo(
       filters,
       defaultProduct,
@@ -86,7 +84,7 @@ const LauncherCard = () => {
     );
 
     // send an API call to cache the csv based on the folder info
-    dispatch(testFunc(foldersInfo));
+    dispatch(cacheData(foldersInfo));
   };
 
   return (

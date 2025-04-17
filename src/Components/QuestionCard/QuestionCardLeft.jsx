@@ -18,6 +18,7 @@ import rehypeRaw from "rehype-raw";
 import Spinner from "../Spinner/Spinner";
 import { div } from "framer-motion/client";
 import { getSessionFromLocalStorage } from "../../utills/localStorage";
+import { TbTriangleFilled, TbTriangleInvertedFilled } from "react-icons/tb";
 
 const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   // console.log("chatItem : ", chatItem);
@@ -33,6 +34,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   const [response, setResponse] = useState("");
   const [streamComplete, setStreamComplete] = useState(false);
   const [showMyBrandFlow, setShowMyBrandFlow] = useState("");
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const [isWaiting, setIsWaiting] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -324,15 +326,23 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   return (
     <div className="bg-white" style={{ width: `${leftWidth}px` }}>
       {/* prompt */}
-      <div className="w-full bg-white">
+      <div className="w-full bg-bg-red-500">
         <div className="w-full m-4 p-4 text-left rounded-2xl text-xl border-l-3 border-[#5fbbc5] flex items-center justify-between bg-[#FFFABF] ">
           {getPromptText(prompt)}
 
-          {isWaiting && (
-            <div className={`mr-5`}>
-              <Spinner />
+          <div className="flex items-center gap-2">
+            {isWaiting && <Spinner />}
+            <div
+              onClick={() => setIsCollapsed((prev) => !prev)}
+              className="text-2xl text-black mr-5 cursor-pointer transition-all duration-400"
+            >
+              {isCollapsed ? (
+                <TbTriangleInvertedFilled />
+              ) : (
+                <TbTriangleFilled />
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
 
@@ -386,9 +396,13 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
         </div>
       )}
 
-      <div className={`answer w-full ${response == "" ? "hidden" : ""}`}>
+      <div
+        className={`answer w-full overflow-hidden transition-all duration-500 ease-in-out ${
+          isCollapsed ? "max-h-0 opacity-0" : "max-h-[10000px] opacity-100"
+        } ${response == "" ? "hidden" : ""}`}
+      >
         {/* seperation line */}
-        <div className={`m-4 h-[.2rem] bg-gray-200 rounded-full`}></div>
+        <div className={`mx-4 mb-2 h-[.2rem] bg-gray-200 rounded-full`}></div>
         {/* answer */}
         <div className="relative">
           {/* Zoom Controls Wrapper */}
@@ -430,6 +444,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
               }}
             >
               <ReactMarkdown
+                key={response}
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeRaw]}
                 components={{

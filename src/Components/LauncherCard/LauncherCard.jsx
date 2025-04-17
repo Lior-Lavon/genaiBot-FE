@@ -91,7 +91,8 @@ const LauncherCard = () => {
     <div className="flex items-center gap-4 ">
       {/* Genie Product */}
       <div className="w-[260px] flex items-center border border-gray-200 rounded-xl p-2">
-        <label className="w-[150px] text-[.8rem] font-semibold text-gray-800">
+        {/* <label className="w-[150px] block text-[.8rem] font-semibold text-gray-800"> */}
+        <label className="w-[196px] block text-[.8rem] font-semibold text-gray-800 m-1">
           Genie Product:
         </label>
         <select
@@ -124,14 +125,6 @@ const LauncherCard = () => {
           ))}
         </select>
       </div>
-
-      {/* Launch Button */}
-      {/* <button
-          className="w-full bg-gray-800 hover:bg-gray-900 text-sm text-white font-bold py-2 rounded-md shadow cursor-pointer"
-          onClick={handleLunchBtn}
-        >
-          LAUNCH
-        </button> */}
     </div>
   );
 };

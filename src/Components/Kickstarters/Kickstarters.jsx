@@ -66,7 +66,7 @@ const Kickstarters = () => {
     <div className="w-full">
       {/* <div className="w-full h-[0.1rem] bg-gray-200 mb-2"></div> */}
       <h2 className="text-xl font-bold text-gray-800 mb-3">Kickstarters</h2>
-      <div className="space-y-4">
+      <div className="flex flex-col gap-3 ">
         {cards.map((op) => (
           <div key={op.id}>
             <div

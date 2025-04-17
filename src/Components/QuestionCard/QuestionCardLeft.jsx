@@ -332,16 +332,18 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
           <div className="flex items-center gap-2">
             {isWaiting && <Spinner />}
-            <div
-              onClick={() => setIsCollapsed((prev) => !prev)}
-              className="text-2xl text-black mr-5 cursor-pointer transition-all duration-400"
-            >
-              {isCollapsed ? (
-                <TbTriangleInvertedFilled />
-              ) : (
-                <TbTriangleFilled />
-              )}
-            </div>
+            {response && (
+              <div
+                onClick={() => setIsCollapsed((prev) => !prev)}
+                className="text-2xl text-black mr-5 cursor-pointer transition-all duration-400"
+              >
+                {isCollapsed ? (
+                  <TbTriangleInvertedFilled />
+                ) : (
+                  <TbTriangleFilled />
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -91,7 +91,6 @@ const Dashboard = () => {
       );
 
       // request the cache data
-      // lior
       setTimeout(() => {
         dispatch(cacheData(foldersInfo));
       }, 300);
@@ -176,7 +175,7 @@ const Dashboard = () => {
           {/* Main content */}
           <main className="contentArea w-full flex-1 overflow-y-auto relative bg-white">
             <ContentArea />
-            <div className="w-[80%] h-14 absolute bottom-0 mb-10">
+            <div className="w-[80%] h-14 absolute bottom-0">
               <PromptView />
             </div>
           </main>

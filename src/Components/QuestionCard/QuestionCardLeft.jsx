@@ -296,10 +296,14 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
   // handle clicks on brands
   const handleBrandSelect = (item) => {
+    console.log("handleBrandSelect");
+
     item.selected = !item.selected;
     const tmpArr = selectedBrands.map((elm) =>
       elm.name === item.name ? item : elm
     );
+    console.log("tmpArr : ", tmpArr);
+
     setSelectedBrands(tmpArr);
   };
 
@@ -365,7 +369,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
               </div>
               <div>
                 <button
-                  className="bg-indigo-50 py-1 px-4 text-blue-900 rounded-2xl shadow-sm cursor-pointer hover:bg-indigo-100 transition-all duration-400 mb-2"
+                  className="bg-indigo-50 py-1 px-4 text-blue-900 rounded-2xl shadow-sm cursor-pointer hover:bg-indigo-100 transition-all duration-400 mb-15"
                   onClick={submitBrandSelectPrompt}
                 >
                   Proceed

@@ -5,8 +5,6 @@ import {
   slideContentToBottom,
 } from "../../features/dashboard/dashboardSlice";
 import ReactSwal from "../../utills/alert";
-import { Tooltip } from "react-tooltip"; // ✅ correct
-import "react-tooltip/dist/react-tooltip.css"; // ✅ also make sure styles are imported
 import { div } from "framer-motion/client";
 
 const Kickstarters = () => {

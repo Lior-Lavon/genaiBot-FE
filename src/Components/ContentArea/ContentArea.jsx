@@ -7,6 +7,8 @@ import { slideContentToBottom } from "../../features/dashboard/dashboardSlice";
 const ContentArea = () => {
   const dispatch = useDispatch();
   const currentRef = useRef(null);
+  const [autoScroll, setAutoScroll] = useState(true);
+
   const { chatList, isLoading, slideToBottom } = useSelector(
     (store) => store.dashboard
   );
@@ -19,7 +21,32 @@ const ContentArea = () => {
         setWidth(currentRef.current.getBoundingClientRect().width);
       }
     }, 400);
+
+    const el = currentRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      const isAtBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
+      setAutoScroll(isAtBottom);
+    };
+
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const el = currentRef.current;
+      if (el && autoScroll) {
+        el.scrollTo({
+          top: el.scrollHeight,
+          behavior: "smooth",
+        });
+      }
+    }, 400);
+
+    return () => clearInterval(interval);
+  }, [autoScroll]); // ← important!
 
   useEffect(() => {
     if (slideToBottom == true) {

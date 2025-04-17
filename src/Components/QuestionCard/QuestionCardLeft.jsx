@@ -10,7 +10,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { Plus, Minus, RotateCw } from "lucide-react"; // Optional: icons
 import {
   setImage,
-  updateResponse,
   updateResponseImages,
 } from "../../features/dashboard/dashboardSlice";
 import ReactMarkdown from "react-markdown";
@@ -227,11 +226,13 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
   useEffect(() => {
     if (streamComplete) {
+      console.log("streamComplete");
+
       // Stop the waiting indicator as soon as the first chunk arrives
       setIsWaiting(false);
 
       setTimeout(() => {
-        dispatch(updateResponse({ id, response }));
+        // dispatch(updateResponse({ id, response }));
         // getAllImages();
         console.log("update markdown here");
       }, 1000);
@@ -448,7 +449,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                     }
                     return (
                       <div className="relative w-full my-4">
-                        {loading && (
+                        {/* {loading && (
                           <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded border">
                             <div className="animate-spin h-6 w-6 border-2 border-gray-500 border-t-transparent rounded-full" />
                           </div>
@@ -464,7 +465,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                           } ${isBase64 ? "border" : ""}`}
                           alt={props.alt || "Image"}
                           onClick={handleImageClick}
-                        />
+                        /> */}
                       </div>
                     );
                   },

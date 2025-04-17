@@ -87,22 +87,22 @@ const dashboardSlice = createSlice({
     //   item.prompt = payload.prompt;
     //   state.chatList = tmpList;
     // },
-    updateResponse: (state, { payload }) => {
-      const pos = payload.id - 1;
-      const pChat = {
-        ...state.chatList[pos],
-        response: payload.response,
-      };
-      state.chatList[pos] = pChat;
-    },
-    updateResponseImages: (state, { payload }) => {
-      const pos = payload.id - 1;
-      const pChat = {
-        ...state.chatList[pos],
-        images: payload.images,
-      };
-      state.chatList[pos] = pChat;
-    },
+    // updateResponse: (state, { payload }) => {
+    //   const pos = payload.id - 1;
+    //   const pChat = {
+    //     ...state.chatList[pos],
+    //     response: payload.response,
+    //   };
+    //   state.chatList[pos] = pChat;
+    // },
+    // updateResponseImages: (state, { payload }) => {
+    //   const pos = payload.id - 1;
+    //   const pChat = {
+    //     ...state.chatList[pos],
+    //     images: payload.images,
+    //   };
+    //   state.chatList[pos] = pChat;
+    // },
     initFolders: (state, { payload }) => {
       state.folders = payload;
     },
@@ -164,7 +164,7 @@ export const {
   removeImage,
   addNewQuestion,
   // updateQuestionPrompt,
-  updateResponse,
+  clearResponse,
   updateResponseImages,
   setPromptView,
   initFilters,

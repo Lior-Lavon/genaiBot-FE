@@ -59,33 +59,37 @@ const LauncherCard = () => {
 
   const handleProductChange = (e) => {
     setDefaultProduct(parseInt(e.target.value));
-    setTimeout(() => {
-      handleLunchEvent();
-    }, 300);
+    // setTimeout(() => {
+    //   handleLunchEvent();
+    // }, 300);
   };
 
   const handleCategoriesChange = (e) => {
+    console.log("e.target.value : ", e.target.value);
+
     setDefaultCategory(parseInt(e.target.value));
-    setTimeout(() => {
-      handleLunchEvent();
-    }, 1000);
+    // setTimeout(() => {
+    //   handleLunchEvent();
+    // }, 10000);
   };
 
-  const handleLunchEvent = () => {
-    // console.log("Customers Id : ", defaultCustomer);
-    // console.log("Product Id: ", defaultProduct);
-    // console.log("Category Id: ", defaultCategory);
-    // console.log("filters: ", filters);
+  useEffect(() => {
+    if (defaultProduct != 0 && defaultCategory != 0) {
+      // console.log("Customers Id : ", defaultCustomer);
+      // console.log("Product Id: ", defaultProduct);
+      // console.log("Category Id: ", defaultCategory);
+      // console.log("filters: ", filters);
 
-    const foldersInfo = getFiltersAdditionalInfo(
-      filters,
-      defaultProduct,
-      defaultCategory
-    );
+      const foldersInfo = getFiltersAdditionalInfo(
+        filters,
+        defaultProduct,
+        defaultCategory
+      );
 
-    // send an API call to cache the csv based on the folder info
-    dispatch(cacheData(foldersInfo));
-  };
+      // send an API call to cache the csv based on the folder info
+      dispatch(cacheData(foldersInfo));
+    }
+  }, [defaultProduct, defaultCategory]);
 
   return (
     <div className="flex items-center gap-4 ">

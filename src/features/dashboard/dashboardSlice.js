@@ -42,6 +42,8 @@ export const fetchMapping = createAsyncThunk(
 export const cacheData = createAsyncThunk(
   "dashboard/cachedata",
   async (folders, thunkAPI) => {
+    console.log("cacheData : ", folders);
+
     const url = `/cachedata?folders=${folders.Customer_Folder},${folders.Product_Folder},${folders.Category_Folder}`;
     return fetchMappingThunk(url, thunkAPI);
   }

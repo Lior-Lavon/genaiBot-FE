@@ -71,7 +71,6 @@ const Dashboard = () => {
         Products_Id: inputParam.ProductID,
         Categories_Id: inputParam.CategoryID,
       });
-
       dispatch(initFilters({ filters }));
 
       // get the input folders
@@ -89,12 +88,10 @@ const Dashboard = () => {
           Category_Folder: foldersInfo.Category_Folder,
         })
       );
-
       // request the cache data
       setTimeout(() => {
         dispatch(cacheData(foldersInfo));
       }, 300);
-
       // post the question
       setTimeout(() => {
         dispatch(addNewQuestion({ prompt: inputParam.Question }));

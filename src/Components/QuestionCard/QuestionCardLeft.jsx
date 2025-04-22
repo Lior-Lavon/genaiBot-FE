@@ -172,13 +172,9 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     setIsWaiting(true);
     // wsRef.current.send(prompt);
 
-    const promptWithFolders = {
-      ...folders,
-      Prompt: updatedPrompt == null ? prompt : updatedPrompt,
-    };
     // setUpdatedPrompt(null);
     // console.log("promptWithFolders : ", promptWithFolders);
-    wsRef.current.send(JSON.stringify(promptWithFolders));
+    wsRef.current.send(updatedPrompt == null ? prompt : updatedPrompt);
   };
 
   useEffect(() => {
@@ -466,7 +462,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                     }
                     return (
                       <div className="relative w-full my-4">
-                        {/* {loading && (
+                        {loading && (
                           <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded border">
                             <div className="animate-spin h-6 w-6 border-2 border-gray-500 border-t-transparent rounded-full" />
                           </div>
@@ -477,12 +473,12 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                           {...props}
                           src={finalSrc}
                           onLoad={() => setLoading(false)}
-                          className={`rounded shadow max-w-full transition-opacity duration-300 cursor-pointer ${
-                            loading ? "opacity-0" : "opacity-100"
-                          } ${isBase64 ? "border" : ""}`}
+                          // className={`rounded shadow max-w-full transition-opacity duration-300 cursor-pointer ${
+                          //   loading ? "opacity-0" : "opacity-100"
+                          // } ${isBase64 ? "border" : ""}`}
                           alt={props.alt || "Image"}
                           onClick={handleImageClick}
-                        /> */}
+                        />
                       </div>
                     );
                   },

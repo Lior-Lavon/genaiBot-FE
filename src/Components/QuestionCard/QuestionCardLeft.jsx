@@ -331,7 +331,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
     setSelectedCompetitorBrands(tmpArr);
   };
-
+  lior;
   // submit prompt with my-brands
   const submitBrandSelectPrompt = () => {
     let newPrompt = "";

@@ -5,6 +5,8 @@ import { sessionToken } from "./features/dashboard/dashboardSlice";
 // import { ToastContainer } from "react-toastify";
 // import "react-toastify/dist/ReactToastify.css";
 
+import "react-tooltip/dist/react-tooltip.css";
+
 function App() {
   const { session } = useSelector((store) => store.dashboard);
   const dispatch = useDispatch();
@@ -16,7 +18,6 @@ function App() {
   return (
     <>
       <Dashboard />
-      {/* <HelloWorld /> */}
     </>
   );
 }

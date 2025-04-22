@@ -42,8 +42,6 @@ export const fetchMapping = createAsyncThunk(
 export const cacheData = createAsyncThunk(
   "dashboard/cachedata",
   async (folders, thunkAPI) => {
-    console.log("cacheData : ", folders);
-
     const url = `/cachedata?folders=${folders.Customer_Folder},${folders.Product_Folder},${folders.Category_Folder}`;
     return fetchMappingThunk(url, thunkAPI);
   }
@@ -82,29 +80,6 @@ const dashboardSlice = createSlice({
         state.chatList = tmpList;
       }
     },
-    // updateQuestionPrompt: (state, { payload }) => {
-    //   console.log("state.chatList : ", state.chatList);
-    //   const tmpList = [...state.chatList];
-    //   const item = tmpList.find((op) => op.id == payload.id);
-    //   item.prompt = payload.prompt;
-    //   state.chatList = tmpList;
-    // },
-    // updateResponse: (state, { payload }) => {
-    //   const pos = payload.id - 1;
-    //   const pChat = {
-    //     ...state.chatList[pos],
-    //     response: payload.response,
-    //   };
-    //   state.chatList[pos] = pChat;
-    // },
-    // updateResponseImages: (state, { payload }) => {
-    //   const pos = payload.id - 1;
-    //   const pChat = {
-    //     ...state.chatList[pos],
-    //     images: payload.images,
-    //   };
-    //   state.chatList[pos] = pChat;
-    // },
     initFolders: (state, { payload }) => {
       state.folders = payload;
     },
@@ -113,6 +88,9 @@ const dashboardSlice = createSlice({
     },
     slideContentToBottom: (state, { payload }) => {
       state.slideToBottom = payload;
+    },
+    restartChat: (state) => {
+      state.chatList = [];
     },
   },
   extraReducers: (builder) => {
@@ -127,15 +105,15 @@ const dashboardSlice = createSlice({
         state.botMapping = { populate: false, data: payload };
       })
       .addCase(fetchMapping.rejected, (state) => {
-        // console.log("fetchMapping - rejected");
+        console.log("fetchMapping - rejected");
         state.isLoading = false;
       })
       .addCase(cacheData.pending, (state) => {
-        console.log("cacheData - pending");
+        // console.log("cacheData - pending");
         state.isLoading = true;
       })
       .addCase(cacheData.fulfilled, (state, { payload }) => {
-        console.log("cacheData - fulfilled : ", payload);
+        // console.log("cacheData - fulfilled : ", payload);
         state.folders = payload.folders;
         state.isLoading = false;
       })
@@ -172,5 +150,6 @@ export const {
   initFilters,
   initFolders,
   slideContentToBottom,
+  restartChat,
 } = dashboardSlice.actions;
 export default dashboardSlice.reducer;

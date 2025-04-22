@@ -28,12 +28,14 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
   const { id, prompt } = chatItem;
   const [updatedPrompt, setUpdatedPrompt] = useState(null);
-  const [selectedBrands, setSelectedBrands] = useState(null);
+  const [selectedMyBrands, setSelectedMyBrands] = useState(null);
+  const [selectedCompetitorBrands, setSelectedCompetitorBrands] =
+    useState(null);
 
   const [isConnected, setIsConnected] = useState(false);
   const [response, setResponse] = useState("");
   const [streamComplete, setStreamComplete] = useState(false);
-  const [showMyBrandFlow, setShowMyBrandFlow] = useState("");
+  const [showBrandFlow, setShowBrandFlow] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const [isWaiting, setIsWaiting] = useState(false);
@@ -113,9 +115,9 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
   useEffect(() => {
     // check for MY_BRAND question
-    if (prompt.includes("MY_BRAND")) {
+    if (prompt.includes("MY_BRAND") || prompt.includes("COMPETITOR_BRAND")) {
       setTimeout(() => {
-        setShowMyBrandFlow("loader");
+        setShowBrandFlow("loader");
       }, 1000);
     } else {
       connect();
@@ -131,7 +133,20 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
         selected: false,
       });
     }
-    setSelectedBrands(myBrands);
+    setSelectedMyBrands(myBrands);
+
+    const competitorBrands = [];
+    for (
+      let i = 0;
+      i < folders?.Brands_Details?.Competitors_Brands.length;
+      i++
+    ) {
+      competitorBrands.push({
+        name: folders?.Brands_Details?.Competitors_Brands[i],
+        selected: false,
+      });
+    }
+    setSelectedCompetitorBrands(competitorBrands);
   }, [folders]);
 
   const connect = () => {
@@ -149,12 +164,17 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   };
 
   useEffect(() => {
-    if (showMyBrandFlow == "loader") {
+    if (showBrandFlow == "loader") {
       setTimeout(() => {
-        setShowMyBrandFlow("my-brand-question");
+        // console.log("Prompt : ", prompt);
+        // Do a SWOT analysis for my brand [MY_BRAND]
+        // Do a SWOT analysis for my competitor brand [COMPETITOR_BRAND]
+        if (prompt.includes("MY_BRAND")) setShowBrandFlow("my-brand-question");
+        else if (prompt.includes("COMPETITOR_BRAND"))
+          setShowBrandFlow("competitor-brand-question");
       }, 2000);
     }
-  }, [showMyBrandFlow]);
+  }, [showBrandFlow]);
 
   useEffect(() => {
     if (isConnected) {
@@ -224,7 +244,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
   useEffect(() => {
     if (streamComplete) {
-      console.log("streamComplete");
+      // console.log("streamComplete");
 
       // Stop the waiting indicator as soon as the first chunk arrives
       setIsWaiting(false);
@@ -287,6 +307,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   const getPromptText = (prompt) => {
     let ret = prompt
       .replace(/\[MY_BRAND\]/g, "")
+      .replace(/\[COMPETITOR_BRAND\]/g, "")
       .replace(/\s+/g, " ")
       .trim();
     // return ret.slice(0, 60);
@@ -294,26 +315,42 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   };
 
   // handle clicks on brands
-  const handleBrandSelect = (item) => {
-    console.log("handleBrandSelect");
-
+  const handleMyBrandSelect = (item) => {
     item.selected = !item.selected;
-    const tmpArr = selectedBrands.map((elm) =>
+    const tmpArr = selectedMyBrands.map((elm) =>
       elm.name === item.name ? item : elm
     );
-    console.log("tmpArr : ", tmpArr);
 
-    setSelectedBrands(tmpArr);
+    setSelectedMyBrands(tmpArr);
+  };
+  const handleCompetitorsBrandSelect = (item) => {
+    item.selected = !item.selected;
+    const tmpArr = selectedCompetitorBrands.map((elm) =>
+      elm.name === item.name ? item : elm
+    );
+
+    setSelectedCompetitorBrands(tmpArr);
   };
 
   // submit prompt with my-brands
   const submitBrandSelectPrompt = () => {
-    const brands = `[${selectedBrands
-      .filter((brand) => brand.selected)
-      .map((brand) => brand.name)
-      .join(", ")}]`;
+    let newPrompt = "";
+    if (showBrandFlow == "my-brand-question") {
+      const brands = `[${selectedMyBrands
+        .filter((brand) => brand.selected)
+        .map((brand) => brand.name)
+        .join(", ")}]`;
 
-    const newPrompt = chatItem.prompt.replace("[MY_BRAND]", `: ${brands}`);
+      newPrompt = chatItem.prompt.replace("[MY_BRAND]", `: ${brands}`);
+    } else if (showBrandFlow == "competitor-brand-question") {
+      const brands = `[${selectedCompetitorBrands
+        .filter((brand) => brand.selected)
+        .map((brand) => brand.name)
+        .join(", ")}]`;
+
+      newPrompt = chatItem.prompt.replace("[COMPETITOR_BRAND]", `: ${brands}`);
+    }
+
     // dispatch(updateQuestionPrompt({ id: chatItem.id, prompt: newPrompt }));
     setUpdatedPrompt(newPrompt);
     connect();
@@ -344,36 +381,58 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
         </div>
       </div>
 
-      {showMyBrandFlow != "" &&
-        (showMyBrandFlow == "loader" ? (
+      {showBrandFlow != "" &&
+        (showBrandFlow == "loader" ? (
           <div className="w-full">
             <ChatLoader />
           </div>
         ) : (
-          showMyBrandFlow == "my-brand-question" && (
+          (showBrandFlow == "my-brand-question" ||
+            showBrandFlow == "competitor-brand-question") && (
             <div className="w-full ml-4 flex flex-col justify-start gap-2 border-t-[.05rem]">
               <div
                 className={`mt-2 w-full flex gap-2 items-center ${
                   updatedPrompt != null ? "pointer-events-none" : ""
                 }`}
               >
-                <p className="w-fit py-1">Please select your brands :</p>
+                <p className="w-fit py-1">
+                  {showBrandFlow == "my-brand-question"
+                    ? "Please select your brands :"
+                    : "Please select competitor brands :"}
+                </p>
                 <div className="flex items-center gap-2 ">
-                  {selectedBrands?.map((item, index) => {
-                    return (
-                      <div
-                        key={index}
-                        className={`text-sm w-fit px-2 py-1 rounded-2xl cursor-pointer transition-colors duration-300 ${
-                          item.selected
-                            ? "bg-[#5fbbc5] text-black"
-                            : "bg-black text-white"
-                        }`}
-                        onClick={() => handleBrandSelect(item)}
-                      >
-                        {item.name}
-                      </div>
-                    );
-                  })}
+                  {showBrandFlow == "my-brand-question" &&
+                    selectedMyBrands?.map((item, index) => {
+                      return (
+                        <div
+                          key={index}
+                          className={`text-sm w-fit px-2 py-1 rounded-2xl cursor-pointer transition-colors duration-300 ${
+                            item.selected
+                              ? "bg-[#5fbbc5] text-black"
+                              : "bg-black text-white"
+                          }`}
+                          onClick={() => handleMyBrandSelect(item)}
+                        >
+                          {item.name}
+                        </div>
+                      );
+                    })}
+                  {showBrandFlow == "competitor-brand-question" &&
+                    selectedCompetitorBrands?.map((item, index) => {
+                      return (
+                        <div
+                          key={index}
+                          className={`text-sm w-fit px-2 py-1 rounded-2xl cursor-pointer transition-colors duration-300 ${
+                            item.selected
+                              ? "bg-[#5fbbc5] text-black"
+                              : "bg-black text-white"
+                          }`}
+                          onClick={() => handleCompetitorsBrandSelect(item)}
+                        >
+                          {item.name}
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
               <div>
@@ -473,9 +532,9 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                           {...props}
                           src={finalSrc}
                           onLoad={() => setLoading(false)}
-                          // className={`rounded shadow max-w-full transition-opacity duration-300 cursor-pointer ${
-                          //   loading ? "opacity-0" : "opacity-100"
-                          // } ${isBase64 ? "border" : ""}`}
+                          className={`rounded shadow max-w-full transition-opacity duration-300 cursor-pointer ${
+                            loading ? "opacity-0" : "opacity-100"
+                          } ${isBase64 ? "border" : ""}`}
                           alt={props.alt || "Image"}
                           onClick={handleImageClick}
                         />

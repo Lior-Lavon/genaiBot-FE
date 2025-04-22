@@ -37,6 +37,10 @@ const Kickstarters = () => {
       prompt:
         "My brand is [MY_BRAND]. Which 3 brands pose the biggest threat to my brand pulse position",
     },
+    {
+      id: 7,
+      prompt: "Do a SWOT analysis for my competitor brand [COMPETITOR_BRAND]",
+    },
   ];
 
   const handleKickStart = (id) => {
@@ -44,7 +48,7 @@ const Kickstarters = () => {
       ReactSwal.fire({
         icon: "warning",
         title: "Heads up!",
-        text: "1 Please select a client, product and category from the sidebar before asking questions.",
+        text: "Please select a client, product and category from the sidebar before asking questions.",
       });
     } else {
       const prompt = cards.find((el) => el.id == id).prompt;
@@ -56,6 +60,7 @@ const Kickstarters = () => {
   const getPromptText = (prompt) => {
     let ret = prompt
       .replace(/\[MY_BRAND\]/g, "")
+      .replace(/\[COMPETITOR_BRAND\]/g, "")
       .replace(/\s+/g, " ")
       .trim();
     // return ret.slice(0, 60);

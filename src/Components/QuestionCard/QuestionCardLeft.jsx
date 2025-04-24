@@ -430,6 +430,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                   Proceed
                 </button>
               </div>
+              <p>lior</p>
             </div>
           )
         ))}

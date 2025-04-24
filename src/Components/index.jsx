@@ -4,6 +4,7 @@ import ContentArea from "./ContentArea/ContentArea";
 import LauncherCard from "./LauncherCard/LauncherCard";
 import Kickstarters from "./Kickstarters/Kickstarters";
 import QuestionCard from "./QuestionCard/QuestionCard";
+import QuestionImage from "./QuestionCard/QuestionImage";
 import ImageViewer from "./ImageViewer/ImageViewer";
 import Spinner from "./Spinner/Spinner";
 import PromptView from "./PromptView/PromptView";
@@ -16,6 +17,7 @@ export {
   LauncherCard,
   Kickstarters,
   QuestionCard,
+  QuestionImage,
   ImageViewer,
   Spinner,
   PromptView,

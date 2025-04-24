@@ -368,7 +368,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
           </div>
         </div>
       </div>
-
       {showBrandFlow != "" &&
         (showBrandFlow == "loader" ? (
           <div className="w-full">
@@ -431,6 +430,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                   Proceed
                 </button>
               </div>
+              <p>lior</p>
             </div>
           )
         ))}
@@ -440,7 +440,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
           <ChatLoader />
         </div>
       )}
-
       <div
         className={`answer w-full overflow-hidden transition-all duration-500 ease-in-out ${
           isCollapsed ? "max-h-0 opacity-0" : "max-h-[10000px] opacity-100"

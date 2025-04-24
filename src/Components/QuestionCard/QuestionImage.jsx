@@ -33,27 +33,61 @@ const QuestionImage = ({ props, handleImageClick }) => {
     setMenuVisible(false);
   };
 
+  // const handleCopyImage = async () => {
+  //   try {
+  //     const image = imageRef.current;
+  //     const response = await fetch(image.src);
+  //     const blob = await response.blob();
+
+  //     await navigator.clipboard.write([
+  //       new window.ClipboardItem({ [blob.type]: blob }),
+  //     ]);
+  //     ReactSwal.fire({
+  //       icon: "success",
+  //       title: "Heads up!",
+  //       text: "Image copied to clipboard!",
+  //     });
+  //   } catch (error) {
+  //     alert("Failed to copy image.");
+  //     console.error(error);
+  //   }
+  //   setMenuVisible(false);
+  // };
+
   const handleCopyImage = async () => {
     try {
-      const image = imageRef.current;
-      const response = await fetch(image.src);
-      const blob = await response.blob();
+      const img = imageRef.current;
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
 
-      await navigator.clipboard.write([
-        new window.ClipboardItem({ [blob.type]: blob }),
-      ]);
-      ReactSwal.fire({
-        icon: "success",
-        title: "Heads up!",
-        text: "Image copied to clipboard!",
-      });
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+
+      canvas.toBlob(async (blob) => {
+        if (!blob) throw new Error("Failed to create blob from canvas.");
+
+        await navigator.clipboard.write([
+          new window.ClipboardItem({ [blob.type]: blob }),
+        ]);
+
+        ReactSwal.fire({
+          icon: "success",
+          title: "Heads up!",
+          text: "Image copied to clipboard!",
+          willOpen: () => {
+            const swalContainer = document.querySelector(".swal2-container");
+            if (swalContainer) {
+              swalContainer.style.zIndex = "99999";
+            }
+          },
+        });
+      }, "image/png");
     } catch (error) {
       alert("Failed to copy image.");
       console.error(error);
     }
-    setMenuVisible(false);
   };
-
   const extractBase64Image = (bufferText, index) => {
     // This regex matches base64 image data URIs
     const base64Images = bufferText.match(

@@ -74,26 +74,61 @@ const ZoomPanImage = ({ src, alt }) => {
     setTranslate({ x: 0, y: 0 });
   };
 
+  // const handleCopyImage = async () => {
+  //   try {
+  //     const image = imgRef.current;
+  //     const response = await fetch(image.src);
+  //     const blob = await response.blob();
+
+  //     await navigator.clipboard.write([
+  //       new window.ClipboardItem({ [blob.type]: blob }),
+  //     ]);
+  //     ReactSwal.fire({
+  //       icon: "success",
+  //       title: "Heads up!",
+  //       text: "Image copied to clipboard! !!",
+  //       willOpen: () => {
+  //         const swalContainer = document.querySelector(".swal2-container");
+  //         if (swalContainer) {
+  //           swalContainer.style.zIndex = "99999"; // or higher than your modal
+  //         }
+  //       },
+  //     });
+  //   } catch (error) {
+  //     alert("Failed to copy image.");
+  //     console.error(error);
+  //   }
+  // };
+
   const handleCopyImage = async () => {
     try {
-      const image = imgRef.current;
-      const response = await fetch(image.src);
-      const blob = await response.blob();
+      const img = imgRef.current;
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
 
-      await navigator.clipboard.write([
-        new window.ClipboardItem({ [blob.type]: blob }),
-      ]);
-      ReactSwal.fire({
-        icon: "success",
-        title: "Heads up!",
-        text: "Image copied to clipboard! !!",
-        willOpen: () => {
-          const swalContainer = document.querySelector(".swal2-container");
-          if (swalContainer) {
-            swalContainer.style.zIndex = "99999"; // or higher than your modal
-          }
-        },
-      });
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+
+      canvas.toBlob(async (blob) => {
+        if (!blob) throw new Error("Failed to create blob from canvas.");
+
+        await navigator.clipboard.write([
+          new window.ClipboardItem({ [blob.type]: blob }),
+        ]);
+
+        ReactSwal.fire({
+          icon: "success",
+          title: "Heads up!",
+          text: "Image copied to clipboard!",
+          willOpen: () => {
+            const swalContainer = document.querySelector(".swal2-container");
+            if (swalContainer) {
+              swalContainer.style.zIndex = "99999";
+            }
+          },
+        });
+      }, "image/png");
     } catch (error) {
       alert("Failed to copy image.");
       console.error(error);

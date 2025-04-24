@@ -33,6 +33,6 @@ export default defineConfig({
       cert: readFileSync(certPath),
     },
     host: true, // allows access via your Azure VM IP
-    port: 3000,
+    port: 5173,
   },
 });

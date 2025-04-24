@@ -13,6 +13,9 @@ const customFetch = axios.create({
     Accept: "application/json",
     "Content-Type": "application/json",
   },
+  mode: "cors",
+  credentials: "include",
+  rejectUnauthorized: false, // Ignore certificate errors
   crossDomain: true,
 });
 

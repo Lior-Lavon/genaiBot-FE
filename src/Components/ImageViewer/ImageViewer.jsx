@@ -19,16 +19,6 @@ const ImageViewer = ({ imageSrc }) => {
   const dispatch = useDispatch();
   const ImgWidthFromScreen = 0.65;
   const [aspectRatio, setAspectRatio] = useState(null);
-  // const [imgObj, setImgObj] = useState(null);
-  // const questionId = 0;
-  // const { chatList } = useSelector((store) => store.dashboard);
-  // useEffect(() => {
-  //   // extract the image based on Id
-  //   const imgObj = chatList[questionId].images?.find(
-  //     (img) => img.id == imageId
-  //   );
-  //   setImgObj(imgObj);
-  // }, [chatList]);
 
   useEffect(() => {
     const load = async () => {

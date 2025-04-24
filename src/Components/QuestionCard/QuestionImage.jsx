@@ -1,9 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import ReactSwal from "../../utills/alert";
 
 const QuestionImage = ({ props, handleImageClick }) => {
   const [loading, setLoading] = useState(true);
   const [isBase64, setIsBase64] = useState(null);
   const [finalSrc, setFinalSrc] = useState(null);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const imageRef = useRef(null);
 
   useEffect(() => {
     setIsBase64(props.src?.startsWith("data:image"));
@@ -19,6 +23,37 @@ const QuestionImage = ({ props, handleImageClick }) => {
     }
   }, []);
 
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    setMenuPosition({ x: e.clientX, y: e.clientY });
+    setMenuVisible(true);
+  };
+
+  const handleClickOutside = () => {
+    setMenuVisible(false);
+  };
+
+  const handleCopyImage = async () => {
+    try {
+      const image = imageRef.current;
+      const response = await fetch(image.src);
+      const blob = await response.blob();
+
+      await navigator.clipboard.write([
+        new window.ClipboardItem({ [blob.type]: blob }),
+      ]);
+      ReactSwal.fire({
+        icon: "success",
+        title: "Heads up!",
+        text: "Image copied to clipboard!",
+      });
+    } catch (error) {
+      alert("Failed to copy image.");
+      console.error(error);
+    }
+    setMenuVisible(false);
+  };
+
   const extractBase64Image = (bufferText, index) => {
     // This regex matches base64 image data URIs
     const base64Images = bufferText.match(
@@ -33,13 +68,14 @@ const QuestionImage = ({ props, handleImageClick }) => {
   };
 
   return (
-    <div className="relative w-full my-4">
+    <div className="relative w-full my-4" onClick={handleClickOutside}>
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded border">
           <div className="animate-spin h-6 w-6 border-2 border-gray-500 border-t-transparent rounded-full" />
         </div>
       )}
       <img
+        ref={imageRef}
         loading="lazy"
         decoding="async"
         {...props}
@@ -49,8 +85,26 @@ const QuestionImage = ({ props, handleImageClick }) => {
           loading ? "opacity-0" : "opacity-100"
         } ${isBase64 ? "border" : ""}`}
         alt={props.alt || "Image"}
-        onClick={handleImageClick}
+        onClick={(e) => {
+          if (!menuVisible) handleImageClick(e);
+        }}
+        onContextMenu={handleContextMenu}
       />
+      {/* show context menu */}
+      {menuVisible && (
+        <ul
+          // style={{ top: menuPosition.y, left: menuPosition.x }}
+          // style={{ top: 0, left: 0 }}
+          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 border border-gray-300 rounded shadow-md z-500 w-fit"
+        >
+          <li
+            onClick={handleCopyImage}
+            className="px-4 py-2 bg-white hover:bg-gray-200 cursor-pointer"
+          >
+            📋 Copy image
+          </li>
+        </ul>
+      )}
     </div>
   );
 };

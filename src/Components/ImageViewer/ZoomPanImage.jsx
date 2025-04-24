@@ -1,5 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
 import { ZoomIn, ZoomOut, X as ResetIcon } from "lucide-react";
+import { FaRegCopy } from "react-icons/fa";
+import { Tooltip } from "react-tooltip";
+import ReactSwal from "../../utills/alert";
 
 const ZoomPanImage = ({ src, alt }) => {
   const containerRef = useRef(null);
@@ -71,6 +74,32 @@ const ZoomPanImage = ({ src, alt }) => {
     setTranslate({ x: 0, y: 0 });
   };
 
+  const handleCopyImage = async () => {
+    try {
+      const image = imgRef.current;
+      const response = await fetch(image.src);
+      const blob = await response.blob();
+
+      await navigator.clipboard.write([
+        new window.ClipboardItem({ [blob.type]: blob }),
+      ]);
+      ReactSwal.fire({
+        icon: "success",
+        title: "Heads up!",
+        text: "Image copied to clipboard! !!",
+        willOpen: () => {
+          const swalContainer = document.querySelector(".swal2-container");
+          if (swalContainer) {
+            swalContainer.style.zIndex = "99999"; // or higher than your modal
+          }
+        },
+      });
+    } catch (error) {
+      alert("Failed to copy image.");
+      console.error(error);
+    }
+  };
+
   return (
     <div
       ref={containerRef}
@@ -86,21 +115,27 @@ const ZoomPanImage = ({ src, alt }) => {
         <div className="absolute top-2 right-2 z-10 flex gap-2 bg-white bg-opacity-80 p-2 rounded shadow">
           <button
             onClick={handleZoomIn}
-            className="p-2 bg-gray-200 rounded hover:bg-gray-300"
+            className="p-2 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer"
           >
             <ZoomIn className="w-4 h-4" />
           </button>
           <button
             onClick={handleZoomOut}
-            className="p-2 bg-gray-200 rounded hover:bg-gray-300"
+            className="p-2 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer"
           >
             <ZoomOut className="w-4 h-4" />
           </button>
           <button
             onClick={handleReset}
-            className="p-2 bg-gray-200 rounded hover:bg-gray-300"
+            className="p-2 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer"
           >
             <ResetIcon className="w-4 h-4" />
+          </button>
+          <button
+            onClick={handleCopyImage}
+            className="p-2 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer"
+          >
+            <FaRegCopy className="w-4 h-4" />
           </button>
         </div>
       </div>

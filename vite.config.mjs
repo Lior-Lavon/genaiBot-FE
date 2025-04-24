@@ -3,10 +3,23 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import dotenv from "dotenv";
 
-const keyPath = "/Users/liorlavon/igenie-chatbot/ssl/server.key";
-const certPath = "/Users/liorlavon/igenie-chatbot/ssl/server.crt";
+// Manually load the .env file
+dotenv.config();
 
+console.log("SSL Key Path:", process.env.VITE_SSL_KEY_PATH);
+console.log("SSL Cert Path:", process.env.VITE_SSL_CERT_PATH);
+
+// Access the environment variables with the VITE_ prefix
+const keyPath = process.env.VITE_SSL_KEY_PATH;
+const certPath = process.env.VITE_SSL_CERT_PATH;
+
+if (!keyPath || !certPath) {
+  throw new Error(
+    "SSL key or cert path is not defined in the environment variables."
+  );
+}
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { memo, useEffect, useRef } from "react";
 import { Menu } from "lucide-react";
 import { useState } from "react";
 
@@ -26,7 +26,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GoTriangleLeft, GoTriangleRight } from "react-icons/go";
 import getFiltersAdditionalInfo from "../../utills/getFiltersAdditionalInfo.js";
 
-const Dashboard = () => {
+const Dashboard = memo(() => {
   const dispatch = useDispatch();
   const [inputParam, setInputParam] = useState(null);
   const { showImage, isLeftDrawer, botMapping, folders } = useSelector(
@@ -200,11 +200,10 @@ const Dashboard = () => {
           </motion.div>
         )}
       </AnimatePresence>
-      {/*  */}
 
       {/* {showImage?.show && <ImageViewer imageId={showImage?.id} />} */}
     </div>
   );
-};
+});
 
 export default Dashboard;

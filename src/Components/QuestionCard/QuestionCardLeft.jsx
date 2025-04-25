@@ -81,8 +81,11 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
         // Stop rendering when pipeline ends
         if (text.includes("Pipeline run completed.")) {
           console.log("Pipeline run completed.");
-          dispatch(setStreamingStatus(false));
           setStreamComplete(true);
+          setTimeout(() => {
+            dispatch(setStreamingStatus(false));
+          }, 2000);
+
           return;
         }
 
@@ -331,8 +334,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
   // submit prompt with my-brands
   const submitBrandSelectPrompt = () => {
-    console.log("selectedMyBrands : ", selectedMyBrands);
-
     let newPrompt = "";
     if (showBrandFlow == "my-brand-question") {
       if (selectedMyBrands.some((brand) => brand.selected === true)) {

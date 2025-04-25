@@ -1,7 +1,9 @@
 import { memo, useEffect, useRef, useState } from "react";
 import ReactSwal from "../../utills/alert";
+import { useDispatch } from "react-redux";
 
 const QuestionImage = memo(({ src, srcSet, handleImageClick }) => {
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [isBase64, setIsBase64] = useState(null);
   const [finalSrc, setFinalSrc] = useState(null);
@@ -121,7 +123,9 @@ const QuestionImage = memo(({ src, srcSet, handleImageClick }) => {
         } ${isBase64 ? "border" : ""}`}
         alt={"Image"}
         onClick={(e) => {
-          if (!menuVisible) handleImageClick(e);
+          if (!menuVisible) {
+            handleImageClick(e);
+          }
         }}
         onContextMenu={handleContextMenu}
       />

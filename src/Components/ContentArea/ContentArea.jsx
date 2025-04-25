@@ -1,21 +1,31 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import QuestionCard from "../QuestionCard/QuestionCard";
 import { useDispatch, useSelector } from "react-redux";
 import Spinner from "../Spinner/Spinner";
 import { slideContentToBottom } from "../../features/dashboard/dashboardSlice";
 
-const ContentArea = () => {
+const ContentArea = memo(() => {
   const dispatch = useDispatch();
   const currentRef = useRef(null);
-  const { chatList, isLoading, slideToBottom } = useSelector(
+  const isStreamingRef = useRef(false);
+  const slideToBottomRef = useRef(false);
+  const { chatList, isLoading, slideToBottom, isStreaming } = useSelector(
     (store) => store.dashboard
   );
 
   const [width, setWidth] = useState(0);
 
+  useEffect(() => {
+    isStreamingRef.current = isStreaming;
+    slideToBottomRef.current = slideToBottom;
+  }, [isStreaming, slideToBottom]);
+
   // Function to scroll to the bottom
   const handleAutoScroll = () => {
-    if (currentRef.current) {
+    if (
+      currentRef.current &&
+      (isStreamingRef.current || slideToBottomRef.current)
+    ) {
       currentRef.current.scrollTo({
         top: currentRef.current.scrollHeight,
         behavior: "smooth",
@@ -77,6 +87,6 @@ const ContentArea = () => {
       )}
     </div>
   );
-};
+});
 
 export default ContentArea;

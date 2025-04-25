@@ -62,7 +62,6 @@ const dashboardSlice = createSlice({
       state.isPromptView = !state.isPromptView;
     },
     setImage: (state, { payload }) => {
-      // payload == { show: true, src: "" }
       state.showImage = payload;
     },
     removeImage: (state) => {

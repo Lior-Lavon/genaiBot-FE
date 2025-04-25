@@ -62,12 +62,16 @@ const ContentArea = () => {
 
   return (
     <div className="w-full h-full flex items-center justify-center relative">
-      <div ref={currentRef} className="w-full h-full overflow-y-auto bg-white">
+      <div
+        ref={currentRef}
+        className="w-full h-full overflow-y-auto bg-white mt-5"
+      >
         {chatList.map((chat) => {
           return (
             <QuestionCard key={chat.id} chatItem={chat} initWidth={width} />
           );
         })}
+        <div className="w-full h-14"></div>
       </div>
       {isLoading && (
         <div className="w-full h-full flex items-center justify-center absolute top-0 left-0 z-999 bg-transparent">

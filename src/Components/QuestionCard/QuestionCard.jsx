@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import QuestionCardLeft from "./QuestionCardLeft";
 import QuestionCardRight from "./QuestionCardRight";
 import { useSelector } from "react-redux";
+import { div } from "framer-motion/client";
 
 const QuestionCard = ({ chatItem, initWidth }) => {
   const [width, setWidth] = useState(initWidth);
@@ -37,9 +38,9 @@ const QuestionCard = ({ chatItem, initWidth }) => {
   };
 
   return (
-    <div ref={currentRef} className="w-full flex bg-white">
+    <div ref={currentRef} className="w-full flex bg-white mt-1">
       <QuestionCardLeft chatItem={chatItem} leftWidth={width} />
-      <QuestionCardRight chatItem={chatItem} ref={rightCardRef} />
+      {/* <QuestionCardRight chatItem={chatItem} ref={rightCardRef} /> */}
     </div>
   );
 };

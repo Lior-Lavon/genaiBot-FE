@@ -338,7 +338,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
       newPrompt = chatItem.prompt.replace("[COMPETITOR_BRAND]", `: ${brands}`);
     }
-
+    // prompt = "lior lavon";
     // dispatch(updateQuestionPrompt({ id: chatItem.id, prompt: newPrompt }));
     setUpdatedPrompt(newPrompt);
     connect();
@@ -347,8 +347,8 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   return (
     <div className="bg-white" style={{ width: `${leftWidth}px` }}>
       {/* prompt */}
-      <div className="w-full bg-bg-red-500">
-        <div className="w-full m-4 p-4 text-left rounded-2xl text-xl border-l-3 border-[#5fbbc5] flex items-center justify-between bg-[#FFFABF] ">
+      <div className="w-full bg-white">
+        <div className="w-full mx-4 px-4 py-3 text-left rounded-2xl text-xl border-l-3 border-[#5fbbc5] flex items-center justify-between bg-[#FFFABF] ">
           {getPromptText(prompt)}
 
           <div className="flex items-center gap-2">
@@ -376,7 +376,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
         ) : (
           (showBrandFlow == "my-brand-question" ||
             showBrandFlow == "competitor-brand-question") && (
-            <div className="w-full ml-4 flex flex-col justify-start gap-2 border-t-[.05rem]">
+            <div className="w-full ml-4 pl-4 mt-2 flex flex-col justify-start gap-2 border-t-[.05rem] bg-transparent">
               <div
                 className={`mt-2 w-full flex gap-2 items-center ${
                   updatedPrompt != null ? "pointer-events-none" : ""
@@ -424,7 +424,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
               </div>
               <div>
                 <button
-                  className="bg-indigo-50 py-1 px-4 text-blue-900 rounded-2xl shadow-sm cursor-pointer hover:bg-indigo-100 transition-all duration-400 mb-15"
+                  className="bg-indigo-50 py-1 px-4 text-blue-900 rounded-2xl shadow-sm cursor-pointer hover:bg-indigo-100 transition-all duration-400 mb-2"
                   onClick={submitBrandSelectPrompt}
                 >
                   Proceed
@@ -445,7 +445,9 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
         } ${response == "" ? "hidden" : ""}`}
       >
         {/* seperation line */}
-        <div className={`mx-4 mb-2 h-[.2rem] bg-gray-200 rounded-full`}></div>
+        <div
+          className={`mx-4 mt-2 mb-2 h-[.2rem] bg-gray-200 rounded-full`}
+        ></div>
         {/* answer */}
         <div className="relative">
           {/* Zoom Controls Wrapper */}
@@ -474,7 +476,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
           <div
             ref={answerRef}
-            className="relative m-4 p-4 text-left rounded-tl-2xl rounded-bl-2xl text-lg border-l-2 overflow-x-auto overflow-hidden "
+            className="relative m-4 p-4 text-left rounded-tl-2xl rounded-bl-2xl text-lg border-l-2 overflow-x-auto overflow-hidden"
           >
             {/* Scaled content wrapper */}
             <div

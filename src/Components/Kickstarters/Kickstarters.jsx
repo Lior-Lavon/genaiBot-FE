@@ -9,7 +9,8 @@ import { div } from "framer-motion/client";
 
 const Kickstarters = () => {
   const dispatch = useDispatch();
-  const { folders } = useSelector((store) => store.dashboard);
+  const { folders, isStreaming } = useSelector((store) => store.dashboard);
+
   const cards = [
     {
       id: 1,
@@ -26,20 +27,20 @@ const Kickstarters = () => {
     {
       id: 4,
       prompt:
-        "Summarize my brand [MY_BRAND] on key metrics and how are these metrics trending?",
+        "Summarize my brand on key metrics and how are these metrics trending?",
     },
     {
       id: 5,
-      prompt: "Do a SWOT analysis for my brand [MY_BRAND]",
+      prompt: "Do a SWOT analysis for my brand",
     },
     {
       id: 6,
       prompt:
-        "My brand is [MY_BRAND]. Which 3 brands pose the biggest threat to my brand pulse position",
+        "My brand is. Which 3 brands pose the biggest threat to my brand pulse position",
     },
     {
       id: 7,
-      prompt: "Do a SWOT analysis for my competitor brand [COMPETITOR_BRAND]",
+      prompt: "Do a SWOT analysis for my competitor brand",
     },
   ];
 
@@ -53,18 +54,7 @@ const Kickstarters = () => {
     } else {
       const prompt = cards.find((el) => el.id == id).prompt;
       dispatch(addNewQuestion({ prompt }));
-      dispatch(slideContentToBottom(true));
     }
-  };
-
-  const getPromptText = (prompt) => {
-    let ret = prompt
-      .replace(/\[MY_BRAND\]/g, "")
-      .replace(/\[COMPETITOR_BRAND\]/g, "")
-      .replace(/\s+/g, " ")
-      .trim();
-    // return ret.slice(0, 60);
-    return ret;
   };
 
   return (
@@ -75,10 +65,26 @@ const Kickstarters = () => {
         {cards.map((op) => (
           <div key={op.id}>
             <div
-              className="text-[0.7rem] text-left bg-indigo-50 hover:bg-indigo-100 text-gray-800 font-medium px-4 py-2 rounded-xl border-l-4 border-gray-800 shadow-sm cursor-pointer transition-all duration-400"
-              onClick={() => handleKickStart(op.id)}
+              className={`text-[0.7rem] text-left 
+            ${
+              isStreaming
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-indigo-50 hover:bg-indigo-100 text-gray-800 cursor-pointer"
+            } 
+            font-medium px-4 py-2 rounded-xl border-l-4 border-gray-800 shadow-sm 
+            transition-all duration-300 overflow-hidden whitespace-nowrap text-ellipsis 
+            ${
+              isStreaming
+                ? ""
+                : "hover:whitespace-normal hover:overflow-visible hover:h-auto"
+            } 
+            `}
+              onClick={() => {
+                if (!isStreaming) handleKickStart(op.id);
+              }}
+              title={op.prompt}
             >
-              {getPromptText(op.prompt)}
+              {op.prompt}
             </div>
           </div>
         ))}

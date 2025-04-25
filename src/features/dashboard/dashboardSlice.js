@@ -13,6 +13,7 @@ const initialState = {
   showImage: { show: false, src: "" },
   chatList: [],
   isLoading: false,
+  isStreaming: false,
   filters: null,
   folders: null,
   // {
@@ -78,6 +79,7 @@ const dashboardSlice = createSlice({
         };
         tmpList.push(newPayload);
         state.chatList = tmpList;
+        state.slideToBottom = true;
       }
     },
     initFolders: (state, { payload }) => {
@@ -91,6 +93,9 @@ const dashboardSlice = createSlice({
     },
     restartChat: (state) => {
       state.chatList = [];
+    },
+    setStreamingStatus: (state, { payload }) => {
+      state.isStreaming = payload;
     },
   },
   extraReducers: (builder) => {
@@ -151,5 +156,6 @@ export const {
   initFolders,
   slideContentToBottom,
   restartChat,
+  setStreamingStatus,
 } = dashboardSlice.actions;
 export default dashboardSlice.reducer;

@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import ReactSwal from "../../utills/alert";
 
-const QuestionImage = ({ props, handleImageClick }) => {
+const QuestionImage = memo(({ src, srcSet, handleImageClick }) => {
   const [loading, setLoading] = useState(true);
   const [isBase64, setIsBase64] = useState(null);
   const [finalSrc, setFinalSrc] = useState(null);
@@ -10,13 +10,13 @@ const QuestionImage = ({ props, handleImageClick }) => {
   const imageRef = useRef(null);
 
   useEffect(() => {
-    setIsBase64(props.src?.startsWith("data:image"));
+    setIsBase64(src?.startsWith("data:image"));
 
-    let finalSrc = props.src;
+    let finalSrc = src;
     if (!finalSrc || finalSrc.trim() === "") {
-      if (props.srcSet) {
+      if (srcSet) {
         // Extract first URL from srcSet
-        setFinalSrc(extractBase64Image(props.srcSet, 0));
+        setFinalSrc(extractBase64Image(srcSet, 0));
       } else {
         console.warn("⚠️ Empty image src and no srcSet available.");
       }
@@ -112,13 +112,14 @@ const QuestionImage = ({ props, handleImageClick }) => {
         ref={imageRef}
         loading="lazy"
         decoding="async"
-        {...props}
+        // {...props}
         src={finalSrc}
         onLoad={() => setLoading(false)}
+        style={{ willChange: "opacity, transform" }}
         className={`rounded shadow max-w-full transition-opacity duration-300 cursor-pointer ${
           loading ? "opacity-0" : "opacity-100"
         } ${isBase64 ? "border" : ""}`}
-        alt={props.alt || "Image"}
+        alt={"Image"}
         onClick={(e) => {
           if (!menuVisible) handleImageClick(e);
         }}
@@ -126,11 +127,7 @@ const QuestionImage = ({ props, handleImageClick }) => {
       />
       {/* show context menu */}
       {menuVisible && (
-        <ul
-          // style={{ top: menuPosition.y, left: menuPosition.x }}
-          // style={{ top: 0, left: 0 }}
-          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 border border-gray-300 rounded shadow-md z-500 w-fit"
-        >
+        <ul className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 border border-gray-300 rounded shadow-md z-500 w-fit">
           <li
             onClick={handleCopyImage}
             className="px-4 py-2 bg-white hover:bg-gray-200 cursor-pointer"
@@ -141,6 +138,6 @@ const QuestionImage = ({ props, handleImageClick }) => {
       )}
     </div>
   );
-};
+});
 
 export default QuestionImage;

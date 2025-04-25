@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Plus, Minus, RotateCw } from "lucide-react"; // Optional: icons
 import {
   setImage,
+  setStreamingStatus,
   updateResponseImages,
 } from "../../features/dashboard/dashboardSlice";
 import ReactMarkdown from "react-markdown";
@@ -28,7 +29,8 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   const { folders } = useSelector((store) => store.dashboard);
 
   const { id, prompt } = chatItem;
-  const [updatedPrompt, setUpdatedPrompt] = useState(null);
+
+  const [visiblePrompt, setVisiblePrompt] = useState(prompt); // this is the prompt that will be visible
   const [selectedMyBrands, setSelectedMyBrands] = useState(null);
   const [selectedCompetitorBrands, setSelectedCompetitorBrands] =
     useState(null);
@@ -70,6 +72,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
       ws.onopen = () => {
         // console.log("✅ WebSocket connected");
         resolve(ws); // connection established
+        dispatch(setStreamingStatus(true));
       };
 
       ws.onmessage = (event) => {
@@ -78,6 +81,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
         // Stop rendering when pipeline ends
         if (text.includes("Pipeline run completed.")) {
           console.log("Pipeline run completed.");
+          dispatch(setStreamingStatus(false));
           setStreamComplete(true);
           return;
         }
@@ -116,7 +120,10 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
   useEffect(() => {
     // check for MY_BRAND question
-    if (prompt.includes("MY_BRAND") || prompt.includes("COMPETITOR_BRAND")) {
+    if (
+      prompt.toLowerCase().includes("my brand") ||
+      prompt.toLowerCase().includes("competitor brand")
+    ) {
       setTimeout(() => {
         setShowBrandFlow("loader");
       }, 1000);
@@ -170,8 +177,9 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
         // console.log("Prompt : ", prompt);
         // Do a SWOT analysis for my brand [MY_BRAND]
         // Do a SWOT analysis for my competitor brand [COMPETITOR_BRAND]
-        if (prompt.includes("MY_BRAND")) setShowBrandFlow("my-brand-question");
-        else if (prompt.includes("COMPETITOR_BRAND"))
+        if (prompt.toLowerCase().includes("my brand"))
+          setShowBrandFlow("my-brand-question");
+        else if (prompt.toLowerCase().includes("competitor brand"))
           setShowBrandFlow("competitor-brand-question");
       }, 2000);
     }
@@ -195,7 +203,8 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
     // setUpdatedPrompt(null);
     // console.log("promptWithFolders : ", promptWithFolders);
-    wsRef.current.send(updatedPrompt == null ? prompt : updatedPrompt);
+    // wsRef.current.send(updatedPrompt == null ? prompt : updatedPrompt);
+    wsRef.current.send(visiblePrompt);
   };
 
   useEffect(() => {
@@ -294,8 +303,8 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
   const getPromptText = (prompt) => {
     let ret = prompt
-      .replace(/\[MY_BRAND\]/g, "")
-      .replace(/\[COMPETITOR_BRAND\]/g, "")
+      .replace(/\my brand/g, "")
+      .replace(/\competitor brand/g, "")
       .replace(/\s+/g, " ")
       .trim();
     // return ret.slice(0, 60);
@@ -322,26 +331,35 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
   // submit prompt with my-brands
   const submitBrandSelectPrompt = () => {
+    console.log("selectedMyBrands : ", selectedMyBrands);
+
     let newPrompt = "";
     if (showBrandFlow == "my-brand-question") {
-      const brands = `[${selectedMyBrands
-        .filter((brand) => brand.selected)
-        .map((brand) => brand.name)
-        .join(", ")}]`;
+      if (selectedMyBrands.some((brand) => brand.selected === true)) {
+        const brands = `${selectedMyBrands
+          .filter((brand) => brand.selected)
+          .map((brand) => brand.name)
+          .join(", ")}`;
 
-      newPrompt = chatItem.prompt.replace("[MY_BRAND]", `: ${brands}`);
+        newPrompt = chatItem.prompt.replace("my brand", `${brands}`);
+      }
     } else if (showBrandFlow == "competitor-brand-question") {
-      const brands = `[${selectedCompetitorBrands
-        .filter((brand) => brand.selected)
-        .map((brand) => brand.name)
-        .join(", ")}]`;
+      if (selectedCompetitorBrands.some((brand) => brand.selected === true)) {
+        const brands = `${selectedCompetitorBrands
+          .filter((brand) => brand.selected)
+          .map((brand) => brand.name)
+          .join(", ")}`;
 
-      newPrompt = chatItem.prompt.replace("[COMPETITOR_BRAND]", `: ${brands}`);
+        newPrompt = chatItem.prompt.replace("my competitor brand", `${brands}`);
+      }
     }
-    // prompt = "lior lavon";
-    // dispatch(updateQuestionPrompt({ id: chatItem.id, prompt: newPrompt }));
-    setUpdatedPrompt(newPrompt);
-    connect();
+
+    if (newPrompt != "") {
+      setShowBrandFlow("");
+      // dispatch(updateQuestionPrompt({ id: chatItem.id, prompt: newPrompt }));
+      setVisiblePrompt(newPrompt);
+      connect();
+    }
   };
 
   return (
@@ -349,7 +367,8 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
       {/* prompt */}
       <div className="w-full bg-white">
         <div className="w-full mx-4 px-4 py-3 text-left rounded-2xl text-xl border-l-3 border-[#5fbbc5] flex items-center justify-between bg-[#FFFABF] ">
-          {getPromptText(prompt)}
+          {/* {getPromptText(prompt)} */}
+          {visiblePrompt}
 
           <div className="flex items-center gap-2">
             {isWaiting && <Spinner />}
@@ -377,11 +396,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
           (showBrandFlow == "my-brand-question" ||
             showBrandFlow == "competitor-brand-question") && (
             <div className="w-full ml-4 pl-4 mt-2 flex flex-col justify-start gap-2 border-t-[.05rem] bg-transparent">
-              <div
-                className={`mt-2 w-full flex gap-2 items-center ${
-                  updatedPrompt != null ? "pointer-events-none" : ""
-                }`}
-              >
+              <div className={`mt-2 w-full flex gap-2 items-center`}>
                 <p className="w-fit py-1">
                   {showBrandFlow == "my-brand-question"
                     ? "Please select your brands :"
@@ -496,7 +511,8 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                   img({ node, ...props }) {
                     return (
                       <QuestionImage
-                        props={props}
+                        src={props.src}
+                        srcSet={props.srcSet}
                         handleImageClick={handleImageClick}
                       />
                     );

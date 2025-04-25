@@ -77,7 +77,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
       ws.onmessage = (event) => {
         const text = event.data;
-
+        lior;
         // Stop rendering when pipeline ends
         if (text.includes("Pipeline run completed.")) {
           console.log("Pipeline run completed.");

@@ -32,7 +32,7 @@
 trigger:
   branches:
     include:
-      - main # Or your deployment branch
+      - main
 
 pool:
   vmImage: "ubuntu-latest"
@@ -44,7 +44,7 @@ variables:
 steps:
   - task: NodeTool@0
     inputs:
-      versionSpec: "18.x" # Match your React Node version
+      versionSpec: "18.x"
     displayName: "Install Node.js"
 
   - script: |
@@ -52,10 +52,19 @@ steps:
       npm run build
     displayName: "Install dependencies and build React app"
 
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: "$(packageDir)"
+      includeRootFolder: false
+      archiveType: "zip"
+      archiveFile: "$(Build.ArtifactStagingDirectory)/react-app.zip"
+      replaceExistingArchive: true
+    displayName: "Archive React build output"
+
   - task: AzureWebApp@1
     inputs:
       azureSubscription: "chatbot-service-connection"
       appType: "webAppLinux"
       appName: "$(appName)"
-      package: "$(packageDir)"
+      package: "$(Build.ArtifactStagingDirectory)/react-app.zip"
     displayName: "Deploy to Azure Web App"

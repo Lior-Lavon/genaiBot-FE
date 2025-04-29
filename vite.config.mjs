@@ -23,17 +23,17 @@ dotenv.config();
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  server: {
-    host: "0.0.0.0",
-    https: false,
-    port: 5173,
-  },
   // server: {
-  //   https: {
-  //     key: readFileSync(keyPath),
-  //     cert: readFileSync(certPath),
-  //   },
-  //   host: true, // allows access via your Azure VM IP
+  //   host: "0.0.0.0",
+  //   https: false,
   //   port: 5173,
   // },
+  server: {
+    https: {
+      key: readFileSync(keyPath),
+      cert: readFileSync(certPath),
+    },
+    host: true,
+    port: 5173,
+  },
 });

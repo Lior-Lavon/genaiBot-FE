@@ -39,7 +39,7 @@ pool:
 
 variables:
   appName: "genie-bot-frontend"
-  packageDir: "build"
+  packageDir: "dist" # Vite uses dist/ instead of build/
 
 steps:
   - task: NodeTool@0
@@ -49,22 +49,28 @@ steps:
 
   - script: |
       npm install
-      npm run build
-    displayName: "Install dependencies and build React app"
+      npm run build  # Ensure you're using the default Vite build script
+    displayName: "Install dependencies and build Vite app"
+
+  - script: |
+      echo "Listing root and dist folder"
+      ls -la
+      ls -la dist  # Check if the dist/ folder exists
+    displayName: "Debug: check dist output"
 
   - task: ArchiveFiles@2
     inputs:
       rootFolderOrFile: "$(packageDir)"
       includeRootFolder: false
       archiveType: "zip"
-      archiveFile: "$(Build.ArtifactStagingDirectory)/react-app.zip"
+      archiveFile: "$(Build.ArtifactStagingDirectory)/vite-app.zip"
       replaceExistingArchive: true
-    displayName: "Archive React build output"
+    displayName: "Archive Vite build output"
 
   - task: AzureWebApp@1
     inputs:
       azureSubscription: "chatbot-service-connection"
       appType: "webAppLinux"
       appName: "$(appName)"
-      package: "$(Build.ArtifactStagingDirectory)/react-app.zip"
+      package: "$(Build.ArtifactStagingDirectory)/vite-app.zip"
     displayName: "Deploy to Azure Web App"

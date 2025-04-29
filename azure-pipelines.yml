@@ -4,18 +4,27 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
 trigger:
-  - main
+  branches:
+    include:
+      - main # or your deployment branch
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: "ubuntu-latest"
 
 steps:
   - task: NodeTool@0
     inputs:
-      versionSpec: "20.x"
-    displayName: "Install Node.js"
+      versionSpec: "18.x" # or whatever version you use
+    displayName: "Use Node.js"
 
-  - script: |
-      npm install
-      npm run build
-    displayName: "npm install and build"
+  - script: npm install
+    displayName: "Install dependencies"
+
+  - script: npm run build
+    displayName: "Build React App"
+
+  - task: AzureWebApp@1
+    inputs:
+      azureSubscription: "AzureConnection" # service connection name
+      appName: "genie-bot-frontend" # Azure App Service name
+      package: "$(System.DefaultWorkingDirectory)/build" # React build output

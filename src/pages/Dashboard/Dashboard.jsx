@@ -181,7 +181,7 @@ const Dashboard = memo(() => {
             >
               <div className="w-[90%] max-w-[700px] flex flex-col gap-4">
                 {chatList.length == 0 && (
-                  <p className="text-center text-2xl">How can I help you?</p>
+                  <p className="text-center text-2xl">How can I help you ?</p>
                 )}
                 <PromptView />
               </div>

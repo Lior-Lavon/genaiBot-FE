@@ -29,7 +29,7 @@ const initialState = {
 export const sessionToken = createAsyncThunk(
   "dashboard/getToken",
   async (thunkAPI) => {
-    console.log(import.meta.env.VITE_API_BASE_URL);
+    console.log(`sessionToken ${import.meta.env.VITE_API_BASE_URL}`);
     return getTokenThunk("/session", thunkAPI);
   }
 );
@@ -37,7 +37,7 @@ export const sessionToken = createAsyncThunk(
 export const fetchMapping = createAsyncThunk(
   "dashboard/fetchMapping",
   async (thunkAPI) => {
-    console.log(import.meta.env.VITE_API_BASE_URL);
+    console.log(`fetchMapping ${import.meta.env.VITE_API_BASE_URL}`);
     return fetchMappingThunk("/download-mapping", thunkAPI);
   }
 );

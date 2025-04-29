@@ -25,6 +25,6 @@ steps:
 
   - task: AzureWebApp@1
     inputs:
-      azureSubscription: "AzureConnection" # service connection name
+      azureSubscription: "chatbot-service-connection" # service connection name
       appName: "genie-bot-frontend" # Azure App Service name
       package: "$(System.DefaultWorkingDirectory)/build" # React build output

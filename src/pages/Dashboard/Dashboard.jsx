@@ -137,9 +137,8 @@ const Dashboard = memo(() => {
 
   return (
     <div className="h-screen flex flex-col">
-      {/* Top Bar */}
+      console.log({`${import.meta.env.VITE_API_BASE_URL}`}){/* Top Bar */}
       <TopBar />
-
       {/* Main Area */}
       <div className="flex overflow-hidden">
         {/* Sidebar */}
@@ -189,7 +188,6 @@ const Dashboard = memo(() => {
           </main>
         </div>
       </div>
-
       <AnimatePresence>
         {showImage.show && (
           <motion.div
@@ -211,7 +209,6 @@ const Dashboard = memo(() => {
           </motion.div>
         )}
       </AnimatePresence>
-
       {/* {showImage?.show && <ImageViewer imageId={showImage?.id} />} */}
     </div>
   );

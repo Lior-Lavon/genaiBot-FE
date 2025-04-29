@@ -18,7 +18,7 @@ function App() {
     if (session == null) dispatch(sessionToken());
   }, []);
 
-  return <>{screenWidth < 768 ? <NotSupported /> : <Dashboard />}</>;
+  return <>{screenWidth < 769 ? <NotSupported /> : <Dashboard />}</>;
 }
 
 export default App;

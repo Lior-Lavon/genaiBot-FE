@@ -20,20 +20,37 @@ dotenv.config();
 //     "SSL key or cert path is not defined in the environment variables."
 //   );
 // }
-// https://vite.dev/config/
+
+// // https://vite.dev/config/
+// export default defineConfig({
+//   plugins: [react(), tailwindcss()],
+//   // server: {
+//   //   host: "0.0.0.0",
+//   //   https: false,
+//   //   port: 5173,
+//   // },
+//   server: {
+//     // https: {
+//     //   key: readFileSync(keyPath),
+//     //   cert: readFileSync(certPath),
+//     // },
+//     // host: true, // allows access via your Azure VM IP
+//     port: 5173,
+//   },
+// });
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     host: "0.0.0.0",
-    https: false,
-    port: 5173,
+    https: true,
   },
   // server: {
   //   https: {
   //     key: readFileSync(keyPath),
   //     cert: readFileSync(certPath),
   //   },
-  //   host: true, // allows access via your Azure VM IP
-  //   port: 5173,
+  //     host: true, // allows access via your Azure VM IP
+  port: 5173,
   // },
 });

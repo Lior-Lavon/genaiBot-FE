@@ -397,12 +397,15 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
           (showBrandFlow == "my-brand-question" ||
             showBrandFlow == "competitor-brand-question") && (
             <div className="w-full ml-4 pl-4 mt-2 flex flex-col justify-start gap-2 border-t-[.05rem] bg-transparent">
-              <div className={`mt-2 w-full flex gap-2 items-center`}>
+              <div
+                className={`mt-2 w-full flex justify-right gap-2 items-center `}
+              >
                 <p className="w-fit py-1">
                   {showBrandFlow == "my-brand-question"
                     ? "Please select your brands :"
                     : "Please select competitor brands :"}
                 </p>
+                {/* options */}
                 <div className="flex items-center gap-2 ">
                   {showBrandFlow == "my-brand-question" &&
                     selectedMyBrands?.map((item, index) => {
@@ -437,10 +440,10 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                       );
                     })}
                 </div>
-              </div>
-              <div>
+
+                {/* proceed */}
                 <button
-                  className="bg-indigo-50 py-1 px-4 text-blue-900 rounded-2xl shadow-sm cursor-pointer hover:bg-indigo-100 transition-all duration-400 mb-2"
+                  className="bg-indigo-50 mt-1 py-1 px-4 text-blue-900 rounded-2xl shadow-sm cursor-pointer hover:bg-indigo-100 transition-all duration-400 mb-2"
                   onClick={submitBrandSelectPrompt}
                 >
                   Proceed
@@ -581,7 +584,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                     <ul className="mt-1" {...props} />
                   ),
                   li: ({ node, ...props }) => (
-                    <li className="text-sm list-disc my-1 ml-2" {...props} />
+                    <li className="text-sm list-disc py-1 ml-6" {...props} />
                   ),
                 }}
               >

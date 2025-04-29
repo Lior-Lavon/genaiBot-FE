@@ -75,11 +75,13 @@ const ContentArea = memo(() => {
             <QuestionCard key={chat.id} chatItem={chat} initWidth={width} />
           );
         })}
-        <div className="w-full h-16"></div>
+        {chatList.length > 0 && <div className="w-full h-22"></div>}
       </div>
+
+      {/* loading */}
       {isLoading && (
         <div className="w-full h-full flex items-center justify-center absolute top-0 left-0 z-999 bg-transparent">
-          <div className="w-[500px] h-[250px] bg-white rounded-2xl flex items-center justify-center ">
+          <div className="w-fit h-fit bg-white rounded-2xl flex items-center justify-center ">
             <Spinner />
             <p>Loading ... </p>
           </div>

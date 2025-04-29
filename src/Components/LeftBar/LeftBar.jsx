@@ -9,7 +9,7 @@ const LeftBar = ({ leftBarRef }) => {
   const { isLeftDrawer } = useSelector((store) => store.dashboard);
   return (
     <aside
-      className={`w-80 bg-gray-100 transition-all duration-300 ease-in-out h-full
+      className={`w-70 bg-gray-100 transition-all duration-300 ease-in-out h-full
       } overflow-hidden `}
       ref={leftBarRef}
     >

@@ -92,6 +92,8 @@ const dashboardSlice = createSlice({
     },
     restartChat: (state) => {
       state.chatList = [];
+      state.isLoading = false;
+      state.isStreaming = false;
     },
     setStreamingStatus: (state, { payload }) => {
       state.isStreaming = payload;

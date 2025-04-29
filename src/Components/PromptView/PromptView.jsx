@@ -6,12 +6,16 @@ import {
 } from "../../features/dashboard/dashboardSlice";
 import myBg from "../../assets/pattern.png";
 import ReactSwal from "../../utills/alert";
-import { FaQuestion } from "react-icons/fa";
+import { FaArrowUp } from "react-icons/fa6";
+import { div } from "framer-motion/client";
+import { MdCheckBoxOutlineBlank } from "react-icons/md";
 
 const PromptView = () => {
   const dispatch = useDispatch();
-  const [prompt, setPrompt] = useState("How is my brand performing ?");
-  const { isPromptView, folders } = useSelector((store) => store.dashboard);
+  const [prompt, setPrompt] = useState("");
+  const { isPromptView, folders, isStreaming, isLoading } = useSelector(
+    (store) => store.dashboard
+  );
 
   useEffect(() => {
     // setTimeout(() => {
@@ -30,7 +34,10 @@ const PromptView = () => {
         text: "Please select a client, product and category from the sidebar before asking questions.",
       });
     } else {
-      dispatch(addNewQuestion({ prompt }));
+      if (!isStreaming && !isLoading) {
+        dispatch(addNewQuestion({ prompt }));
+      }
+
       // setTimeout(() => {
       //   dispatch(setPromptView());
       // }, 300);
@@ -44,39 +51,29 @@ const PromptView = () => {
   };
 
   return (
-    <div
-      className={`h-full rounded-tr-2xl rounded-br-2xl bg-white flex overflow-hidden transition-all duration-600 ease-in-out shadow-xl ${
-        isPromptView ? "translate-x-0" : "-translate-x-[98%]"
-      }`}
-    >
-      <div className="w-full">
-        <div className="h-full w-full flex items-center justify-between gap-4 p-4 bg-gray-100">
-          <input
-            type="text"
-            value={prompt}
-            onChange={handleOnChange}
-            onKeyDown={handleKeyDown}
-            placeholder="Type here your question..."
-            className="w-full border border-gray-300 rounded-md  px-4 py-2 bg-white"
-          />
-          <button
-            className="border rounded-md px-4 py-1 text-white bg-gray-800 hover:bg-gray-900 shadow-lg cursor-pointer"
-            onClick={handlePrompt}
-          >
-            Send
-          </button>
-        </div>
-      </div>
-      <div
-        className="w-6 h-full flex items-center justify-center rounded-tr-2xl rounded-br-2xl bg-cover bg-center cursor-pointer"
-        style={{ backgroundImage: `url(${myBg})`, backgroundColor: "red" }}
-        onClick={() => {
-          dispatch(setPromptView());
-        }}
-      >
-        <div className="w-5 h-5 ml-1">
-          <FaQuestion />
-        </div>
+    <div className="w-full h-14 flex justify-center">
+      <div className="w-[90%] max-w-[700px] h-full flex items-center justify-between gap-4 p-2 bg-white rounded-2xl shadow-lg">
+        <input
+          type="text"
+          value={prompt}
+          onChange={handleOnChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Please ask Presto !"
+          className="w-full border border-gray-100 rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-0 focus:border-gray-300"
+        />
+        <button
+          className={`w-11 h-9 flex items-center justify-center rounded-md text-white text-xl ${
+            prompt == "" ? "bg-gray-400" : "bg-gray-900 hover:bg-gray-800"
+          }  shadow-lg cursor-pointer `}
+          onClick={handlePrompt}
+          disabled={prompt == ""}
+        >
+          {isStreaming || isLoading ? (
+            <div className="w-4.5 h-4.5 bg-white rounded-sm"></div>
+          ) : (
+            <FaArrowUp />
+          )}
+        </button>
       </div>
     </div>
   );

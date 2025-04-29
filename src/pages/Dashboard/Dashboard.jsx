@@ -29,9 +29,8 @@ import getFiltersAdditionalInfo from "../../utills/getFiltersAdditionalInfo.js";
 const Dashboard = memo(() => {
   const dispatch = useDispatch();
   const [inputParam, setInputParam] = useState(null);
-  const { showImage, isLeftDrawer, botMapping, folders } = useSelector(
-    (store) => store.dashboard
-  );
+  const { showImage, isLeftDrawer, botMapping, folders, chatList } =
+    useSelector((store) => store.dashboard);
 
   const [width, setWidth] = useState(0);
   const [showToggle, setShowToggle] = useState(false);
@@ -156,7 +155,7 @@ const Dashboard = memo(() => {
         {/* Content Area */}
         <div
           className={`h-[calc(100vh-72px)] flex flex-col absolute top-[72px] transition-all duration-300 ${
-            isLeftDrawer ? "left-[320px] w-[calc(100%-320px)]" : "left-0 w-full"
+            isLeftDrawer ? "left-[280px] w-[calc(100%-280px)]" : "left-0 w-full"
           }`}
         >
           {/* Toggle Button */}
@@ -172,8 +171,20 @@ const Dashboard = memo(() => {
           {/* Main content */}
           <main className="contentArea w-full flex-1 overflow-y-auto relative bg-white">
             <ContentArea />
-            <div className="w-[80%] h-14 absolute bottom-0">
-              <PromptView />
+            {/* chatList.length */}
+            <div
+              className={`${
+                chatList.length > 0
+                  ? "w-full flex justify-center absolute bottom-5 "
+                  : "w-full absolute top-0 left-0 h-full flex items-center justify-center"
+              }`}
+            >
+              <div className="w-[90%] max-w-[700px] flex flex-col gap-4">
+                {chatList.length == 0 && (
+                  <p className="text-center text-2xl">How can I help you?</p>
+                )}
+                <PromptView />
+              </div>
             </div>
           </main>
         </div>

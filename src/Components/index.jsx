@@ -9,6 +9,7 @@ import ImageViewer from "./ImageViewer/ImageViewer";
 import Spinner from "./Spinner/Spinner";
 import PromptView from "./PromptView/PromptView";
 import ChatLoader from "./ChatLoader/ChatLoader";
+import NotSupported from "./NotSupported/NotSupported";
 
 export {
   TopBar,
@@ -22,4 +23,5 @@ export {
   Spinner,
   PromptView,
   ChatLoader,
+  NotSupported,
 };

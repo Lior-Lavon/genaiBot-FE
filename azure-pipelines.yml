@@ -53,7 +53,7 @@ steps:
     displayName: "Install dependencies and build Vite app"
     env:
       VITE_SERVER_CHAT_URL: "wss://genie-bot-backend.azurewebsites.net/ws/chat"
-      VITE_API_BASE_URL: "https://genie-bot-backend.azurewebsites.net/test"
+      VITE_API_BASE_URL: "https://genie-bot-backend.azurewebsites.net/api/v1"
 
   - script: |
       echo "Listing root and dist folder"

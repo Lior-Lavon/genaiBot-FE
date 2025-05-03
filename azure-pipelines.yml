@@ -51,9 +51,13 @@ steps:
       npm install
       npm run build  # Ensure you're using the default Vite build script
     displayName: "Install dependencies and build Vite app"
-    env:
+      env:
       VITE_API_BASE_URL:
-      "https://genie-bot-backend.azurewebsites.net/api/v1"
+      "htts://genie-bot-backend.azurewebsites.net"
+
+    # env:
+    #   VITE_API_BASE_URL:
+    #   "https://genie-bot-backend.azurewebsites.net/api/v1"
 
   - script: |
       echo "Listing root and dist folder"

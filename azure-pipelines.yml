@@ -51,9 +51,7 @@ steps:
       npm install
       npm run build  # Ensure you're using the default Vite build script
     displayName: "Install dependencies and build Vite app"
-      env:
-      VITE_API_BASE_URL:
-      "htts://genie-bot-backend.azurewebsites.net"
+    env: VITE_API_BASE_URL:"htts://genie-bot-backend.azurewebsites.net"
 
     # env:
     #   VITE_API_BASE_URL:

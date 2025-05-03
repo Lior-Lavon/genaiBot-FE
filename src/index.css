@@ -115,3 +115,10 @@ input[type="range"].slider-thumb::-moz-range-thumb {
   white-space: nowrap;
   animation: typing 3s steps(30, end) forwards;
 }
+
+.half-spin-border {
+  border-top-color: #60a5fa; /* e.g., Tailwind's blue-400 */
+  border-left-color: #60a5fa;
+  border-bottom-color: transparent;
+  border-right-color: transparent;
+}

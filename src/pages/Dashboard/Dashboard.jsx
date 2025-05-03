@@ -17,20 +17,20 @@ import {
   setLeftDrawer,
   addNewQuestion,
   initFilters,
-  fetchMapping,
   initFolders,
-  cacheData,
+  fetchOptions,
 } from "../../features/dashboard/dashboardSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { GoTriangleLeft, GoTriangleRight } from "react-icons/go";
-import getFiltersAdditionalInfo from "../../utills/getFiltersAdditionalInfo.js";
+// import getFiltersAdditionalInfo from "../../utills/getFiltersAdditionalInfo.js";
 
 const Dashboard = memo(() => {
   const dispatch = useDispatch();
   const [inputParam, setInputParam] = useState(null);
-  const { showImage, isLeftDrawer, botMapping, folders, chatList } =
-    useSelector((store) => store.dashboard);
+  const { showImage, isLeftDrawer, folders, chatList } = useSelector(
+    (store) => store.dashboard
+  );
 
   const [width, setWidth] = useState(0);
   const [showToggle, setShowToggle] = useState(false);
@@ -44,8 +44,7 @@ const Dashboard = memo(() => {
   useEffect(() => {
     calculateContentWidth();
 
-    // Load the BotMapping
-    dispatch(fetchMapping());
+    dispatch(fetchOptions());
 
     // read the input
     try {
@@ -63,40 +62,40 @@ const Dashboard = memo(() => {
     }
   }, []);
 
-  useEffect(() => {
-    if (botMapping != null && inputParam != null) {
-      const filters = parseCSVToStructure(botMapping.data, {
-        Customers_Id: inputParam.ClientID,
-        Products_Id: inputParam.ProductID,
-        Categories_Id: inputParam.CategoryID,
-      });
-      dispatch(initFilters({ filters }));
+  // useEffect(() => {
+  //   if (botMapping != null && inputParam != null) {
+  //     const filters = parseCSVToStructure(botMapping.data, {
+  //       Customers_Id: inputParam.ClientID,
+  //       Products_Id: inputParam.ProductID,
+  //       Categories_Id: inputParam.CategoryID,
+  //     });
+  //     dispatch(initFilters({ filters }));
 
-      // get the input folders
-      const foldersInfo = getFiltersAdditionalInfo(
-        { filters: filters },
-        inputParam.ProductID,
-        inputParam.CategoryID
-      );
+  //     // // get the input folders
+  //     // const foldersInfo = getFiltersAdditionalInfo(
+  //     //   { filters: filters },
+  //     //   inputParam.ProductID,
+  //     //   inputParam.CategoryID
+  //     // );
 
-      // set folders based on input param
-      dispatch(
-        initFolders({
-          Customer_Folder: foldersInfo.Customer_Folder,
-          Product_Folder: foldersInfo.Product_Folder,
-          Category_Folder: foldersInfo.Category_Folder,
-        })
-      );
-      // request the cache data
-      setTimeout(() => {
-        dispatch(cacheData(foldersInfo));
-      }, 300);
-      // post the question
-      setTimeout(() => {
-        dispatch(addNewQuestion({ prompt: inputParam.Question }));
-      }, 600);
-    }
-  }, [botMapping]);
+  //     // set folders based on input param
+  //     dispatch(
+  //       initFolders({
+  //         Customer_Folder: foldersInfo.Customer_Folder,
+  //         Product_Folder: foldersInfo.Product_Folder,
+  //         Category_Folder: foldersInfo.Category_Folder,
+  //       })
+  //     );
+  //     // request the cache data
+  //     setTimeout(() => {
+  //       dispatch(loadData({}));
+  //     }, 300);
+  //     // post the question
+  //     setTimeout(() => {
+  //       dispatch(addNewQuestion({ prompt: inputParam.Question }));
+  //     }, 600);
+  //   }
+  // }, [botMapping]);
 
   useEffect(() => {
     calculateContentWidth();
@@ -178,7 +177,7 @@ const Dashboard = memo(() => {
                   : "w-full absolute top-0 left-0 h-full flex items-center justify-center"
               }`}
             >
-              <div className="w-[90%] max-w-[700px] flex flex-col gap-4">
+              <div className="w-[90%] max-w-[950px] flex flex-col gap-4">
                 {chatList.length == 0 && (
                   <p className="text-center text-2xl">How can I help you ?</p>
                 )}

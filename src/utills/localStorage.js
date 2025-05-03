@@ -26,14 +26,14 @@ export const clearSessionFromLocalStorage = () => {
 
 //-----------------------------
 
-export const setSecurityTokenInLocalStorage = (code) => {
-  localStorage.setItem("SecurityAuth", JSON.stringify(code));
+export const setUserIdInLocalStorage = (user) => {
+  localStorage.setItem("userId", JSON.stringify(user));
 };
 
-export const getSecurityTokenFromLocalStorage = () => {
-  return JSON.parse(localStorage.getItem("SecurityAuth")) || null;
+export const getUserIdFromLocalStorage = () => {
+  return JSON.parse(localStorage.getItem("userId")) || null;
 };
 
-export const clearSecurityTokenFromLocalStorage = () => {
-  localStorage.removeItem("SecurityAuth");
+export const clearUserIdFromLocalStorage = () => {
+  localStorage.removeItem("userId");
 };

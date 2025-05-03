@@ -17,12 +17,6 @@ const PromptView = () => {
     (store) => store.dashboard
   );
 
-  useEffect(() => {
-    // setTimeout(() => {
-    //   dispatch(setPromptView());
-    // }, 800);
-  }, []);
-
   const handleOnChange = (e) => {
     setPrompt(e.target.value);
   };
@@ -51,8 +45,8 @@ const PromptView = () => {
   };
 
   return (
-    <div className="w-full h-14 flex justify-center">
-      <div className="w-[90%] max-w-[700px] h-full flex items-center justify-between gap-4 p-2 bg-white rounded-2xl shadow-lg">
+    <div className="w-full h-14 flex justify-center ">
+      <div className="w-full max-w-[1000px] h-full flex items-center justify-between gap-4 p-2 bg-white rounded-2xl shadow-lg border border-gray-200">
         <input
           type="text"
           value={prompt}

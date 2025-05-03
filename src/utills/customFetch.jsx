@@ -22,11 +22,11 @@ const customFetch = axios.create({
 export const interceptor = (store) => {
   customFetch.interceptors.request.use(
     async (config) => {
-      const token = getSessionFromLocalStorage();
-      if (token) {
-        config.headers["Authorization"] = `Bearer ${token}`;
-        config.headers["Access-Control-Allow-Origin"] = "*";
-      }
+      // const token = getSessionFromLocalStorage();
+      // if (token) {
+      // config.headers["Authorization"] = `Bearer ${token}`;
+      config.headers["Access-Control-Allow-Origin"] = "*";
+      // }
       return config;
     },
     (error) => {

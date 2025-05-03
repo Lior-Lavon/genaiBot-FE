@@ -9,8 +9,11 @@ import ChatLoader from "../ChatLoader/ChatLoader";
 import { useDispatch, useSelector } from "react-redux";
 import { Plus, Minus, RotateCw } from "lucide-react"; // Optional: icons
 import {
+  initChunk,
   setImage,
   setStreamingStatus,
+  startChat,
+  // startChat,
   updateResponseImages,
 } from "../../features/dashboard/dashboardSlice";
 import ReactMarkdown from "react-markdown";
@@ -18,15 +21,25 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import Spinner from "../Spinner/Spinner";
 import { div } from "framer-motion/client";
-import { getSessionFromLocalStorage } from "../../utills/localStorage";
 import { TbTriangleFilled, TbTriangleInvertedFilled } from "react-icons/tb";
 import QuestionImage from "./QuestionImage";
+import AnimatedIconText from "../AnimatedIconText/AnimatedIconText";
+import TextWithAnimatedDots from "../TextWithAnimatedDots/TextWithAnimatedDots";
+import MultiSelectDropdown from "../MultiSelectDropdown/MultiSelectDropdown";
+
+const KeyWords = {
+  JustASec: "Just a sec...",
+  PlannerAgent: "Show thinking ...",
+  SqlGenerationAgent: "Resolving ...",
+  SqlExecutionAgent: "",
+  ResponseSynthesizerAgent: "",
+};
 
 const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   // console.log("chatItem : ", chatItem);
-
   const dispatch = useDispatch();
-  const { folders } = useSelector((store) => store.dashboard);
+  const { selectedFolders, user_id, session_id, myBrands, competitorBrands } =
+    useSelector((store) => store.dashboard);
 
   const { id, prompt } = chatItem;
 
@@ -35,8 +48,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   const [selectedCompetitorBrands, setSelectedCompetitorBrands] =
     useState(null);
 
-  const [isConnected, setIsConnected] = useState(false);
-  const [response, setResponse] = useState("");
+  const [response, setResponse] = useState({});
   const [streamComplete, setStreamComplete] = useState(false);
   const [showBrandFlow, setShowBrandFlow] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -49,7 +61,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   const url = import.meta.env.VITE_SERVER_CHAT_URL;
 
   const outputRef = useRef(null);
-  const wsRef = useRef(null);
 
   let rowIndex = -1;
   const ZOOM_STEP = 0.1;
@@ -62,64 +73,25 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     // dispatch(setRightDrawer());
   };
 
-  const connectWebSocket = () => {
-    return new Promise((resolve, reject) => {
-      const token = getSessionFromLocalStorage();
-      const newUrl = url + "?token=" + token;
-
-      const ws = new WebSocket(newUrl);
-
-      ws.onopen = () => {
-        // console.log("✅ WebSocket connected");
-        resolve(ws); // connection established
-        dispatch(setStreamingStatus(true));
-      };
-
-      ws.onmessage = (event) => {
-        const text = event.data;
-
-        // Stop rendering when pipeline ends
-        if (text.includes("Pipeline run completed.")) {
-          console.log("Pipeline run completed.");
-          setStreamComplete(true);
-          setTimeout(() => {
-            dispatch(setStreamingStatus(false));
-          }, 2000);
-
-          return;
-        }
-
-        // Skip metadata blocks
-        const ignoreKeywords = [
-          "CONTEXT REPHRASER",
-          "MEMORY",
-          "SELECTER",
-          "ROUTER",
-          "TOOL CONTEXT LLM",
-        ];
-
-        // If the text contains any system keywords, ignore it
-        if (ignoreKeywords.some((keyword) => text.includes(keyword))) {
-          return;
-        }
-
-        // Otherwise, keep streaming it
-        setResponse((prev) => prev + text);
-      };
-
-      ws.onclose = () => {
-        setIsConnected(false);
-        console.log("WebSocket connection closed");
-      };
-
-      ws.onerror = (err) => {
-        console.error("❌ WebSocket error", err);
-        reject(err);
-      };
-
-      // Optional: handle onclose, etc.
+  useEffect(() => {
+    const brands = [];
+    myBrands.map((name) => {
+      brands.push({ name, selected: false });
     });
-  };
+    setSelectedMyBrands(brands);
+  }, [myBrands]);
+
+  useEffect(() => {
+    const brands = [];
+    competitorBrands.map((name) => {
+      brands.push({ name, selected: false });
+    });
+    setSelectedCompetitorBrands(brands);
+  }, [competitorBrands]);
+
+  useEffect(() => {
+    setResponse(chatItem.response);
+  }, [chatItem]);
 
   useEffect(() => {
     // check for MY_BRAND question
@@ -131,47 +103,24 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
         setShowBrandFlow("loader");
       }, 1000);
     } else {
-      connect();
+      // My starting point
+      dispatch(initChunk(id - 1));
+      connect(prompt);
     }
   }, []);
 
-  useEffect(() => {
-    // loop over the brand list and transform the structure
-    const myBrands = [];
-    for (let i = 0; i < folders?.Brands_Details?.My_Brands.length; i++) {
-      myBrands.push({
-        name: folders?.Brands_Details?.My_Brands[i],
-        selected: false,
-      });
-    }
-    setSelectedMyBrands(myBrands);
-
-    const competitorBrands = [];
-    for (
-      let i = 0;
-      i < folders?.Brands_Details?.Competitors_Brands.length;
-      i++
-    ) {
-      competitorBrands.push({
-        name: folders?.Brands_Details?.Competitors_Brands[i],
-        selected: false,
-      });
-    }
-    setSelectedCompetitorBrands(competitorBrands);
-  }, [folders]);
-
-  const connect = () => {
-    connectWebSocket()
-      .then((ws) => {
-        wsRef.current = ws;
-
-        setIsConnected(true);
-        setStreamComplete(false); // reset on reconnect
-        console.log("Connected to WebSocket");
+  const connect = async (prompt) => {
+    dispatch(
+      startChat({
+        qPosition: id - 1,
+        user_id: user_id,
+        session_id: session_id,
+        client: selectedFolders.client,
+        product: selectedFolders.product,
+        category: selectedFolders.category,
+        question: prompt,
       })
-      .catch((err) => {
-        console.error("Failed to connect:", err);
-      });
+    );
   };
 
   useEffect(() => {
@@ -188,103 +137,103 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     }
   }, [showBrandFlow]);
 
-  useEffect(() => {
-    if (isConnected) {
-      handleSendPrompt();
-    }
-  }, [isConnected]);
+  // useEffect(() => {
+  //   if (isConnected) {
+  //     handleSendPrompt();
+  //   }
+  // }, [isConnected]);
 
-  // send the prompt
-  const handleSendPrompt = () => {
-    if (!isConnected || !prompt)
-      return alert("WebSocket must be connected and prompt provided");
+  // // send the prompt
+  // const handleSendPrompt = () => {
+  //   if (!isConnected || !prompt)
+  //     return alert("WebSocket must be connected and prompt provided");
 
-    setResponse("");
-    setStreamComplete(false);
-    setIsWaiting(true);
-    // wsRef.current.send(prompt);
+  //   setResponse("");
+  //   setStreamComplete(false);
+  //   setIsWaiting(true);
+  //   // wsRef.current.send(prompt);
 
-    // setUpdatedPrompt(null);
-    // console.log("promptWithFolders : ", promptWithFolders);
-    // wsRef.current.send(updatedPrompt == null ? prompt : updatedPrompt);
-    wsRef.current.send(visiblePrompt);
-  };
+  //   // setUpdatedPrompt(null);
+  //   // console.log("promptWithFolders : ", promptWithFolders);
+  //   // wsRef.current.send(updatedPrompt == null ? prompt : updatedPrompt);
+  //   wsRef.current.send(visiblePrompt);
+  // };
 
-  useEffect(() => {
-    const container = answerRef.current;
-    if (!container) return;
+  // useEffect(() => {
+  //   const container = answerRef.current;
+  //   if (!container) return;
 
-    const contentEl = container.querySelector(".zoom-wrapper");
-    if (!contentEl) return;
+  //   const contentEl = container.querySelector(".zoom-wrapper");
+  //   if (!contentEl) return;
 
-    let intervalId;
+  //   let intervalId;
 
-    const resize = () => {
-      const scaledHeight = contentEl.getBoundingClientRect().height;
-      container.style.height = `${scaledHeight + 40}px`; // extra space buffer
-    };
+  //   const resize = () => {
+  //     const scaledHeight = contentEl.getBoundingClientRect().height;
+  //     container.style.height = `${scaledHeight + 40}px`; // extra space buffer
+  //   };
 
-    // ⏱️ 1. Resize periodically during streaming
-    if (!streamComplete) {
-      intervalId = setInterval(resize, 100);
-    }
+  //   // ⏱️ 1. Resize periodically during streaming
+  //   if (!streamComplete) {
+  //     intervalId = setInterval(resize, 100);
+  //   }
 
-    // 📸 2. Resize on image load (even after streaming ends)
-    const observer = new MutationObserver(() => {
-      const imgs = contentEl.querySelectorAll("img");
+  //   // 📸 2. Resize on image load (even after streaming ends)
+  //   const observer = new MutationObserver(() => {
+  //     const imgs = contentEl.querySelectorAll("img");
 
-      imgs.forEach((img) => {
-        if (!img.dataset.resized) {
-          img.addEventListener("load", resize);
-          img.dataset.resized = "true"; // prevent double-listening
-        }
-      });
-    });
+  //     imgs.forEach((img) => {
+  //       if (!img.dataset.resized) {
+  //         img.addEventListener("load", resize);
+  //         img.dataset.resized = "true"; // prevent double-listening
+  //       }
+  //     });
+  //   });
 
-    observer.observe(contentEl, {
-      childList: true,
-      subtree: true,
-    });
+  //   observer.observe(contentEl, {
+  //     childList: true,
+  //     subtree: true,
+  //   });
 
-    // Initial resize
-    resize();
+  //   // Initial resize
+  //   resize();
 
-    return () => {
-      clearInterval(intervalId);
-      observer.disconnect();
-    };
-  }, [response, zoom, streamComplete]);
+  //   return () => {
+  //     clearInterval(intervalId);
+  //     observer.disconnect();
+  //   };
+  // }, [response, zoom, streamComplete]);
 
-  useEffect(() => {
-    if (streamComplete) {
-      // console.log("streamComplete");
+  // useEffect(() => {
+  //   if (streamComplete) {
+  //     // console.log("streamComplete");
 
-      // Stop the waiting indicator as soon as the first chunk arrives
-      setIsWaiting(false);
+  //     // Stop the waiting indicator as soon as the first chunk arrives
+  //     setIsWaiting(false);
 
-      setTimeout(() => {
-        // dispatch(updateResponse({ id, response }));
-        // getAllImages();
-        console.log("update markdown here");
-      }, 1000);
-    }
-  }, [streamComplete]);
+  //     setTimeout(() => {
+  //       // dispatch(updateResponse({ id, response }));
+  //       // getAllImages();
+  //       console.log("update markdown here");
+  //     }, 1000);
+  //   }
+  // }, [streamComplete]);
 
-  const getAllImages = () => {
-    if (answerRef.current) {
-      const imgs = answerRef.current.querySelectorAll("img");
-      const imgArray = Array.from(imgs);
+  // const getAllImages = () => {
+  //   if (answerRef.current) {
+  //     const imgs = answerRef.current.querySelectorAll("img");
+  //     const imgArray = Array.from(imgs);
 
-      const imageList = [];
-      // extract the blob from the images
-      for (let i = 0; i < imgArray.length; i++) {
-        const base64Data = imgArray[i].src;
-        imageList.push({ id: i + 1, src: base64Data });
-      }
+  //     const imageList = [];
+  //     // extract the blob from the images
+  //     for (let i = 0; i < imgArray.length; i++) {
+  //       const base64Data = imgArray[i].src;
+  //       imageList.push({ id: i + 1, src: base64Data });
+  //     }
 
-      dispatch(updateResponseImages({ id, images: imageList }));
-    }
-  };
+  //     dispatch(updateResponseImages({ id, images: imageList }));
+  //   }
+  // };
 
   const handleZoomIn = () => {
     setZoom((prev) => Math.min(prev + ZOOM_STEP, MAX_ZOOM));
@@ -302,16 +251,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     const pImg = e.target;
     const imgBase64Data = pImg.src;
     dispatch(setImage({ show: true, src: imgBase64Data }));
-  };
-
-  const getPromptText = (prompt) => {
-    let ret = prompt
-      .replace(/\my brand/g, "")
-      .replace(/\competitor brand/g, "")
-      .replace(/\s+/g, " ")
-      .trim();
-    // return ret.slice(0, 60);
-    return ret;
   };
 
   // handle clicks on brands
@@ -356,11 +295,30 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     }
 
     if (newPrompt != "") {
+      dispatch(initChunk(id - 1));
+
       setShowBrandFlow("");
       // dispatch(updateQuestionPrompt({ id: chatItem.id, prompt: newPrompt }));
       setVisiblePrompt(newPrompt);
-      connect();
+      connect(newPrompt);
     }
+  };
+
+  const formatText = (text) => {
+    try {
+      // Try parsing the string as JSON
+      const parsed = JSON.parse(text);
+      return <pre>{JSON.stringify(parsed, null, 2)}</pre>; // Pretty-print JSON
+    } catch (e) {
+      return <div>{text}</div>; // Plain text
+    }
+  };
+
+  const getTitle = (agent) => {
+    if (agent == "SqlExecutionAgent") {
+      return visiblePrompt;
+    }
+    return KeyWords[agent];
   };
 
   return (
@@ -396,7 +354,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
         ) : (
           (showBrandFlow == "my-brand-question" ||
             showBrandFlow == "competitor-brand-question") && (
-            <div className="w-full ml-4 pl-4 mt-2 flex flex-col justify-start gap-2 border-t-[.05rem] bg-transparent">
+            <div className="w-full ml-4 pl-4 mt-2 flex flex-col justify-start gap-2 bg-transparent">
               <div
                 className={`mt-2 w-full flex justify-right gap-2 items-center `}
               >
@@ -406,9 +364,9 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                     : "Please select competitor brands :"}
                 </p>
                 {/* options */}
-                <div className="flex items-center gap-2 ">
-                  {showBrandFlow == "my-brand-question" &&
-                    selectedMyBrands?.map((item, index) => {
+                {showBrandFlow == "my-brand-question" && (
+                  <div className="flex items-center gap-2 ">
+                    {selectedMyBrands?.map((item, index) => {
                       return (
                         <div
                           key={index}
@@ -423,9 +381,12 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                         </div>
                       );
                     })}
-                  {showBrandFlow == "competitor-brand-question" &&
-                    selectedCompetitorBrands?.map((item, index) => {
-                      return (
+                  </div>
+                )}
+                {showBrandFlow === "competitor-brand-question" &&
+                  (selectedCompetitorBrands.length <= 5 ? (
+                    <div className="flex items-center gap-2">
+                      {selectedCompetitorBrands?.map((item, index) => (
                         <div
                           key={index}
                           className={`text-sm w-fit px-2 py-1 rounded-2xl cursor-pointer transition-colors duration-300 ${
@@ -437,9 +398,18 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                         >
                           {item.name}
                         </div>
-                      );
-                    })}
-                </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="w-[500px]">
+                      <MultiSelectDropdown
+                        op={selectedCompetitorBrands}
+                        setSelectedCompetitorBrands={
+                          setSelectedCompetitorBrands
+                        }
+                      />
+                    </div>
+                  ))}
 
                 {/* proceed */}
                 <button
@@ -453,24 +423,19 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
           )
         ))}
 
-      {response == "" && isConnected == true && (
-        <div className="w-full">
-          <ChatLoader />
-        </div>
-      )}
       <div
         className={`answer w-full overflow-hidden transition-all duration-500 ease-in-out ${
           isCollapsed ? "max-h-0 opacity-0" : "max-h-[10000px] opacity-100"
-        } ${response == "" ? "hidden" : ""}`}
+        } ${Object.keys(response).length === 0 ? "hidden" : ""}`}
       >
         {/* seperation line */}
-        <div
+        {/* <div
           className={`mx-4 mt-2 mb-2 h-[.2rem] bg-gray-200 rounded-full`}
-        ></div>
+        ></div> */}
         {/* answer */}
         <div className="relative">
           {/* Zoom Controls Wrapper */}
-          <div className="sticky top-0 z-10 flex justify-end pr-4">
+          {/* <div className="sticky top-0 z-10 flex justify-end pr-4">
             <div className="inline-flex gap-2 bg-white/80 backdrop-blur-sm p-2 rounded shadow-md">
               <button
                 onClick={handleZoomIn}
@@ -492,7 +457,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
               </button>
             </div>
           </div>
-
+ */}
           <div
             ref={answerRef}
             className="relative m-4 p-4 text-left rounded-tl-2xl rounded-bl-2xl text-lg border-l-2 overflow-x-auto overflow-hidden"
@@ -507,89 +472,111 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                 display: "inline-block",
               }}
             >
-              <ReactMarkdown
-                key={response}
-                remarkPlugins={[remarkGfm]}
-                rehypePlugins={[rehypeRaw]}
-                components={{
-                  img({ node, ...props }) {
-                    return (
-                      <QuestionImage
-                        src={props.src}
-                        srcSet={props.srcSet}
-                        handleImageClick={handleImageClick}
-                      />
-                    );
-                  },
-                  table: ({ node, ...props }) => {
-                    const rowIndexRef = { current: -1 }; // Reset for each table
+              {Object.entries(response).map(([agent, text]) =>
+                agent != "ResponseSynthesizerAgent" ? (
+                  <div key={agent} className="">
+                    <AnimatedIconText
+                      text={getTitle(agent)}
+                      subtext={
+                        agent == "SqlExecutionAgent" ? (
+                          <TextWithAnimatedDots
+                            text={"Generating the answer ... "}
+                          />
+                        ) : (
+                          text
+                        )
+                      }
+                    />
+                  </div>
+                ) : (
+                  <ReactMarkdown
+                    key={agent}
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeRaw]}
+                    components={{
+                      img({ node, ...props }) {
+                        return (
+                          <QuestionImage
+                            src={props.src}
+                            srcSet={props.srcSet}
+                            handleImageClick={handleImageClick}
+                          />
+                        );
+                      },
+                      table: ({ node, ...props }) => {
+                        const rowIndexRef = { current: -1 }; // Reset for each table
 
-                    return (
-                      <RowIndexContext.Provider value={rowIndexRef}>
-                        <table
-                          className="border-collapse table-auto"
+                        return (
+                          <RowIndexContext.Provider value={rowIndexRef}>
+                            <table
+                              className="border-collapse table-auto"
+                              {...props}
+                            />
+                          </RowIndexContext.Provider>
+                        );
+                      },
+                      thead: ({ node, ...props }) => (
+                        <thead className="bg-[#00000] text-left" {...props} />
+                      ),
+                      th: ({ node, ...props }) => (
+                        <th
+                          className="px-2 py-2 border-b bg-[#d0ecea] border-blue-300 font-bold text-gray-800 text-sm"
                           {...props}
                         />
-                      </RowIndexContext.Provider>
-                    );
-                  },
-                  thead: ({ node, ...props }) => (
-                    <thead className="bg-[#00000] text-left" {...props} />
-                  ),
-                  th: ({ node, ...props }) => (
-                    <th
-                      className="px-2 py-2 border-b bg-[#d0ecea] border-blue-300 font-bold text-gray-800 text-sm"
-                      {...props}
-                    />
-                  ),
-                  td: ({ node, ...props }) => (
-                    <td
-                      className="px-2 py-2 border-b border-blue-200 text-sm text-gray-700"
-                      {...props}
-                    />
-                  ),
-                  tr: ({ node, ...props }) => {
-                    const rowIndexRef = useContext(RowIndexContext);
-                    if (!rowIndexRef) return <tr {...props} />; // fallback
+                      ),
+                      td: ({ node, ...props }) => (
+                        <td
+                          className="px-2 py-2 border-b border-blue-200 text-sm text-gray-700"
+                          {...props}
+                        />
+                      ),
+                      tr: ({ node, ...props }) => {
+                        const rowIndexRef = useContext(RowIndexContext);
+                        if (!rowIndexRef) return <tr {...props} />; // fallback
 
-                    rowIndexRef.current += 1;
-                    const rowIndex = rowIndexRef.current;
-                    const isHeader = rowIndex === 0;
+                        rowIndexRef.current += 1;
+                        const rowIndex = rowIndexRef.current;
+                        const isHeader = rowIndex === 0;
 
-                    const bgColor = isHeader
-                      ? ""
-                      : rowIndex % 2 === 0
-                      ? "bg-[#00000]"
-                      : "bg-gray-100";
+                        const bgColor = isHeader
+                          ? ""
+                          : rowIndex % 2 === 0
+                          ? "bg-[#00000]"
+                          : "bg-gray-100";
 
-                    return <tr className={bgColor} {...props} />;
-                  },
+                        return <tr className={bgColor} {...props} />;
+                      },
 
-                  h1: ({ node, ...props }) => (
-                    <h1 className="text-2xl" {...props} />
-                  ),
-                  h2: ({ node, ...props }) => (
-                    <h2 className="text-2xl my-10" {...props} />
-                  ),
-                  h3: ({ node, ...props }) => (
-                    <h3 className="text-xl my-8" {...props} />
-                  ),
-                  h4: ({ node, ...props }) => (
-                    <h4 className="text-xl my-6" {...props} />
-                  ),
-                  p: ({ node, ...props }) => (
-                    <p className="text-sm my-1" {...props} />
-                  ),
-                  ul: ({ node, ...props }) => (
-                    <ul className="mt-1" {...props} />
-                  ),
-                  li: ({ node, ...props }) => (
-                    <li className="text-sm list-disc py-1 ml-6" {...props} />
-                  ),
-                }}
-              >
-                {response}
-              </ReactMarkdown>
+                      h1: ({ node, ...props }) => (
+                        <h1 className="text-2xl" {...props} />
+                      ),
+                      h2: ({ node, ...props }) => (
+                        <h2 className="text-2xl my-10" {...props} />
+                      ),
+                      h3: ({ node, ...props }) => (
+                        <h3 className="text-xl my-8" {...props} />
+                      ),
+                      h4: ({ node, ...props }) => (
+                        <h4 className="text-xl my-6" {...props} />
+                      ),
+                      p: ({ node, ...props }) => (
+                        <p className="text-sm my-1" {...props} />
+                      ),
+                      ul: ({ node, ...props }) => (
+                        <ul className="mt-1" {...props} />
+                      ),
+                      li: ({ node, ...props }) => (
+                        <li
+                          className="text-sm list-disc py-1 ml-6"
+                          {...props}
+                        />
+                      ),
+                    }}
+                  >
+                    {text}
+                  </ReactMarkdown>
+                )
+              )}
             </div>
           </div>
         </div>

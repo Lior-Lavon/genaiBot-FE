@@ -43,7 +43,8 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     host: "0.0.0.0",
-    https: true,
+    port: 5173,
+    https: false,
   },
   // server: {
   //   https: {
@@ -51,6 +52,6 @@ export default defineConfig({
   //     cert: readFileSync(certPath),
   //   },
   //     host: true, // allows access via your Azure VM IP
-  port: 5173,
+  // port: 5173,
   // },
 });

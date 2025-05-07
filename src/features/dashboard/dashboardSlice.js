@@ -44,6 +44,13 @@ export const loadData = createAsyncThunk(
   }
 );
 
+export const testFunc = createAsyncThunk(
+  "dashboard/testFunc",
+  async (thunkAPI) => {
+    return postThunk("/test", thunkAPI);
+  }
+);
+
 export const startChat = createAsyncThunk(
   "dashboard/startChat",
   async (body, thunkAPI) => {
@@ -276,6 +283,18 @@ const dashboardSlice = createSlice({
       })
       .addCase(fetchOptions.rejected, (state) => {
         // console.log("fetchOptions - rejected");
+        state.isLoading = false;
+      })
+      .addCase(testFunc.pending, (state) => {
+        console.log("testFunc - pending");
+        state.isLoading = true;
+      })
+      .addCase(testFunc.fulfilled, (state, { payload }) => {
+        console.log("testFunc - fulfilled : ", payload);
+        state.isLoading = false;
+      })
+      .addCase(testFunc.rejected, (state) => {
+        console.log("testFunc - rejected");
         state.isLoading = false;
       })
       // loadData

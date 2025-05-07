@@ -49,7 +49,7 @@ export const loadData = createAsyncThunk(
 export const testFunc = createAsyncThunk(
   "dashboard/testFunc",
   async (thunkAPI) => {
-    return postThunk("/test", thunkAPI);
+    return getThunk("/test", thunkAPI);
   }
 );
 

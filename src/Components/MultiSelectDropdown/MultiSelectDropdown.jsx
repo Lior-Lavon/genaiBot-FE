@@ -43,7 +43,7 @@ const MultiSelectDropdown = ({ op, setSelectedCompetitorBrands }) => {
         isMulti
         value={selectedOptions}
         onChange={handleChange}
-        placeholder="Select fruits..."
+        placeholder="Select brands ..."
         className="text-sm"
       />
     </div>

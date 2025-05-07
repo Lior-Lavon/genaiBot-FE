@@ -2,7 +2,7 @@ import { memo, useEffect, useRef, useState } from "react";
 import ReactSwal from "../../utills/alert";
 import { useDispatch } from "react-redux";
 
-const QuestionImage = memo(({ src, srcSet, handleImageClick }) => {
+const QuestionImage = memo(({ src, handleImageClick }) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [isBase64, setIsBase64] = useState(null);
@@ -12,17 +12,16 @@ const QuestionImage = memo(({ src, srcSet, handleImageClick }) => {
   const imageRef = useRef(null);
 
   useEffect(() => {
-    setIsBase64(src?.startsWith("data:image"));
-
-    let finalSrc = src;
-    if (!finalSrc || finalSrc.trim() === "") {
-      if (srcSet) {
-        // Extract first URL from srcSet
-        setFinalSrc(extractBase64Image(srcSet, 0));
-      } else {
-        console.warn("⚠️ Empty image src and no srcSet available.");
-      }
-    }
+    // setIsBase64(src?.startsWith("data:image"));
+    // let finalSrc = src;
+    // if (!finalSrc || finalSrc.trim() === "") {
+    //   if (srcSet) {
+    //     // Extract first URL from srcSet
+    //     setFinalSrc(extractBase64Image(srcSet, 0));
+    //   } else {
+    //     console.warn("⚠️ Empty image src and no srcSet available.");
+    //   }
+    // }
   }, []);
 
   const handleContextMenu = (e) => {
@@ -115,7 +114,8 @@ const QuestionImage = memo(({ src, srcSet, handleImageClick }) => {
         loading="lazy"
         decoding="async"
         // {...props}
-        src={finalSrc}
+        // src={finalSrc}
+        src={src}
         onLoad={() => setLoading(false)}
         style={{ willChange: "opacity, transform" }}
         className={`rounded shadow max-w-full transition-opacity duration-300 cursor-pointer ${

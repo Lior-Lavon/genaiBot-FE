@@ -17,6 +17,7 @@ import {
   updateResponseImages,
 } from "../../features/dashboard/dashboardSlice";
 import ReactMarkdown from "react-markdown";
+import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import Spinner from "../Spinner/Spinner";
@@ -27,19 +28,28 @@ import AnimatedIconText from "../AnimatedIconText/AnimatedIconText";
 import TextWithAnimatedDots from "../TextWithAnimatedDots/TextWithAnimatedDots";
 import MultiSelectDropdown from "../MultiSelectDropdown/MultiSelectDropdown";
 
-const KeyWords = {
-  JustASec: "Just a sec...",
-  PlannerAgent: "Show thinking ...",
-  SqlGenerationAgent: "Resolving ...",
-  SqlExecutionAgent: "",
-  ResponseSynthesizerAgent: "",
-};
-
 const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   // console.log("chatItem : ", chatItem);
   const dispatch = useDispatch();
-  const { selectedFolders, user_id, session_id, myBrands, competitorBrands } =
-    useSelector((store) => store.dashboard);
+  const {
+    selectedFolders,
+    user_id,
+    session_id,
+    myBrands,
+    competitorBrands,
+    authorKeys,
+  } = useSelector((store) => store.dashboard);
+
+  const schemaWithDataUrls = {
+    ...defaultSchema,
+    attributes: {
+      ...defaultSchema.attributes,
+      img: [
+        ...(defaultSchema.attributes?.img || []),
+        ["src", /^data:image\/(png|jpeg|jpg|gif|webp);base64,/], // Allow base64 data URLs for common image types
+      ],
+    },
+  };
 
   const { id, prompt } = chatItem;
 
@@ -318,7 +328,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     if (agent == "SqlExecutionAgent") {
       return visiblePrompt;
     }
-    return KeyWords[agent];
+    return authorKeys[agent]?.label;
   };
 
   return (
@@ -473,7 +483,8 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
               }}
             >
               {Object.entries(response).map(([agent, text]) =>
-                agent != "ResponseSynthesizerAgent" ? (
+                agent != "ResponseSynthesizerAgent" &&
+                agent != "VizCodeGeneratorAgent" ? (
                   <div key={agent} className="">
                     <AnimatedIconText
                       text={getTitle(agent)}
@@ -492,13 +503,14 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                   <ReactMarkdown
                     key={agent}
                     remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeRaw]}
+                    // rehypePlugins={[]}
+                    rehypePlugins={[[rehypeSanitize, schemaWithDataUrls]]}
                     components={{
                       img({ node, ...props }) {
+                        const src = "data:image/png;base64," + props.src;
                         return (
                           <QuestionImage
-                            src={props.src}
-                            srcSet={props.srcSet}
+                            src={src}
                             handleImageClick={handleImageClick}
                           />
                         );

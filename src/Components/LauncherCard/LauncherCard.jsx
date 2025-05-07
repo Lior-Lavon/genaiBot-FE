@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 // import getFiltersAdditionalInfo from "../../utills/getFiltersAdditionalInfo";
 import { loadData } from "../../features/dashboard/dashboardSlice";
 
 const LauncherCard = () => {
+  const pProductRef = useRef(null);
+  const pCategoryRef = useRef(null);
+
   const dispatch = useDispatch();
   // const { filters } = useSelector((store) => store.dashboard);
   const { folders, selectedFolders, user_id } = useSelector(
     (store) => store.dashboard
   );
-
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
 
   const [defaultCustomer, setDefaultCustomer] = useState("");
   const [defaultProduct, setDefaultProduct] = useState("");
@@ -31,42 +31,6 @@ const LauncherCard = () => {
     }
   }, [selectedFolders]);
 
-  // // get the products
-  // useEffect(() => {
-  //   // get customer id
-  //   setDefaultCustomer(filters?.filters.Customers_Id);
-
-  //   // get the default product
-  //   setProducts(filters?.filters.Products);
-
-  //   // get the defaultProduct
-  //   const dp = filters?.filters.Products?.find((p) => {
-  //     return p.Product_default == true;
-  //   });
-  //   setDefaultProduct(dp?.Products_Id);
-  // }, [filters]);
-
-  // // get categories from defaultProduct
-  // useEffect(() => {
-  //   const dp = products?.find((p) => {
-  //     return p.Products_Id === defaultProduct;
-  //   });
-  //   if (dp != null) {
-  //     setCategories(dp?.Categories);
-
-  //     // get defaultCategory
-  //     const dc = dp?.Categories.find((p) => {
-  //       if (p.Categories_default == true) {
-  //         setDefaultCategory(p?.Categories_Id);
-  //         return p;
-  //       }
-  //     });
-  //     if (dc == null) {
-  //       setDefaultCategory(dp?.Categories[0].Categories_Id);
-  //     }
-  //   }
-  // }, [defaultProduct]);
-
   const handleProductChange = (e) => {
     setDefaultProduct(e.target.value);
     // setTimeout(() => {
@@ -82,18 +46,16 @@ const LauncherCard = () => {
   };
 
   useEffect(() => {
+    if (defaultProduct == "") {
+      const selectedValue = pProductRef.current?.value;
+      setDefaultProduct(selectedValue);
+    }
+    if (defaultCategory == "") {
+      const selectedValue = pCategoryRef.current?.value;
+      setDefaultCategory(selectedValue);
+    }
+
     if (defaultProduct != "" && defaultCategory != "") {
-      // console.log("Customers Id : ", defaultCustomer);
-      // console.log("Product Id: ", defaultProduct);
-      // console.log("Category Id: ", defaultCategory);
-      // console.log("filters: ", filters);
-
-      // const foldersInfo = getFiltersAdditionalInfo(
-      //   filters,
-      //   defaultProduct,
-      //   defaultCategory
-      // );
-
       // send an API call to cache the csv based on the folder info
       dispatch(
         loadData({
@@ -115,6 +77,7 @@ const LauncherCard = () => {
           Genie Product:
         </label>
         <select
+          ref={pProductRef}
           className="w-[200px] text-black bg-white p-2 text-[.7rem] border border-gray-300 focus:outline-none"
           value={defaultProduct}
           onChange={handleProductChange}
@@ -133,6 +96,7 @@ const LauncherCard = () => {
           Product Category:
         </label>
         <select
+          ref={pCategoryRef}
           className="w-[200px] text-black bg-white p-2 text-[.7rem] border border-gray-300 focus:outline-none"
           value={defaultCategory}
           onChange={handleCategoriesChange}

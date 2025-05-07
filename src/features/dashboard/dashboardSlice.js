@@ -17,12 +17,23 @@ const initialState = {
   slideToBottom: false,
   myBrands: [],
   competitorBrands: [],
+  authorKeys: {
+    JustASec: { label: "Just a sec...", persistent: false },
+    PlannerAgent: { label: "Show thinking ...", persistent: false },
+    SqlGenerationAgent: { label: "Resolving ...", persistent: false },
+    SqlExecutionAgent: { label: "", persistent: false },
+    ResponseSynthesizerAgent: { label: "", persistent: true },
+    VizCodeGeneratorAgent: { label: "", persistent: true },
+  },
+  isBlock: false,
+  missingProductIdOrCategoryId: false,
 };
 
 export const fetchOptions = createAsyncThunk(
   "dashboard/fetchOptions",
-  async (thunkAPI) => {
-    return getThunk("/options", thunkAPI);
+  async (startParam, thunkAPI) => {
+    let url = "/options/?startParam=" + startParam;
+    return getThunk(url, thunkAPI);
   }
 );
 
@@ -41,13 +52,6 @@ export const startChat = createAsyncThunk(
 
     const baseUrl = `${import.meta.env.VITE_API_BASE_URL}`;
     try {
-      // thunkAPI.dispatch({
-      //   type: "dashboard/initChunk",
-      //   payload: {
-      //     qPosition,
-      //   },
-      // });
-
       const response = await fetch(`${baseUrl}/stream_chat`, {
         method: "POST",
         headers: {
@@ -61,11 +65,35 @@ export const startChat = createAsyncThunk(
 
       while (true) {
         const { value, done } = await reader.read();
-        if (done) break;
+        if (done) {
+          break;
+        }
 
+        // console.log("processing ... ");
         const chunk = decoder.decode(value, { stream: true });
 
-        // 👇 Emit partial result to the store (custom action)
+        // check for data: {"invocation_id"
+        if (
+          chunk.startsWith('{"invocation_id"') ||
+          chunk.startsWith('data: {"invocation_id"')
+        ) {
+          continue;
+        }
+
+        // // if (matches > 0) {
+        // //   console.log("jumping over");
+        // //   continue;
+        // // }
+
+        const matches = chunk.match("content");
+        const count = matches ? matches.length : 0;
+        if (count > 1) {
+          console.log("!!!!!!!!!!!!!!");
+          console.log("!!!!!!!Found a duplication!!!!!!!");
+          console.log("!!!!!!!!!!!!!!");
+        }
+
+        // // 👇 Emit partial result to the store (custom action)
         thunkAPI.dispatch({
           type: "dashboard/streamChunk",
           payload: {
@@ -135,34 +163,89 @@ const dashboardSlice = createSlice({
     setStreamingStatus: (state, { payload }) => {
       state.isStreaming = payload;
     },
+    setMissingSelectedFoldersFlag: (state, { payload }) => {
+      state.missingProductIdOrCategoryId = payload;
+    },
     initChunk: (state, action) => {
       let qPosition = action.payload;
       state.chatList[qPosition].response["JustASec"] = "";
     },
     streamChunk: (state, action) => {
+      // console.log("1");
       let qPosition = action.payload.qPosition;
+      // console.log("2");
       if (action.payload.chunk.startsWith("data")) {
+        // console.log("3");
         try {
-          const jsonString = action.payload.chunk
-            .replace(/^data:\s*/, "")
-            .trim();
+          const payload = action.payload;
+
+          const jsonString = payload?.chunk.replace(/^data:\s*/, "").trim();
+          // console.log("length : ", jsonString.length);
+          // console.log("jsonString : ", jsonString);
+
+          // const results = extractJsonObjects(jsonString);
+          // console.log("len : ", results.length);
+          // console.log(results);
+          // console.log("--------------------");
+
           const data = JSON.parse(jsonString);
-          // Use parsed data (e.g., append message)
-          // if (data.author == "PlannerAgent") {
+          if (data?.type == "done") {
+            console.log("finished");
+            return;
+          }
+
+          let author = data?.author;
+          // console.log("author : ", author);
+
+          if (author == "VizCodeGeneratorAgent") {
+            return;
+          }
+
+          // // // let imgTag = "";
+          // if (author == "ArtifactLoader") {
+          //   const text = data?.content?.parts?.[0]?.text;
+
+          //   // Match Markdown image syntax and extract the data URL
+          //   const imageMarkdownMatch = text.match(/!\[.*?\]\((.*?)\)/);
+
+          //   if (!imageMarkdownMatch) {
+          //     console.warn("⚠️ No Markdown image found in input.");
+          //     return;
+          //   }
+
+          //   const dataUrl = imageMarkdownMatch[1];
+
+          //   // Extract the base64 content from the data URL
+          //   const base64Match = dataUrl.match(
+          //     /^data:image\/[a-zA-Z]+;base64,(.+)$/
+          //   );
+
+          //   if (!base64Match) {
+          //     console.warn("⚠️ Invalid or missing base64 image data.");
+          //     return;
+          //   }
+          //   const base64Image = base64Match[1];
+
+          //   const imgTag = "![1](" + base64Image + ")";
+          //   state.chatList[qPosition].response["ResponseSynthesizerAgent"] +=
+          //     imgTag;
+
+          //   return;
+          // }
+
           const text = data?.content?.parts?.[0]?.text;
           if (data?.partial && text) {
             // Clean up any ```json or ``` markers
             const cleanedText = text
               .replace(/^```json\s*/i, "")
               .replace(/\s*```$/, "");
-
-            if (data.author in state.chatList[qPosition].response) {
-              state.chatList[qPosition].response[data.author] += cleanedText;
+            if (author in state.chatList[qPosition].response) {
+              state.chatList[qPosition].response[author] += cleanedText;
             } else {
               // clear all keys
               state.chatList[qPosition].response = {};
               // add new key
-              state.chatList[qPosition].response[data.author] = cleanedText;
+              state.chatList[qPosition].response[author] = cleanedText;
             }
           }
         } catch (e) {
@@ -178,13 +261,21 @@ const dashboardSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(fetchOptions.fulfilled, (state, { payload }) => {
-        // console.log("fetchOptions - fulfilled");
+        // console.log("fetchOptions - fulfilled - ");
         state.isLoading = false;
-        state.folders = { populate: false, data: payload.options };
-        state.selectedFolders = payload.defaults;
+        if (payload.error == "missing client_id") {
+          state.isBlock = true;
+        } else if (payload.error == "missing keys : product_id, category_id") {
+          console.log(payload.error);
+          state.folders = { populate: false, data: payload.options };
+          state.missingProductIdOrCategoryId = true;
+        } else {
+          state.folders = { populate: false, data: payload.options };
+          state.selectedFolders = payload.defaults;
+        }
       })
       .addCase(fetchOptions.rejected, (state) => {
-        console.log("fetchOptions - rejected");
+        // console.log("fetchOptions - rejected");
         state.isLoading = false;
       })
       // loadData
@@ -193,9 +284,10 @@ const dashboardSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(loadData.fulfilled, (state, { payload }) => {
-        // console.log("loadData - fulfilled : ", payload.global_options);
+        // console.log("loadData - fulfilled : ");
         if (payload.status == "success") {
           state.session_id = payload.session_id;
+          state.selectedFolders = payload.defaults;
           state.myBrands = [...payload.global_options.my_brands_list];
           state.competitorBrands = [
             ...payload.global_options.competitor_brands_list,
@@ -204,7 +296,7 @@ const dashboardSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(loadData.rejected, (state) => {
-        console.log("loadData - rejected");
+        // console.log("loadData - rejected");
         state.isLoading = false;
       });
     // startChat
@@ -241,5 +333,6 @@ export const {
   setStreamingStatus,
   setUserId,
   initChunk,
+  setMissingSelectedFoldersFlag,
 } = dashboardSlice.actions;
 export default dashboardSlice.reducer;

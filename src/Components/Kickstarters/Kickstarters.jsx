@@ -97,12 +97,17 @@
 
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addNewQuestion } from "../../features/dashboard/dashboardSlice";
+import {
+  addNewQuestion,
+  setMissingSelectedFoldersFlag,
+} from "../../features/dashboard/dashboardSlice";
 import ReactSwal from "../../utills/alert";
 
 const Kickstarters = () => {
   const dispatch = useDispatch();
-  const { folders, isStreaming } = useSelector((store) => store.dashboard);
+  const { folders, isStreaming, selectedFolders } = useSelector(
+    (store) => store.dashboard
+  );
 
   const cards = [
     { id: 1, prompt: "Positional attribute summary for my brands" },
@@ -123,12 +128,8 @@ const Kickstarters = () => {
   ];
 
   const handleKickStart = (id) => {
-    if (!folders) {
-      ReactSwal.fire({
-        icon: "warning",
-        title: "Heads up!",
-        text: "Please select a client, product and category from the sidebar before asking questions.",
-      });
+    if (selectedFolders == null) {
+      dispatch(setMissingSelectedFoldersFlag(true));
     } else {
       const prompt = cards.find((el) => el.id === id).prompt;
       dispatch(addNewQuestion({ prompt }));

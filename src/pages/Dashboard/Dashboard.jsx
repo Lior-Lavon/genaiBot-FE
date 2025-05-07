@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useRef } from "react";
 import { Menu } from "lucide-react";
 import { useState } from "react";
+import ReactSwal from "../../utills/alert";
 
 // import BOT_Mapping from "../../cache/BOT_Mapping.csv?raw";
 import parseCSVToStructure from "../../utills/filterCSVData.js";
@@ -19,6 +20,7 @@ import {
   initFilters,
   initFolders,
   fetchOptions,
+  setMissingSelectedFoldersFlag,
 } from "../../features/dashboard/dashboardSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -28,9 +30,14 @@ import { GoTriangleLeft, GoTriangleRight } from "react-icons/go";
 const Dashboard = memo(() => {
   const dispatch = useDispatch();
   const [inputParam, setInputParam] = useState(null);
-  const { showImage, isLeftDrawer, folders, chatList } = useSelector(
-    (store) => store.dashboard
-  );
+  const {
+    showImage,
+    isLeftDrawer,
+    folders,
+    chatList,
+    isBlock,
+    missingProductIdOrCategoryId,
+  } = useSelector((store) => store.dashboard);
 
   const [width, setWidth] = useState(0);
   const [showToggle, setShowToggle] = useState(false);
@@ -42,20 +49,49 @@ const Dashboard = memo(() => {
   };
 
   useEffect(() => {
-    calculateContentWidth();
+    if (isBlock) {
+      ReactSwal.fire({
+        icon: "error",
+        title: "Missing Client Info !",
+        text: "Please launch the app with context.",
+        showCloseButton: false,
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      });
+    }
+  }, [isBlock]);
+  useEffect(() => {
+    if (missingProductIdOrCategoryId) {
+      ReactSwal.fire({
+        icon: "info",
+        title: "Action Needed",
+        text: "Please select Genie-Product and Product-Category.",
+        showConfirmButton: true,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          dispatch(setMissingSelectedFoldersFlag(false));
+        }
+      });
+    }
+  }, [missingProductIdOrCategoryId]);
 
-    dispatch(fetchOptions());
+  useEffect(() => {
+    calculateContentWidth();
 
     // read the input
     try {
       const params = new URLSearchParams(window.location.search);
       const base64Str = params.get("startupParameter");
-      if (base64Str != null) {
-        const inputJson = decodeBase64ToJson(base64Str);
-        if (inputJson != null || inputJson != "") {
-          setInputParam(inputJson);
-        }
-      }
+      dispatch(fetchOptions(base64Str));
+
+      //
+      // if (base64Str != null) {
+      //   const inputJson = decodeBase64ToJson(base64Str);
+      //   if (inputJson != null || inputJson != "") {
+      //     setInputParam(inputJson);
+      //   }
+      // }
     } catch (error) {
       console.error("Invalid url:", error);
       return null;

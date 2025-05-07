@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addNewQuestion,
+  setMissingSelectedFoldersFlag,
   setPromptView,
 } from "../../features/dashboard/dashboardSlice";
 import myBg from "../../assets/pattern.png";
@@ -12,8 +13,8 @@ import { MdCheckBoxOutlineBlank } from "react-icons/md";
 
 const PromptView = () => {
   const dispatch = useDispatch();
-  const [prompt, setPrompt] = useState("");
-  const { isPromptView, folders, isStreaming, isLoading } = useSelector(
+  const [prompt, setPrompt] = useState("How is Tigi performing ?");
+  const { isPromptView, selectedFolders, isStreaming, isLoading } = useSelector(
     (store) => store.dashboard
   );
 
@@ -21,20 +22,12 @@ const PromptView = () => {
     setPrompt(e.target.value);
   };
   const handlePrompt = () => {
-    if (folders == null) {
-      ReactSwal.fire({
-        icon: "warning",
-        title: "Heads up!",
-        text: "Please select a client, product and category from the sidebar before asking questions.",
-      });
+    if (selectedFolders == null) {
+      dispatch(setMissingSelectedFoldersFlag(true));
     } else {
       if (!isStreaming && !isLoading) {
         dispatch(addNewQuestion({ prompt }));
       }
-
-      // setTimeout(() => {
-      //   dispatch(setPromptView());
-      // }, 300);
     }
   };
 

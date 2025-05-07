@@ -33,6 +33,8 @@ export const fetchOptions = createAsyncThunk(
   "dashboard/fetchOptions",
   async (startParam, thunkAPI) => {
     let url = "/options/?startParam=" + startParam;
+    console.log("url : ", url);
+
     return getThunk(url, thunkAPI);
   }
 );

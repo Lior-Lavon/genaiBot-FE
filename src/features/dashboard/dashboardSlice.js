@@ -222,7 +222,7 @@ const dashboardSlice = createSlice({
           }
 
           let author = data?.author;
-          // console.log("author : ", author);
+          console.log("author : ", author);
 
           if (author == "VizCodeGeneratorAgent") {
             return;

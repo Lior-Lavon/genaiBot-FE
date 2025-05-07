@@ -23,7 +23,7 @@ const PromptView = () => {
     setPrompt(e.target.value);
   };
   const handlePrompt = () => {
-    dispatch(testFunc());
+    dispatch(testFunc("say hi !"));
     if (selectedFolders == null) {
       dispatch(setMissingSelectedFoldersFlag(true));
     } else {

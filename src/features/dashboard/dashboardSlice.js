@@ -48,8 +48,9 @@ export const loadData = createAsyncThunk(
 
 export const testFunc = createAsyncThunk(
   "dashboard/testFunc",
-  async (thunkAPI) => {
-    return getThunk("/test", thunkAPI);
+  async (startParam, thunkAPI) => {
+    let url = "/test/?startParam=" + startParam;
+    return getThunk(url, thunkAPI);
   }
 );
 

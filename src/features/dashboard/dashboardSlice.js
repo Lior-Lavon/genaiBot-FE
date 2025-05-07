@@ -79,12 +79,12 @@ export const startChat = createAsyncThunk(
         const chunk = decoder.decode(value, { stream: true });
 
         // check for data: {"invocation_id"
-        if (
-          chunk.startsWith('{"invocation_id"') ||
-          chunk.startsWith('data: {"invocation_id"')
-        ) {
-          continue;
-        }
+        // if (
+        //   chunk.startsWith('{"invocation_id"') ||
+        //   chunk.startsWith('data: {"invocation_id"')
+        // ) {
+        //   continue;
+        // }
 
         // // if (matches > 0) {
         // //   console.log("jumping over");

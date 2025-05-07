@@ -7,25 +7,20 @@ import { slideContentToBottom } from "../../features/dashboard/dashboardSlice";
 const ContentArea = memo(() => {
   const dispatch = useDispatch();
   const currentRef = useRef(null);
-  const isStreamingRef = useRef(false);
   const slideToBottomRef = useRef(false);
-  const { chatList, isLoading, slideToBottom, isStreaming } = useSelector(
+  const { chatList, isLoading, slideToBottom } = useSelector(
     (store) => store.dashboard
   );
 
   const [width, setWidth] = useState(0);
 
   useEffect(() => {
-    isStreamingRef.current = isStreaming;
     slideToBottomRef.current = slideToBottom;
-  }, [isStreaming, slideToBottom]);
+  }, [slideToBottom]);
 
   // Function to scroll to the bottom
   const handleAutoScroll = () => {
-    if (
-      currentRef.current &&
-      (isStreamingRef.current || slideToBottomRef.current)
-    ) {
+    if (currentRef.current) {
       currentRef.current.scrollTo({
         top: currentRef.current.scrollHeight,
         behavior: "smooth",

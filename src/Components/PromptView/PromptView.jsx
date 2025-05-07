@@ -23,7 +23,7 @@ const PromptView = () => {
     setPrompt(e.target.value);
   };
   const handlePrompt = () => {
-    dispatch(testFunc({ startParam: "start_param_variable" }));
+    // dispatch(testFunc({ startParam: "start_param_variable" }));
     if (selectedFolders == null) {
       dispatch(setMissingSelectedFoldersFlag(true));
     } else {

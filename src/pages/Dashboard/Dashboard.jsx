@@ -81,12 +81,9 @@ const Dashboard = memo(() => {
 
     // read the input
     try {
-      console.log("before reading ");
-
       const params = new URLSearchParams(window.location.search);
       const base64Str = params.get("startupParameter");
-      console.log("base64Str :", base64Str);
-      dispatch(fetchOptions(base64Str));
+      dispatch(fetchOptions({ startParam: base64Str }));
 
       //
       // if (base64Str != null) {

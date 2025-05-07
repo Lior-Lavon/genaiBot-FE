@@ -50,6 +50,14 @@ export const testFunc = createAsyncThunk(
   }
 );
 
+function extractDataChunks(raw) {
+  return raw
+    .split("data:")
+    .map((chunk) => chunk.trim())
+    .filter((chunk) => chunk) // remove empty strings
+    .map((chunk) => "data: " + chunk);
+}
+
 export const startChat = createAsyncThunk(
   "dashboard/startChat",
   async (body, thunkAPI) => {
@@ -78,28 +86,40 @@ export const startChat = createAsyncThunk(
         // console.log("processing ... ");
         const chunk = decoder.decode(value, { stream: true });
 
-        // check for data: {"invocation_id"
-        // if (
-        //   chunk.startsWith('{"invocation_id"') ||
-        //   chunk.startsWith('data: {"invocation_id"')
-        // ) {
-        //   continue;
+        // if (chunk.startsWith('data: {"content":{"parts":[{"text":"![Image]')) {
+        //   console.log("✅ String starts with image markdown chunk");
+
+        //   // console.log("chunk : ", chunk);
+
+        //   // check how many images are included
+        //   const matches = chunk.match(
+        //     /data:\s*\{"content":\{"parts":\[\{"text":"!\[Image\]/g
+        //   );
+        //   const count = matches ? matches.length : 0;
+        //   console.log("count : ", count);
+
+        //   if (count > 1) {
+        //     const parts = chunk.split(/(?=data: \{"content":\{"parts":)/);
+        //     parts.forEach((part, index) => {
+        //       // 👇 Emit partial result to the store (custom action)
+
+        //       // console.log(part);
+
+        //       console.log("pushing part");
+
+        //       thunkAPI.dispatch({
+        //         type: "dashboard/streamChunk",
+        //         payload: {
+        //           qPosition,
+        //           part,
+        //         },
+        //       });
+        //     });
+        //     continue;
+        //   }
         // }
 
-        // // if (matches > 0) {
-        // //   console.log("jumping over");
-        // //   continue;
-        // // }
-
-        const matches = chunk.match("content");
-        const count = matches ? matches.length : 0;
-        if (count > 1) {
-          console.log("!!!!!!!!!!!!!!");
-          console.log("!!!!!!!Found a duplication!!!!!!!");
-          console.log("!!!!!!!!!!!!!!");
-        }
-
-        // // 👇 Emit partial result to the store (custom action)
+        // 👇 Emit partial result to the store (custom action)
         thunkAPI.dispatch({
           type: "dashboard/streamChunk",
           payload: {
@@ -107,6 +127,13 @@ export const startChat = createAsyncThunk(
             chunk,
           },
         });
+
+        // if image break out
+        if (chunk.startsWith('data: {"content":{"parts":[{"text":"![Image]')) {
+          console.log("✅ String starts with image markdown chunk");
+
+          break;
+        }
       }
 
       return "done"; // Optional return value
@@ -177,22 +204,16 @@ const dashboardSlice = createSlice({
       state.chatList[qPosition].response["JustASec"] = "";
     },
     streamChunk: (state, action) => {
-      // console.log("1");
       let qPosition = action.payload.qPosition;
-      // console.log("2");
       if (action.payload.chunk.startsWith("data")) {
-        // console.log("3");
         try {
           const payload = action.payload;
 
           const jsonString = payload?.chunk.replace(/^data:\s*/, "").trim();
-          // console.log("length : ", jsonString.length);
+          // console.log("------------ before ------------------");
+          // console.log("len : ", jsonString.length);
           // console.log("jsonString : ", jsonString);
-
-          // const results = extractJsonObjects(jsonString);
-          // console.log("len : ", results.length);
-          // console.log(results);
-          // console.log("--------------------");
+          // console.log("------------ after ------------------");
 
           const data = JSON.parse(jsonString);
           if (data?.type == "done") {
@@ -208,36 +229,36 @@ const dashboardSlice = createSlice({
           }
 
           // // // let imgTag = "";
-          // if (author == "ArtifactLoader") {
-          //   const text = data?.content?.parts?.[0]?.text;
+          if (author == "ArtifactLoader") {
+            const text = data?.content?.parts?.[0]?.text;
 
-          //   // Match Markdown image syntax and extract the data URL
-          //   const imageMarkdownMatch = text.match(/!\[.*?\]\((.*?)\)/);
+            // Match Markdown image syntax and extract the data URL
+            const imageMarkdownMatch = text.match(/!\[.*?\]\((.*?)\)/);
 
-          //   if (!imageMarkdownMatch) {
-          //     console.warn("⚠️ No Markdown image found in input.");
-          //     return;
-          //   }
+            if (!imageMarkdownMatch) {
+              console.warn("⚠️ No Markdown image found in input.");
+              return;
+            }
 
-          //   const dataUrl = imageMarkdownMatch[1];
+            const dataUrl = imageMarkdownMatch[1];
 
-          //   // Extract the base64 content from the data URL
-          //   const base64Match = dataUrl.match(
-          //     /^data:image\/[a-zA-Z]+;base64,(.+)$/
-          //   );
+            // Extract the base64 content from the data URL
+            const base64Match = dataUrl.match(
+              /^data:image\/[a-zA-Z]+;base64,(.+)$/
+            );
 
-          //   if (!base64Match) {
-          //     console.warn("⚠️ Invalid or missing base64 image data.");
-          //     return;
-          //   }
-          //   const base64Image = base64Match[1];
+            if (!base64Match) {
+              console.warn("⚠️ Invalid or missing base64 image data.");
+              return;
+            }
+            const base64Image = base64Match[1];
 
-          //   const imgTag = "![1](" + base64Image + ")";
-          //   state.chatList[qPosition].response["ResponseSynthesizerAgent"] +=
-          //     imgTag;
+            const imgTag = "![1](" + base64Image + ")";
+            state.chatList[qPosition].response["ResponseSynthesizerAgent"] +=
+              imgTag;
 
-          //   return;
-          // }
+            return;
+          }
 
           const text = data?.content?.parts?.[0]?.text;
           if (data?.partial && text) {

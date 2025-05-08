@@ -20,8 +20,8 @@ const initialState = {
   authorKeys: {
     JustASec: { label: "Just a sec...", persistent: false },
     PlannerAgent: { label: "Thinking ...", persistent: false },
-    SqlGenerationAgent: { label: "Resolving ...", persistent: false },
-    SqlExecutionAgent: { label: "", persistent: false },
+    SqlGenerationAgent: { label: "Thinking ...", persistent: false },
+    SqlExecutionAgent: { label: "Thinking ...", persistent: false },
     ResponseSynthesizerAgent: { label: "", persistent: true },
     VizCodeGeneratorAgent: { label: "", persistent: true },
   },
@@ -78,10 +78,12 @@ export const startChat = createAsyncThunk(
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
 
+      console.log("Connected ... ");
+
       while (true) {
         const { value, done } = await reader.read();
         if (done) {
-          console.log("startChat - done");
+          console.log("done");
           break;
         }
 
@@ -94,6 +96,8 @@ export const startChat = createAsyncThunk(
           continue;
         }
 
+        const exit = false;
+
         // const parts = chunk.split(/(?=data: )/);
         const parts = chunk.split(/(?=data: )/).map((part) => part.trim());
         for (const part of parts) {
@@ -101,23 +105,40 @@ export const startChat = createAsyncThunk(
             continue;
           }
 
-          if (parts.length > 1) {
-            console.log(`!!!!!!! ${parts.length} !!!!!!!!`);
-          }
+          if (part.startsWith("data")) {
+            let jsonString = "";
+            jsonString = part.replace(/^data:\s*/, "").trim();
 
-          if (
-            chunk.startsWith('data: {"content":{"parts":[{"text":"![Image]')
-          ) {
-            console.log("✅ Image markdown chunk");
-          }
+            const firstBrace = jsonString.indexOf("{");
+            const lastBrace = jsonString.lastIndexOf("}");
 
-          thunkAPI.dispatch({
-            type: "dashboard/streamChunk",
-            payload: {
-              qPosition,
-              chunk: part,
-            },
-          });
+            if (firstBrace !== -1 && lastBrace !== -1) {
+              const slice = jsonString.slice(firstBrace, lastBrace + 1);
+              try {
+                const jsonObj = JSON.parse(slice);
+
+                // check if done received
+                const type = jsonObj.type;
+                if (type === "done") {
+                  break;
+                }
+                thunkAPI.dispatch({
+                  type: "dashboard/streamChunk",
+                  payload: {
+                    qPosition,
+                    chunk: jsonObj,
+                  },
+                });
+              } catch (e) {
+                console.error("Still failed to parse JSON:", e);
+              }
+            } else {
+              console.error("Ops something went wrong");
+            }
+            // console.log(data);
+          } else {
+            console.error("part does not start with 'data' !!");
+          }
         }
 
         /*        
@@ -244,97 +265,90 @@ const dashboardSlice = createSlice({
       const qPosition = action.payload.qPosition;
       // console.log("qPosition : ", qPosition);
 
-      if (chunk.startsWith("data")) {
-        let jsonString = "";
-        try {
-          jsonString = chunk.replace(/^data:\s*/, "").trim();
-          // console.log(jsonString);
+      let author = chunk?.author;
 
-          //     //   // console.log("------------ before ------------------");
-          //     //   console.log("len : ", jsonString.length);
-          //     //   //     // console.log("jsonString : ", jsonString);
-          //     //   // console.log("------------ after ------------------");
-          const data = JSON.parse(jsonString);
-          if (data?.type == "done") {
-            delete state.chatList[qPosition].response.VizCodeGeneratorAgent;
-            console.log("finished");
-            return;
+      console.log("author : ", author);
+      // if (author == "VizCodeGeneratorAgent") {
+      //   if ("ResponseSynthesizerAgent" in state.chatList[qPosition].response) {
+      //     if (
+      //       !("VizCodeGeneratorAgent" in state.chatList[qPosition].response)
+      //     ) {
+      //       // add loader if not exist
+      //       state.chatList[qPosition].response["VizCodeGeneratorAgent"] =
+      //         "[LOADER]";
+      //     }
+      //   }
+      //   return;
+      // }
+
+      if (author == "ResponseSynthesizerAgent") {
+        const text = chunk?.content?.parts?.[0]?.text;
+        // check if text contain next step
+        // if (data?.partial && text.toLowerCase().includes("next step")) {
+        //   console.log("Found 'next step'");
+        //   console.log(text);
+        // }
+
+        if (chunk?.partial && text) {
+          const cleanedText = text
+            .replace(/^```json\s*/i, "")
+            .replace(/\s*```$/, "");
+
+          if (author in state.chatList[qPosition].response) {
+            state.chatList[qPosition].response[author] += cleanedText;
+          } else {
+            state.chatList[qPosition].response = {};
+            state.chatList[qPosition].response[author] = cleanedText;
           }
-          let author = data?.author;
-          console.log("author : ", author);
-          if (author == "VizCodeGeneratorAgent") {
-            if (
-              "ResponseSynthesizerAgent" in state.chatList[qPosition].response
-            ) {
-              if (
-                !("VizCodeGeneratorAgent" in state.chatList[qPosition].response)
-              ) {
-                // add loader if not exist
-                state.chatList[qPosition].response["VizCodeGeneratorAgent"] =
-                  "[LOADER]";
-              }
-            }
-
-            return;
-          }
-
-          if (author == "ArtifactLoader") {
-            // remove the loader
-            delete state.chatList[qPosition].response.VizCodeGeneratorAgent;
-
-            const text = data?.content?.parts?.[0]?.text;
-            // Match Markdown image syntax and extract the data URL
-            const imageMarkdownMatch = text.match(/!\[.*?\]\((.*?)\)/);
-            if (!imageMarkdownMatch) {
-              console.warn("⚠️ No Markdown image found in input.");
-              return;
-            }
-            const dataUrl = imageMarkdownMatch[1];
-            // console.log(dataUrl);
-            // // Extract the base64 content from the data URL
-            const base64Match = dataUrl.match(
-              /^data:image\/[a-zA-Z]+;base64,(.+)$/
-            );
-            if (!base64Match) {
-              console.warn("⚠️ Invalid or missing base64 image data.");
-              return;
-            }
-            const base64Image = base64Match[1];
-            const imgTag = "![1](" + base64Image + ")";
-            state.chatList[qPosition].response["ResponseSynthesizerAgent"] +=
-              imgTag;
-            return;
-          }
-
-          const text = data?.content?.parts?.[0]?.text;
-          // if (author == "ResponseSynthesizerAgent") {
-          //   // check if text contain next step
-          //   if (data?.partial && text.toLowerCase().includes("next step")) {
-          //     console.log("Found 'next step'");
-          //     console.log(text);
-          //   }
-          // }
-
-          if (data?.partial && text) {
-            // Clean up any ```json or ``` markers
-            const cleanedText = text
-              .replace(/^```json\s*/i, "")
-              .replace(/\s*```$/, "");
-            if (author in state.chatList[qPosition].response) {
-              state.chatList[qPosition].response[author] += cleanedText;
-            } else {
-              // clear all keys
-              state.chatList[qPosition].response = {};
-              // add new key
-              state.chatList[qPosition].response[author] = cleanedText;
-            }
-          }
-        } catch (e) {
-          console.warn("Invalid JSON after 'data:' prefix");
-          console.log(jsonString);
         }
-      } else {
-        console.log("does not ");
+      }
+
+      if (author == "ArtifactLoader") {
+        // remove the loader
+        delete state.chatList[qPosition].response.VizCodeGeneratorAgent;
+        const text = chunk?.content?.parts?.[0]?.text;
+        // Match Markdown image syntax and extract the data URL
+        const imageMarkdownMatch = text.match(/!\[.*?\]\((.*?)\)/);
+        if (!imageMarkdownMatch) {
+          console.warn("⚠️ No Markdown image found in input.");
+          return;
+        }
+        const dataUrl = imageMarkdownMatch[1];
+        // console.log(dataUrl);
+        // // Extract the base64 content from the data URL
+        const base64Match = dataUrl.match(
+          /^data:image\/[a-zA-Z]+;base64,(.+)$/
+        );
+        if (!base64Match) {
+          console.warn("⚠️ Invalid or missing base64 image data.");
+          return;
+        }
+        const base64Image = base64Match[1];
+        const imgTag = "![1](" + base64Image + ")";
+        state.chatList[qPosition].response["ResponseSynthesizerAgent"] +=
+          imgTag;
+        return;
+      }
+
+      if (
+        author == "PlannerAgent" ||
+        author == "SqlGenerationAgent" ||
+        author == "SqlExecutionAgent"
+      ) {
+        const response = state.chatList[qPosition].response;
+        if (
+          "ResponseSynthesizerAgent" in response ||
+          "ArtifactLoader" in response ||
+          "VizCodeGeneratorAgent" in response
+        )
+          return;
+
+        if (author in state.chatList[qPosition].response) {
+          // do nothing
+        } else {
+          state.chatList[qPosition].response = {};
+          state.chatList[qPosition].response[author] = "";
+        }
       }
     },
   },

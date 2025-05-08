@@ -327,7 +327,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
   const getTitle = (agent) => {
     if (agent == "SqlExecutionAgent") {
-      return visiblePrompt;
+      return "Processing : " + visiblePrompt;
     }
     return authorKeys[agent]?.label;
   };
@@ -489,21 +489,12 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
               }}
             >
               {Object.entries(response).map(([agent, text]) =>
-                agent != "ResponseSynthesizerAgent" &&
-                agent != "VizCodeGeneratorAgent" ? (
+                agent == "JustASec" ||
+                agent == "PlannerAgent" ||
+                agent == "SqlGenerationAgent" ||
+                agent == "SqlExecutionAgent" ? (
                   <div key={agent} className="aaa">
-                    <AnimatedIconText
-                      text={getTitle(agent)}
-                      // subtext={
-                      //   agent == "SqlExecutionAgent" ? (
-                      //     <TextWithAnimatedDots
-                      //       text={"Generating the answer ... "}
-                      //     />
-                      //   ) : (
-                      //     text ?? ""
-                      //   )
-                      // }
-                    />
+                    <AnimatedIconText text={getTitle(agent)} />
                   </div>
                 ) : agent == "VizCodeGeneratorAgent" ? (
                   <div

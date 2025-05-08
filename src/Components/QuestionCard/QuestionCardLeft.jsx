@@ -511,7 +511,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                     className="w-full flex items-center justify-start"
                   >
                     <ChatLoader />
-                    <p>Generating Images</p>
                   </div>
                 ) : (
                   <ReactMarkdown

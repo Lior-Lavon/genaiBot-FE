@@ -494,15 +494,15 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                   <div key={agent} className="aaa">
                     <AnimatedIconText
                       text={getTitle(agent)}
-                      subtext={
-                        agent == "SqlExecutionAgent" ? (
-                          <TextWithAnimatedDots
-                            text={"Generating the answer ... "}
-                          />
-                        ) : (
-                          text ?? ""
-                        )
-                      }
+                      // subtext={
+                      //   agent == "SqlExecutionAgent" ? (
+                      //     <TextWithAnimatedDots
+                      //       text={"Generating the answer ... "}
+                      //     />
+                      //   ) : (
+                      //     text ?? ""
+                      //   )
+                      // }
                     />
                   </div>
                 ) : agent == "VizCodeGeneratorAgent" ? (

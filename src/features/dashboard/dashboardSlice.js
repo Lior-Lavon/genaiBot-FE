@@ -19,7 +19,7 @@ const initialState = {
   competitorBrands: [],
   authorKeys: {
     JustASec: { label: "Just a sec...", persistent: false },
-    PlannerAgent: { label: "Show thinking ...", persistent: false },
+    PlannerAgent: { label: "Thinking ...", persistent: false },
     SqlGenerationAgent: { label: "Resolving ...", persistent: false },
     SqlExecutionAgent: { label: "", persistent: false },
     ResponseSynthesizerAgent: { label: "", persistent: true },

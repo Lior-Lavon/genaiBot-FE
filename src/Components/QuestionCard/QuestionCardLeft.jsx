@@ -485,7 +485,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
               {Object.entries(response).map(([agent, text]) =>
                 agent != "ResponseSynthesizerAgent" &&
                 agent != "VizCodeGeneratorAgent" ? (
-                  <div key={agent} className="">
+                  <div key={agent} className="aaa">
                     <AnimatedIconText
                       text={getTitle(agent)}
                       subtext={
@@ -494,7 +494,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                             text={"Generating the answer ... "}
                           />
                         ) : (
-                          text
+                          text ?? ""
                         )
                       }
                     />
@@ -508,12 +508,15 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                     components={{
                       img({ node, ...props }) {
                         const src = "data:image/png;base64," + props.src;
-                        return (
-                          <QuestionImage
-                            src={src}
-                            handleImageClick={handleImageClick}
-                          />
-                        );
+                        // console.log(src);
+
+                        // return (
+                        //   <QuestionImage
+                        //     src={src}
+                        //     handleImageClick={handleImageClick}
+                        //   />
+                        // );
+                        return <img src={src} />;
                       },
                       table: ({ node, ...props }) => {
                         const rowIndexRef = { current: -1 }; // Reset for each table

@@ -126,7 +126,7 @@ const AnimatedIconText = ({
   subtext = "", // 👈 New configurable subtext
   icon: IconComponent = PlaceholderSparkIcon,
   showArrow = true,
-  className = "",
+  // className = "",
   iconColor = "text-blue-400",
   borderColor = "border-blue-400",
   textColor = "text-black",
@@ -135,7 +135,7 @@ const AnimatedIconText = ({
   return (
     <button
       type="button"
-      className={`inline-flex items-start gap-2 px-3 py-1.5 rounded-full transition-colors duration-150 ${className}`}
+      className={`bbb inline-flex items-start gap-2 px-3 py-1.5 rounded-full transition-colors duration-150`}
     >
       {/* Icon with Animated Border */}
       <div className="relative w-6 h-6 shrink-0 self-start">

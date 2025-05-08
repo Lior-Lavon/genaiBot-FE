@@ -80,44 +80,63 @@ export const startChat = createAsyncThunk(
       while (true) {
         const { value, done } = await reader.read();
         if (done) {
+          console.log("startChat - done");
           break;
         }
 
         // console.log("processing ... ");
-        const chunk = decoder.decode(value, { stream: true });
+        const data = decoder.decode(value, { stream: true });
 
-        // if (chunk.startsWith('data: {"content":{"parts":[{"text":"![Image]')) {
-        //   console.log("✅ String starts with image markdown chunk");
+        const chunk = data;
 
-        //   // console.log("chunk : ", chunk);
+        if (chunk.startsWith('data: {"invocation_id')) {
+          continue;
+        }
 
-        //   // check how many images are included
-        //   const matches = chunk.match(
-        //     /data:\s*\{"content":\{"parts":\[\{"text":"!\[Image\]/g
-        //   );
-        //   const count = matches ? matches.length : 0;
-        //   console.log("count : ", count);
+        const parts = chunk.split(/(?=data: )/);
+        for (const part of parts) {
+          if (!part.startsWith("data")) {
+            console.log("skipp");
+            continue;
+          }
 
-        //   if (count > 1) {
-        //     const parts = chunk.split(/(?=data: \{"content":\{"parts":)/);
-        //     parts.forEach((part, index) => {
-        //       // 👇 Emit partial result to the store (custom action)
+          thunkAPI.dispatch({
+            type: "dashboard/streamChunk",
+            payload: {
+              qPosition,
+              chunk: part,
+            },
+          });
+        }
 
-        //       // console.log(part);
+        /*        
+        if (chunk.startsWith('data: {"content":{"parts":[{"text":"![Image]')) {
+          // check how many images are included
+          const matches = chunk.match(
+            /data:\s*\{"content":\{"parts":\[\{"text":"!\[Image\]/g
+          );
+          const count = matches ? matches.length : 0;
 
-        //       console.log("pushing part");
+          if (count > 1) {
+            console.log("✅ String starts with image markdown chunk");
+            console.log("count : ", count);
 
-        //       thunkAPI.dispatch({
-        //         type: "dashboard/streamChunk",
-        //         payload: {
-        //           qPosition,
-        //           part,
-        //         },
-        //       });
-        //     });
-        //     continue;
-        //   }
-        // }
+            const parts = chunk.split(/(?=data: \{"content":\{"parts":)/);
+            for (const part of parts) {
+              console.log("pushing part");
+
+              thunkAPI.dispatch({
+                type: "dashboard/streamChunk",
+                payload: {
+                  qPosition,
+                  part,
+                },
+              });
+            }
+
+            continue; // prevent duplicate full chunk dispatch
+          }
+        }
 
         // 👇 Emit partial result to the store (custom action)
         thunkAPI.dispatch({
@@ -127,13 +146,13 @@ export const startChat = createAsyncThunk(
             chunk,
           },
         });
+*/
+        // // if image break out
+        // if (chunk.startsWith('data: {"content":{"parts":[{"text":"![Image]')) {
+        //   console.log("✅ String starts with image markdown chunk");
 
-        // if image break out
-        if (chunk.startsWith('data: {"content":{"parts":[{"text":"![Image]')) {
-          console.log("✅ String starts with image markdown chunk");
-
-          break;
-        }
+        //   break;
+        // }
       }
 
       return "done"; // Optional return value
@@ -204,59 +223,55 @@ const dashboardSlice = createSlice({
       state.chatList[qPosition].response["JustASec"] = "";
     },
     streamChunk: (state, action) => {
-      let qPosition = action.payload.qPosition;
-      if (action.payload.chunk.startsWith("data")) {
+      // console.log("payload : ", action.payload);
+      const chunk = action.payload.chunk;
+      // console.log(chunk);
+      const qPosition = action.payload.qPosition;
+      // console.log("qPosition : ", qPosition);
+
+      if (chunk.startsWith("data")) {
+        let jsonString = "";
         try {
-          const payload = action.payload;
+          jsonString = chunk.replace(/^data:\s*/, "").trim();
+          // console.log(jsonString);
 
-          const jsonString = payload?.chunk.replace(/^data:\s*/, "").trim();
-          // console.log("------------ before ------------------");
-          // console.log("len : ", jsonString.length);
-          // console.log("jsonString : ", jsonString);
-          // console.log("------------ after ------------------");
-
+          //     //   // console.log("------------ before ------------------");
+          //     //   console.log("len : ", jsonString.length);
+          //     //   //     // console.log("jsonString : ", jsonString);
+          //     //   // console.log("------------ after ------------------");
           const data = JSON.parse(jsonString);
           if (data?.type == "done") {
             console.log("finished");
             return;
           }
-
           let author = data?.author;
           console.log("author : ", author);
-
           if (author == "VizCodeGeneratorAgent") {
             return;
           }
 
-          // // // let imgTag = "";
           if (author == "ArtifactLoader") {
             const text = data?.content?.parts?.[0]?.text;
-
             // Match Markdown image syntax and extract the data URL
             const imageMarkdownMatch = text.match(/!\[.*?\]\((.*?)\)/);
-
             if (!imageMarkdownMatch) {
               console.warn("⚠️ No Markdown image found in input.");
               return;
             }
-
             const dataUrl = imageMarkdownMatch[1];
-
-            // Extract the base64 content from the data URL
+            // console.log(dataUrl);
+            // // Extract the base64 content from the data URL
             const base64Match = dataUrl.match(
               /^data:image\/[a-zA-Z]+;base64,(.+)$/
             );
-
             if (!base64Match) {
               console.warn("⚠️ Invalid or missing base64 image data.");
               return;
             }
             const base64Image = base64Match[1];
-
             const imgTag = "![1](" + base64Image + ")";
             state.chatList[qPosition].response["ResponseSynthesizerAgent"] +=
               imgTag;
-
             return;
           }
 
@@ -277,7 +292,10 @@ const dashboardSlice = createSlice({
           }
         } catch (e) {
           console.warn("Invalid JSON after 'data:' prefix");
+          console.log(jsonString);
         }
+      } else {
+        console.log("does not ");
       }
     },
   },

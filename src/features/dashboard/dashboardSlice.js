@@ -263,12 +263,16 @@ const dashboardSlice = createSlice({
           let author = data?.author;
           console.log("author : ", author);
           if (author == "VizCodeGeneratorAgent") {
-            // add loader if not exist
             if (
-              !("VizCodeGeneratorAgent" in state.chatList[qPosition].response)
+              "ResponseSynthesizerAgent" in state.chatList[qPosition].response
             ) {
-              state.chatList[qPosition].response["VizCodeGeneratorAgent"] =
-                "[LOADER]";
+              if (
+                !("VizCodeGeneratorAgent" in state.chatList[qPosition].response)
+              ) {
+                // add loader if not exist
+                state.chatList[qPosition].response["VizCodeGeneratorAgent"] =
+                  "[LOADER]";
+              }
             }
 
             return;

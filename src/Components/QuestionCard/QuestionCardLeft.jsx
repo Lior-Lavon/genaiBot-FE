@@ -508,15 +508,12 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                     components={{
                       img({ node, ...props }) {
                         const src = "data:image/png;base64," + props.src;
-                        // console.log(src);
-
-                        // return (
-                        //   <QuestionImage
-                        //     src={src}
-                        //     handleImageClick={handleImageClick}
-                        //   />
-                        // );
-                        return <img src={src} />;
+                        return (
+                          <QuestionImage
+                            src={src}
+                            handleImageClick={handleImageClick}
+                          />
+                        );
                       },
                       table: ({ node, ...props }) => {
                         const rowIndexRef = { current: -1 }; // Reset for each table

@@ -132,11 +132,10 @@ export const startChat = createAsyncThunk(
                 // });
               } catch (e) {
                 console.error("Still failed to parse JSON:", e);
-                console.log("A : ", slice);
+                console.log("A : ", part);
               }
             } else {
               console.error("Ops something went wrong");
-              console.log("B jsonString : ", jsonString);
               console.log("B part : ", part);
             }
             // console.log(data);

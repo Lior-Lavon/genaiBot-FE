@@ -96,8 +96,13 @@ export const startChat = createAsyncThunk(
         const parts = chunk.split(/(?=data: )/);
         for (const part of parts) {
           if (!part.startsWith("data")) {
-            console.log("skipp");
             continue;
+          }
+
+          if (
+            chunk.startsWith('data: {"content":{"parts":[{"text":"![Image]')
+          ) {
+            console.log("✅ Image markdown chunk");
           }
 
           thunkAPI.dispatch({
@@ -241,16 +246,28 @@ const dashboardSlice = createSlice({
           //     //   // console.log("------------ after ------------------");
           const data = JSON.parse(jsonString);
           if (data?.type == "done") {
+            delete state.chatList[qPosition].response.VizCodeGeneratorAgent;
             console.log("finished");
             return;
           }
           let author = data?.author;
           console.log("author : ", author);
           if (author == "VizCodeGeneratorAgent") {
+            // add loader if not exist
+            if (
+              !("VizCodeGeneratorAgent" in state.chatList[qPosition].response)
+            ) {
+              state.chatList[qPosition].response["VizCodeGeneratorAgent"] =
+                "[LOADER]";
+            }
+
             return;
           }
 
           if (author == "ArtifactLoader") {
+            // remove the loader
+            delete state.chatList[qPosition].response.VizCodeGeneratorAgent;
+
             const text = data?.content?.parts?.[0]?.text;
             // Match Markdown image syntax and extract the data URL
             const imageMarkdownMatch = text.match(/!\[.*?\]\((.*?)\)/);

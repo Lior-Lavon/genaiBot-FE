@@ -16,6 +16,7 @@ import {
   // startChat,
   updateResponseImages,
 } from "../../features/dashboard/dashboardSlice";
+import { v4 as uuidv4 } from "uuid";
 import ReactMarkdown from "react-markdown";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
@@ -331,6 +332,11 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     return authorKeys[agent]?.label;
   };
 
+  const getUniqueKey = () => {
+    const key = uuidv4();
+    return key;
+  };
+
   return (
     <div className="bg-white" style={{ width: `${leftWidth}px` }}>
       {/* prompt */}
@@ -358,7 +364,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
       </div>
       {showBrandFlow != "" &&
         (showBrandFlow == "loader" ? (
-          <div className="w-full">
+          <div className="w-full flex justify-end ">
             <ChatLoader />
           </div>
         ) : (
@@ -498,6 +504,13 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                         )
                       }
                     />
+                  </div>
+                ) : agent == "VizCodeGeneratorAgent" ? (
+                  <div
+                    key={getUniqueKey()}
+                    className="w-full flex justify-start"
+                  >
+                    <ChatLoader />
                   </div>
                 ) : (
                   <ReactMarkdown

@@ -136,7 +136,8 @@ export const startChat = createAsyncThunk(
               }
             } else {
               console.error("Ops something went wrong");
-              console.log("B : ", jsonString);
+              console.log("B jsonString : ", jsonString);
+              console.log("B part : ", part);
             }
             // console.log(data);
           } else {

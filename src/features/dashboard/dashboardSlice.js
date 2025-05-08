@@ -93,10 +93,15 @@ export const startChat = createAsyncThunk(
           continue;
         }
 
-        const parts = chunk.split(/(?=data: )/);
+        // const parts = chunk.split(/(?=data: )/);
+        const parts = chunk.split(/(?=data: )/).map((part) => part.trim());
         for (const part of parts) {
           if (!part.startsWith("data")) {
             continue;
+          }
+
+          if (parts.length > 1) {
+            console.log(`!!!!!!! ${parts.length} !!!!!!!!`);
           }
 
           if (

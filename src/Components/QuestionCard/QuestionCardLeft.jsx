@@ -508,9 +508,10 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                 ) : agent == "VizCodeGeneratorAgent" ? (
                   <div
                     key={getUniqueKey()}
-                    className="w-full flex justify-start"
+                    className="w-full flex items-center justify-start"
                   >
                     <ChatLoader />
+                    <p>Generating Images</p>
                   </div>
                 ) : (
                   <ReactMarkdown

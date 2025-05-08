@@ -327,7 +327,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
   const getTitle = (agent) => {
     if (agent == "SqlExecutionAgent") {
-      return "Processing : " + visiblePrompt;
+      return "Fetching: " + visiblePrompt;
     }
     return authorKeys[agent]?.label;
   };

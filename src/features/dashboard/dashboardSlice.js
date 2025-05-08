@@ -83,7 +83,7 @@ export const startChat = createAsyncThunk(
       while (true) {
         const { value, done } = await reader.read();
         if (done) {
-          console.log("done");
+          console.log("closing");
           break;
         }
 
@@ -106,8 +106,7 @@ export const startChat = createAsyncThunk(
           }
 
           if (part.startsWith("data")) {
-            let jsonString = "";
-            jsonString = part.replace(/^data:\s*/, "").trim();
+            const jsonString = part.replace(/^data:\s*/, "").trim();
 
             const firstBrace = jsonString.indexOf("{");
             const lastBrace = jsonString.lastIndexOf("}");
@@ -122,13 +121,15 @@ export const startChat = createAsyncThunk(
                 if (type === "done") {
                   break;
                 }
-                thunkAPI.dispatch({
-                  type: "dashboard/streamChunk",
-                  payload: {
-                    qPosition,
-                    chunk: jsonObj,
-                  },
-                });
+                console.log("sending");
+
+                // thunkAPI.dispatch({
+                //   type: "dashboard/streamChunk",
+                //   payload: {
+                //     qPosition,
+                //     chunk: jsonObj,
+                //   },
+                // });
               } catch (e) {
                 console.error("Still failed to parse JSON:", e);
               }

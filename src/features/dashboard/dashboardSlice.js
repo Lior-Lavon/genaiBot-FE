@@ -27,6 +27,7 @@ const initialState = {
   },
   isBlock: false,
   missingProductIdOrCategoryId: false,
+  tmpPrompt: null, // used between the option and loaddata
 };
 
 export const fetchOptions = createAsyncThunk(
@@ -43,12 +44,12 @@ export const loadData = createAsyncThunk(
   }
 );
 
-export const testFunc = createAsyncThunk(
-  "dashboard/testFunc",
-  async (body, thunkAPI) => {
-    return postThunk("/test", body, thunkAPI);
-  }
-);
+// export const testFunc = createAsyncThunk(
+//   "dashboard/testFunc",
+//   async (body, thunkAPI) => {
+//     return postThunk("/test", body, thunkAPI);
+//   }
+// );
 
 function extractDataChunks(raw) {
   return raw
@@ -172,6 +173,21 @@ export const startChat = createAsyncThunk(
   }
 );
 
+const newQuestion = (state, payload) => {
+  if (state.folders != null) {
+    const tmpList = [...state.chatList];
+    const newPayload = {
+      ...payload,
+      id: tmpList.length + 1,
+      response: {},
+      images: [],
+    };
+    tmpList.push(newPayload);
+    state.chatList = tmpList;
+    state.slideToBottom = true;
+  }
+};
+
 const dashboardSlice = createSlice({
   name: "dashboard",
   initialState,
@@ -192,18 +208,7 @@ const dashboardSlice = createSlice({
       state.showImage = { show: false, src: "" };
     },
     addNewQuestion: (state, { payload }) => {
-      if (state.folders != null) {
-        const tmpList = [...state.chatList];
-        const newPayload = {
-          ...payload,
-          id: tmpList.length + 1,
-          response: {},
-          images: [],
-        };
-        tmpList.push(newPayload);
-        state.chatList = tmpList;
-        state.slideToBottom = true;
-      }
+      newQuestion(state, payload);
     },
     initFolders: (state, { payload }) => {
       state.folders = payload;
@@ -328,7 +333,7 @@ const dashboardSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(fetchOptions.fulfilled, (state, { payload }) => {
-        // console.log("fetchOptions - fulfilled - ");
+        // console.log("fetchOptions - fulfilled - ", payload);
         state.isLoading = false;
         if (payload.error == "missing client_id") {
           state.isBlock = true;
@@ -337,26 +342,32 @@ const dashboardSlice = createSlice({
           state.folders = { populate: false, data: payload.options };
           state.missingProductIdOrCategoryId = true;
         } else {
+          // if all good
           state.folders = { populate: false, data: payload.options };
           state.selectedFolders = payload.defaults;
+
+          const question = payload.question;
+          if (question != undefined && question != "") {
+            state.tmpPrompt = question;
+          }
         }
       })
       .addCase(fetchOptions.rejected, (state) => {
         // console.log("fetchOptions - rejected");
         state.isLoading = false;
       })
-      .addCase(testFunc.pending, (state) => {
-        console.log("testFunc - pending");
-        state.isLoading = true;
-      })
-      .addCase(testFunc.fulfilled, (state, { payload }) => {
-        console.log("testFunc - fulfilled : ", payload);
-        state.isLoading = false;
-      })
-      .addCase(testFunc.rejected, (state) => {
-        console.log("testFunc - rejected");
-        state.isLoading = false;
-      })
+      // .addCase(testFunc.pending, (state) => {
+      //   console.log("testFunc - pending");
+      //   state.isLoading = true;
+      // })
+      // .addCase(testFunc.fulfilled, (state, { payload }) => {
+      //   console.log("testFunc - fulfilled : ", payload);
+      //   state.isLoading = false;
+      // })
+      // .addCase(testFunc.rejected, (state) => {
+      //   console.log("testFunc - rejected");
+      //   state.isLoading = false;
+      // })
       // loadData
       .addCase(loadData.pending, (state) => {
         // console.log("loadData - pending");
@@ -371,6 +382,11 @@ const dashboardSlice = createSlice({
           state.competitorBrands = [
             ...payload.global_options.competitor_brands_list,
           ];
+
+          if (state.tmpPrompt != null && state.tmpPrompt != "") {
+            newQuestion(state, { prompt: state.tmpPrompt });
+            state.tmpPrompt = null; // set back to null
+          }
         }
         state.isLoading = false;
       })

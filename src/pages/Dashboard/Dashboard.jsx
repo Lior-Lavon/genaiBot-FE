@@ -52,8 +52,8 @@ const Dashboard = memo(() => {
     if (isBlock) {
       ReactSwal.fire({
         icon: "error",
-        title: "Missing Client Info !",
-        text: "Please launch the app with context.",
+        title: "Missing Authentication !",
+        html: 'Please launch the app from <a href="https://service.i-genie.ai/" target="_blank" rel="noopener noreferrer" style="color: #428bca; font-weight: bold;">i-Genie</a>.',
         showCloseButton: false,
         showConfirmButton: false,
         allowOutsideClick: false,

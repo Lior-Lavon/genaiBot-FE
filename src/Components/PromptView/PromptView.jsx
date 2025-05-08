@@ -4,7 +4,6 @@ import {
   addNewQuestion,
   setMissingSelectedFoldersFlag,
   setPromptView,
-  testFunc,
 } from "../../features/dashboard/dashboardSlice";
 import myBg from "../../assets/pattern.png";
 import ReactSwal from "../../utills/alert";
@@ -14,7 +13,7 @@ import { MdCheckBoxOutlineBlank } from "react-icons/md";
 
 const PromptView = () => {
   const dispatch = useDispatch();
-  const [prompt, setPrompt] = useState("How is Tigi performing ?");
+  const [prompt, setPrompt] = useState("");
   const { isPromptView, selectedFolders, isStreaming, isLoading } = useSelector(
     (store) => store.dashboard
   );
@@ -23,7 +22,6 @@ const PromptView = () => {
     setPrompt(e.target.value);
   };
   const handlePrompt = () => {
-    // dispatch(testFunc({ startParam: "start_param_variable" }));
     if (selectedFolders == null) {
       dispatch(setMissingSelectedFoldersFlag(true));
     } else {

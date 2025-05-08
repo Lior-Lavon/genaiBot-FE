@@ -75,8 +75,8 @@ const ContentArea = memo(() => {
 
       {/* loading */}
       {isLoading && (
-        <div className="w-full h-full flex items-center justify-center absolute top-0 left-0 z-999 bg-transparent">
-          <div className="w-fit h-fit bg-white rounded-2xl flex items-center justify-center ">
+        <div className="w-full h-full flex items-start justify-center absolute top-0 left-0 z-999 bg-transparent ">
+          <div className="w-fit h-fit mt-10 bg-white rounded-2xl flex items-center justify-center ">
             <Spinner />
             <p>Loading ... </p>
           </div>

@@ -303,6 +303,14 @@ const dashboardSlice = createSlice({
           }
 
           const text = data?.content?.parts?.[0]?.text;
+          // if (author == "ResponseSynthesizerAgent") {
+          //   // check if text contain next step
+          //   if (data?.partial && text.toLowerCase().includes("next step")) {
+          //     console.log("Found 'next step'");
+          //     console.log(text);
+          //   }
+          // }
+
           if (data?.partial && text) {
             // Clean up any ```json or ``` markers
             const cleanedText = text

@@ -79,7 +79,7 @@ export const startChat = createAsyncThunk(
       const decoder = new TextDecoder("utf-8");
 
       console.log("Connected ... ");
-
+      let buffer = "";
       while (true) {
         const { value, done } = await reader.read();
         if (done) {
@@ -88,9 +88,8 @@ export const startChat = createAsyncThunk(
         }
 
         // console.log("processing ... ");
-        const data = decoder.decode(value, { stream: true });
-
-        const chunk = data;
+        const chunk = decoder.decode(value, { stream: true });
+        buffer += chunk;
 
         if (chunk.startsWith('data: {"invocation_id')) {
           continue;
@@ -99,94 +98,35 @@ export const startChat = createAsyncThunk(
         const exit = false;
 
         // const parts = chunk.split(/(?=data: )/);
-        const parts = chunk.split(/(?=data: )/).map((part) => part.trim());
-        for (const part of parts) {
-          if (!part.startsWith("data")) {
-            continue;
-          }
+        const parts = buffer.split(/(?=data: )/);
+        buffer = ""; // clear buffer to refill with remaining if needed
+        for (let i = 0; i < parts.length; i++) {
+          const part = parts[i].trim();
+          if (!part.startsWith("data:")) continue;
 
-          if (part.startsWith("data")) {
-            const jsonString = part.replace(/^data:\s*/, "").trim();
+          const jsonString = part.replace(/^data:\s*/, "").trim();
 
-            const firstBrace = jsonString.indexOf("{");
-            const lastBrace = jsonString.lastIndexOf("}");
+          // Try parsing the JSON safely
+          try {
+            const jsonObj = JSON.parse(jsonString);
 
-            if (firstBrace !== -1 && lastBrace !== -1) {
-              const slice = jsonString.slice(firstBrace, lastBrace + 1);
-              try {
-                const jsonObj = JSON.parse(slice);
-
-                // check if done received
-                const type = jsonObj.type;
-                if (type === "done") {
-                  break;
-                }
-
-                thunkAPI.dispatch({
-                  type: "dashboard/streamChunk",
-                  payload: {
-                    qPosition,
-                    chunk: jsonObj,
-                  },
-                });
-              } catch (e) {
-                console.error("Still failed to parse JSON:", e);
-                console.log("A : ", part);
-              }
-            } else {
-              console.error("Ops something went wrong");
-              console.log("B part : ", part);
-            }
-            // console.log(data);
-          } else {
-            console.error("part does not start with 'data' !!");
-          }
-        }
-
-        /*        
-        if (chunk.startsWith('data: {"content":{"parts":[{"text":"![Image]')) {
-          // check how many images are included
-          const matches = chunk.match(
-            /data:\s*\{"content":\{"parts":\[\{"text":"!\[Image\]/g
-          );
-          const count = matches ? matches.length : 0;
-
-          if (count > 1) {
-            console.log("✅ String starts with image markdown chunk");
-            console.log("count : ", count);
-
-            const parts = chunk.split(/(?=data: \{"content":\{"parts":)/);
-            for (const part of parts) {
-              console.log("pushing part");
-
-              thunkAPI.dispatch({
-                type: "dashboard/streamChunk",
-                payload: {
-                  qPosition,
-                  part,
-                },
-              });
+            if (jsonObj.type === "done") {
+              break;
             }
 
-            continue; // prevent duplicate full chunk dispatch
+            thunkAPI.dispatch({
+              type: "dashboard/streamChunk",
+              payload: {
+                qPosition,
+                chunk: jsonObj,
+              },
+            });
+          } catch (err) {
+            // If parsing fails, likely due to incomplete JSON => save to buffer
+            buffer = part;
+            break;
           }
         }
-
-        // 👇 Emit partial result to the store (custom action)
-        thunkAPI.dispatch({
-          type: "dashboard/streamChunk",
-          payload: {
-            qPosition,
-            chunk,
-          },
-        });
-*/
-        // // if image break out
-        // if (chunk.startsWith('data: {"content":{"parts":[{"text":"![Image]')) {
-        //   console.log("✅ String starts with image markdown chunk");
-
-        //   break;
-        // }
       }
 
       return "done"; // Optional return value

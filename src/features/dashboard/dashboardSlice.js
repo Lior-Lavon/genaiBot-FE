@@ -121,15 +121,14 @@ export const startChat = createAsyncThunk(
                 if (type === "done") {
                   break;
                 }
-                console.log("sending");
 
-                // thunkAPI.dispatch({
-                //   type: "dashboard/streamChunk",
-                //   payload: {
-                //     qPosition,
-                //     chunk: jsonObj,
-                //   },
-                // });
+                thunkAPI.dispatch({
+                  type: "dashboard/streamChunk",
+                  payload: {
+                    qPosition,
+                    chunk: jsonObj,
+                  },
+                });
               } catch (e) {
                 console.error("Still failed to parse JSON:", e);
                 console.log("A : ", part);

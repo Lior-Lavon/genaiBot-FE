@@ -158,6 +158,9 @@ const dashboardSlice = createSlice({
     setRightDrawer: (state) => {
       state.isRightDrawerOpen = !state.isRightDrawerOpen;
     },
+    blockApp: (state, { payload }) => {
+      state.isBlock = payload;
+    },
     setLeftDrawer: (state) => {
       state.isLeftDrawer = !state.isLeftDrawer;
     },
@@ -380,6 +383,7 @@ const dashboardSlice = createSlice({
 });
 
 export const {
+  blockApp,
   setRightDrawer,
   setLeftDrawer,
   setImage,

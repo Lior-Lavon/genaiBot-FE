@@ -3,11 +3,14 @@ import Logo from "../../assets/presto_logo.png";
 import LauncherCard from "../LauncherCard/LauncherCard";
 import { IoIosRefresh } from "react-icons/io";
 import { Tooltip } from "react-tooltip";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { restartChat } from "../../features/dashboard/dashboardSlice";
+import Spinner from "../Spinner/Spinner";
+import { div } from "framer-motion/client";
 
 const TopBar = () => {
   const dispatch = useDispatch();
+  const { isLoading } = useSelector((store) => store.dashboard);
 
   const handleNewChat = () => {
     dispatch(restartChat());
@@ -24,10 +27,16 @@ const TopBar = () => {
             data-tooltip-id="my-tooltip"
             data-tooltip-content="Start new chat"
           >
-            <IoIosRefresh
-              className="w-8 h-8 p-1 font-bold rounded-2xl cursor-pointer hover:bg-gray-200 transition-all duration-300 ease-in-out "
-              onClick={handleNewChat}
-            />
+            {isLoading ? (
+              <div className="w-8 h-8">
+                <Spinner />
+              </div>
+            ) : (
+              <IoIosRefresh
+                className="w-8 h-8 p-1 font-bold rounded-2xl cursor-pointer hover:bg-gray-200 transition-all duration-300 ease-in-out "
+                onClick={handleNewChat}
+              />
+            )}
           </div>
         </div>
       </div>

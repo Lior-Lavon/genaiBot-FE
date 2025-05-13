@@ -12,6 +12,7 @@ import {
   ImageViewer,
   LeftBar,
   PromptView,
+  Spinner,
 } from "../../Components";
 import {
   setRightDrawer,
@@ -21,6 +22,7 @@ import {
   initFolders,
   fetchOptions,
   setMissingSelectedFoldersFlag,
+  blockApp,
 } from "../../features/dashboard/dashboardSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -37,6 +39,7 @@ const Dashboard = memo(() => {
     chatList,
     isBlock,
     missingProductIdOrCategoryId,
+    isLoading,
   } = useSelector((store) => store.dashboard);
 
   const [width, setWidth] = useState(0);
@@ -83,15 +86,11 @@ const Dashboard = memo(() => {
     try {
       const params = new URLSearchParams(window.location.search);
       const base64Str = params.get("startupParameter");
-      dispatch(fetchOptions({ startParam: base64Str }));
-
-      //
-      // if (base64Str != null) {
-      //   const inputJson = decodeBase64ToJson(base64Str);
-      //   if (inputJson != null || inputJson != "") {
-      //     setInputParam(inputJson);
-      //   }
-      // }
+      if (base64Str != null) {
+        dispatch(fetchOptions({ startParam: base64Str }));
+      } else {
+        dispatch(blockApp(true));
+      }
     } catch (error) {
       console.error("Invalid url:", error);
       return null;
@@ -245,6 +244,10 @@ const Dashboard = memo(() => {
         )}
       </AnimatePresence>
       {/* {showImage?.show && <ImageViewer imageId={showImage?.id} />} */}
+
+      {isLoading && (
+        <div className="w-full h-full flex items-start justify-center absolute top-0 left-0 z-9999 bg-transparent "></div>
+      )}
     </div>
   );
 });

@@ -8,9 +8,7 @@ const ContentArea = memo(() => {
   const dispatch = useDispatch();
   const currentRef = useRef(null);
   const slideToBottomRef = useRef(false);
-  const { chatList, isLoading, slideToBottom } = useSelector(
-    (store) => store.dashboard
-  );
+  const { chatList, slideToBottom } = useSelector((store) => store.dashboard);
 
   const [width, setWidth] = useState(0);
 
@@ -72,16 +70,6 @@ const ContentArea = memo(() => {
         })}
         {chatList.length > 0 && <div className="w-full h-22"></div>}
       </div>
-
-      {/* loading */}
-      {isLoading && (
-        <div className="w-full h-full flex items-start justify-center absolute top-0 left-0 z-999 bg-transparent ">
-          <div className="w-fit h-fit mt-10 bg-white rounded-2xl flex items-center justify-center ">
-            <Spinner />
-            <p>Loading ... </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 });

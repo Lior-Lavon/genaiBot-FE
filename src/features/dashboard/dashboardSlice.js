@@ -109,12 +109,12 @@ export const startChat = createAsyncThunk(
             const jsonObj = JSON.parse(jsonString);
 
             if (jsonObj.type === "done") {
-              // console.log("1111");
+              console.log("streamFinished called");
 
-              // thunkAPI.dispatch({
-              //   type: "dashboard/streamFinished",
-              //   payload: { qPosition },
-              // });
+              thunkAPI.dispatch({
+                type: "dashboard/streamFinished",
+                payload: { qPosition },
+              });
               break;
             }
 
@@ -145,6 +145,7 @@ const newQuestion = (state, payload) => {
     const tmpList = [...state.chatList];
     const newPayload = {
       ...payload,
+      finished: false,
       id: tmpList.length + 1,
       response: {},
       images: [],
@@ -156,8 +157,6 @@ const newQuestion = (state, payload) => {
 };
 
 const extractAndReplaceWhatsNextSection = (text) => {
-  console.log("=== Original Text Start ===");
-
   const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
   const headerRegex = /^#{0,6}\s*what's next\b.*$/i;
   const bulletLines = [];
@@ -177,7 +176,6 @@ const extractAndReplaceWhatsNextSection = (text) => {
   }
 
   if (headerIdx === -1) {
-    console.log("No 'What's Next' section found.");
     return text;
   }
 
@@ -200,12 +198,10 @@ const extractAndReplaceWhatsNextSection = (text) => {
   const bulletRegex = /^[•\-*]\s+/;
 
   startIdx = i;
-  console.log(`Bullet section starts at line ${startIdx}`);
   for (; i < lines.length; i++) {
     const line = lines[i].trim();
     if (line === "") {
       endIdx = i;
-      console.log(`Blank line encountered at ${i}, possible end of bullets`);
       continue;
     }
 
@@ -216,15 +212,12 @@ const extractAndReplaceWhatsNextSection = (text) => {
 
     let newLine = line.replace(/\*/g, "").trimStart();
     bulletLines.push(newLine);
-    console.log(`Collected bullet`);
   }
 
   if (bulletLines.length === 0) {
-    console.log("No bullet lines found under 'What's Next'");
     return text;
   } else {
     endIdx = startIdx + bulletLines.length + 1;
-    console.log(`Bullet section ends`);
   }
 
   // Step 4: Create markdown buttons
@@ -235,9 +228,6 @@ const extractAndReplaceWhatsNextSection = (text) => {
     })
     .join("");
 
-  console.log("Generated button markdown:");
-  console.log(buttonMarkdown);
-
   // Step 5: Replace bullets in original text
   const newLines = [
     ...lines.slice(0, startIdx),
@@ -246,7 +236,6 @@ const extractAndReplaceWhatsNextSection = (text) => {
   ];
 
   const result = newLines.join("\n");
-  console.log("=== Modified Text End ===");
 
   return result;
 };
@@ -301,21 +290,14 @@ const dashboardSlice = createSlice({
     },
     initChunk: (state, action) => {
       let qPosition = action.payload;
-      state.chatList[qPosition].response["JustASec"] = "";
+      if (state.chatList[qPosition].finished == false)
+        state.chatList[qPosition].response["JustASec"] = "";
     },
-    // streamFinished: (state, action) => {
-    //   console.log("streamFinished");
-    //   const qPosition = action.payload.qPosition;
-
-    //   console.log("start extractAndReplaceWhatsNextSection");
-
-    //   const responseWithButtons = extractAndReplaceWhatsNextSection(
-    //     state.chatList[qPosition].response["ResponseSynthesizerAgent"]
-    //   );
-    //   console.log("finish extractAndReplaceWhatsNextSection");
-    //   state.chatList[qPosition].response["ResponseSynthesizerAgent"] =
-    //     responseWithButtons;
-    // },
+    streamFinished: (state, action) => {
+      console.log("streamFinished");
+      const qPosition = action.payload.qPosition;
+      state.chatList[qPosition].finished = true;
+    },
     streamChunk: (state, action) => {
       // console.log("payload : ", action.payload);
       const chunk = action.payload.chunk;

@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import ReactSwal from "../../utills/alert";
 import ChatLoader from "../ChatLoader/ChatLoader";
 import { useDispatch, useSelector } from "react-redux";
 import { Plus, Minus, RotateCw } from "lucide-react"; // Optional: icons
@@ -30,7 +31,9 @@ import AnimatedIconText from "../AnimatedIconText/AnimatedIconText";
 import TextWithAnimatedDots from "../TextWithAnimatedDots/TextWithAnimatedDots";
 import MultiSelectDropdown from "../MultiSelectDropdown/MultiSelectDropdown";
 import html2canvas from "html2canvas";
-import { Copy } from "lucide-react";
+import { Copy, FileText } from "lucide-react";
+import html2pdf from "html2pdf.js";
+import { Tooltip } from "react-tooltip";
 
 const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   // console.log("chatItem : ", chatItem);
@@ -108,18 +111,20 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   }, [chatItem]);
 
   useEffect(() => {
-    // check for MY_BRAND question
-    if (
-      prompt.toLowerCase().includes("my brand") ||
-      prompt.toLowerCase().includes("competitor brand")
-    ) {
-      setTimeout(() => {
-        setShowBrandFlow("loader");
-      }, 1000);
-    } else {
-      // My starting point
-      dispatch(initChunk(id - 1));
-      connect(prompt);
+    if (chatItem.finished == false) {
+      if (
+        prompt.toLowerCase().includes("my brand") ||
+        prompt.toLowerCase().includes("competitor brand")
+      ) {
+        // check for MY_BRAND question
+        setTimeout(() => {
+          setShowBrandFlow("loader");
+        }, 1000);
+      } else {
+        // My starting point
+        dispatch(initChunk(id - 1));
+        connect(prompt);
+      }
     }
   }, []);
 
@@ -344,29 +349,35 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     return key;
   };
 
-  // const safeAppendBase64Image = (markdown, base64, alt = "") => {
-  //   const cleanBase64 = base64.trim();
-  //   const imageBlock = `\n\n![${alt}](${cleanBase64})\n\n`;
-  //   return `${markdown.trim()}${imageBlock}`;
-  // };
-
   // const handleCapture = async () => {
   //   if (!answerRef.current) return;
 
   //   const canvas = await html2canvas(answerRef.current, {
-  //     backgroundColor: "#F0F0F0", // transparent background
-  //     scale: 2, // higher scale for better quality
+  //     backgroundColor: "#F0F0F0",
+  //     scale: 2,
   //   });
 
-  //   const imgData = canvas.toDataURL("image/png");
+  //   canvas.toBlob(async (blob) => {
+  //     if (!blob) {
+  //       console.error("Failed to convert canvas to blob");
+  //       return;
+  //     }
 
-  //   // Example: download image
-  //   const link = document.createElement("a");
-  //   link.href = imgData;
-  //   link.download = "markdown-content.png";
-  //   link.click();
+  //     try {
+  //       await navigator.clipboard.write([
+  //         new ClipboardItem({
+  //           "image/png": blob,
+  //         }),
+  //       ]);
+  //       alert("Image copied to clipboard!");
+  //     } catch (err) {
+  //       console.error("Failed to copy image to clipboard:", err);
+  //     }
+  //   }, "image/png");
   // };
-  const handleCapture = async () => {
+  /*
+  const handleCapture = async (mode) => {
+    // mode = "clipboard" | "pdf"
     if (!answerRef.current) return;
 
     const canvas = await html2canvas(answerRef.current, {
@@ -374,23 +385,98 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
       scale: 2,
     });
 
-    canvas.toBlob(async (blob) => {
-      if (!blob) {
-        console.error("Failed to convert canvas to blob");
-        return;
+    if (mode === "clipboard") {
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          console.error("Failed to convert canvas to blob");
+          return;
+        }
+
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              "image/png": blob,
+            }),
+          ]);
+
+          ReactSwal.fire({
+            icon: "success",
+            title: "Heads up!",
+            text: "Image copied to clipboard!",
+            willOpen: () => {
+              const swalContainer = document.querySelector(".swal2-container");
+              if (swalContainer) {
+                swalContainer.style.zIndex = "99999";
+              }
+            },
+          });
+        } catch (err) {
+          console.error("Failed to copy image to clipboard:", err);
+        }
+      }, "image/png");
+    }
+
+    if (mode === "pdf") {
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let position = 0;
+      let remainingHeight = imgHeight;
+
+      while (remainingHeight > 0) {
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        remainingHeight -= pageHeight;
+        if (remainingHeight > 0) {
+          pdf.addPage();
+        }
       }
 
-      try {
-        await navigator.clipboard.write([
-          new ClipboardItem({
-            "image/png": blob,
-          }),
-        ]);
-        alert("Image copied to clipboard!");
-      } catch (err) {
-        console.error("Failed to copy image to clipboard:", err);
-      }
-    }, "image/png");
+      pdf.save("captured-content.pdf");
+    }
+  };
+*/
+  const handleCapture = (mode) => {
+    if (!answerRef.current) return;
+
+    if (mode === "clipboard") {
+      html2canvas(answerRef.current, {
+        backgroundColor: "#F0F0F0",
+        scale: 2,
+      }).then((canvas) => {
+        canvas.toBlob(async (blob) => {
+          if (blob) {
+            await navigator.clipboard.write([
+              new ClipboardItem({ "image/png": blob }),
+            ]);
+            ReactSwal.fire({
+              icon: "success",
+              title: "Heads up!",
+              text: "Image copied to clipboard!",
+            });
+          }
+        });
+      });
+    } else if (mode === "pdf") {
+      const opt = {
+        margin: 0.5,
+        filename: "report.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+      };
+      html2pdf().set(opt).from(answerRef.current).save();
+    }
   };
 
   return (
@@ -402,7 +488,25 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
           {visiblePrompt}
 
           <div className="flex items-center gap-2">
-            {isWaiting && <Spinner />}
+            {chatItem.finished && !isCollapsed && (
+              <div>
+                <div className="inline-flex gap-2 p-2 rounded backdrop-blur-sm bg-amber-100">
+                  <button
+                    onClick={() => handleCapture("clipboard")}
+                    className="bg-[#5647cc] text-white rounded px-2 py-1 hover:bg-[#155dfc] cursor-pointer"
+                  >
+                    <Copy size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleCapture("pdf")}
+                    className="bg-[#5647cc] text-white rounded px-2 py-1 hover:bg-[#155dfc] cursor-pointer"
+                  >
+                    <FileText size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
+
             {response && (
               <div
                 onClick={() => setIsCollapsed((prev) => !prev)}
@@ -506,30 +610,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
         ></div> */}
         {/* answer */}
         <div className="relative">
-          {/* Zoom Controls Wrapper */}
-          {/* <div className="sticky top-0 z-10 flex justify-end pr-4">
-            <div className="inline-flex gap-2 bg-white/80 backdrop-blur-sm p-2 rounded shadow-md">
-              <button
-                onClick={handleZoomIn}
-                className="bg-blue-500 text-white rounded px-2 py-1 shadow-sm hover:bg-blue-600"
-              >
-                <Plus size={16} />
-              </button>
-              <button
-                onClick={handleZoomOut}
-                className="bg-blue-500 text-white rounded px-2 py-1 shadow-sm hover:bg-blue-600"
-              >
-                <Minus size={16} />
-              </button>
-              <button
-                onClick={handleZoomReset}
-                className="bg-blue-500 text-white rounded px-2 py-1 shadow-sm hover:bg-blue-600"
-              >
-                <RotateCw size={16} />
-              </button>
-            </div>
-          </div>
- */}
           <div
             ref={answerRef}
             className="relative m-4 p-4 text-left rounded-tl-2xl rounded-bl-2xl text-lg border-l-2 overflow-x-auto overflow-hidden"
@@ -574,8 +654,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                         return (
                           <QuestionImage
                             src={src}
-                            // handleImageClick={handleImageClick}
-                            handleImageClick={handleCapture}
+                            handleImageClick={handleImageClick}
                           />
                         );
                       },
@@ -678,13 +757,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                   </ReactMarkdown>
                 )
               )}
-
-              <div
-                onClick={handleCapture}
-                className="text-black text-sm absolute bottom-[-15px] cursor-pointer hover:text-[#3f6aff]"
-              >
-                <Copy size={16} />
-              </div>
             </div>
           </div>
         </div>

@@ -226,7 +226,7 @@ const extractAndReplaceWhatsNextSection = (text) => {
       const label = line.length > 120 ? line.slice(0, 120) + "..." : line;
       return `\n [${label}]()`;
     })
-    .join("");
+    .join("\n");
 
   // Step 5: Replace bullets in original text
   const newLines = [

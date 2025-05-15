@@ -29,6 +29,8 @@ import QuestionImage from "./QuestionImage";
 import AnimatedIconText from "../AnimatedIconText/AnimatedIconText";
 import TextWithAnimatedDots from "../TextWithAnimatedDots/TextWithAnimatedDots";
 import MultiSelectDropdown from "../MultiSelectDropdown/MultiSelectDropdown";
+import html2canvas from "html2canvas";
+import { Copy } from "lucide-react";
 
 const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   // console.log("chatItem : ", chatItem);
@@ -348,6 +350,49 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   //   return `${markdown.trim()}${imageBlock}`;
   // };
 
+  // const handleCapture = async () => {
+  //   if (!answerRef.current) return;
+
+  //   const canvas = await html2canvas(answerRef.current, {
+  //     backgroundColor: "#F0F0F0", // transparent background
+  //     scale: 2, // higher scale for better quality
+  //   });
+
+  //   const imgData = canvas.toDataURL("image/png");
+
+  //   // Example: download image
+  //   const link = document.createElement("a");
+  //   link.href = imgData;
+  //   link.download = "markdown-content.png";
+  //   link.click();
+  // };
+  const handleCapture = async () => {
+    if (!answerRef.current) return;
+
+    const canvas = await html2canvas(answerRef.current, {
+      backgroundColor: "#F0F0F0",
+      scale: 2,
+    });
+
+    canvas.toBlob(async (blob) => {
+      if (!blob) {
+        console.error("Failed to convert canvas to blob");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            "image/png": blob,
+          }),
+        ]);
+        alert("Image copied to clipboard!");
+      } catch (err) {
+        console.error("Failed to copy image to clipboard:", err);
+      }
+    }, "image/png");
+  };
+
   return (
     <div className="bg-white" style={{ width: `${leftWidth}px` }}>
       {/* prompt */}
@@ -489,7 +534,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
             ref={answerRef}
             className="relative m-4 p-4 text-left rounded-tl-2xl rounded-bl-2xl text-lg border-l-2 overflow-x-auto overflow-hidden"
           >
-            {/* Scaled content wrapper */}
             <div
               className="zoom-wrapper "
               style={{
@@ -523,16 +567,15 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                     components={{
                       img({ node, ...props }) {
                         let src = props.src || "";
-
                         // Avoid duplicating the prefix if it's already a data URI
                         if (!src.startsWith("data:image")) {
                           src = "data:image/png;base64," + src;
                         }
-
                         return (
                           <QuestionImage
                             src={src}
-                            handleImageClick={handleImageClick}
+                            // handleImageClick={handleImageClick}
+                            handleImageClick={handleCapture}
                           />
                         );
                       },
@@ -540,24 +583,21 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                         // Check if the link is a button format: `[Button Text]()`
                         const isButton =
                           props.href === "" || props.href === undefined; // Match empty URL for buttons
-
                         if (isButton) {
                           const label = node.children[0].value || "Button"; // Use the link text as button label
                           return (
                             <button
-                              className="px-3 py-1.5 my-1 bg-blue-600 text-white text-[0.8rem] text-left font-medium rounded-md shadow-sm hover:bg-blue-700 hover:shadow-md transition-all duration-200 cursor-pointer"
+                              className="px-3 py-1.5 my-1 bg-[#155dfc] text-white text-[0.8rem] text-left font-medium rounded-md shadow-sm hover:bg-[#1447e6] hover:shadow-md transition-all duration-200 cursor-pointer"
                               onClick={() => handleWhatNextPrompt(label)}
                             >
                               {label}
                             </button>
                           );
                         }
-
                         return <a {...props} />; // Default handling for regular links
                       },
                       table: ({ node, ...props }) => {
                         const rowIndexRef = { current: -1 }; // Reset for each table
-
                         return (
                           <RowIndexContext.Provider value={rowIndexRef}>
                             <table
@@ -572,33 +612,29 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                       ),
                       th: ({ node, ...props }) => (
                         <th
-                          className="px-2 py-2 border-b bg-[#d0ecea] border-blue-300 font-bold text-gray-800 text-sm"
+                          className="px-2 py-2 border-b bg-[#d0ecea] border-[#6ba3f6] font-bold text-[#1e2939] text-sm"
                           {...props}
                         />
                       ),
                       td: ({ node, ...props }) => (
                         <td
-                          className="px-2 py-2 border-b border-blue-200 text-sm text-gray-700"
+                          className="px-2 py-2 border-b border-[#c1d6fa] text-sm text-[#364153]"
                           {...props}
                         />
                       ),
                       tr: ({ node, ...props }) => {
                         const rowIndexRef = useContext(RowIndexContext);
                         if (!rowIndexRef) return <tr {...props} />; // fallback
-
                         rowIndexRef.current += 1;
                         const rowIndex = rowIndexRef.current;
                         const isHeader = rowIndex === 0;
-
                         const bgColor = isHeader
                           ? ""
                           : rowIndex % 2 === 0
                           ? "bg-[#00000]"
-                          : "bg-gray-100";
-
+                          : "bg-[#f3f4f6]";
                         return <tr className={bgColor} {...props} />;
                       },
-
                       h1: ({ node, ...props }) => (
                         <h1 className="text-2xl" {...props} />
                       ),
@@ -611,9 +647,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                       h4: ({ node, ...props }) => (
                         <h4 className="text-xl my-6" {...props} />
                       ),
-                      // p: ({ node, ...props }) => (
-                      //   <p className="text-sm my-1" {...props} />
-                      // ),
                       p({ node, children, ...props }) {
                         // Unwrap <p> if it's only wrapping an <img>
                         const firstChild = node.children[0];
@@ -624,7 +657,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                         ) {
                           return <>{children}</>;
                         }
-
                         return (
                           <p className="text-sm my-1" {...props}>
                             {children}
@@ -646,6 +678,13 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                   </ReactMarkdown>
                 )
               )}
+
+              <div
+                onClick={handleCapture}
+                className="text-black text-sm absolute bottom-[-15px] cursor-pointer hover:text-[#3f6aff]"
+              >
+                <Copy size={16} />
+              </div>
             </div>
           </div>
         </div>

@@ -493,13 +493,13 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                 <div className="inline-flex gap-2 p-2 rounded backdrop-blur-sm bg-amber-100">
                   <button
                     onClick={() => handleCapture("clipboard")}
-                    className="bg-[#5647cc] text-white rounded px-2 py-1 hover:bg-[#155dfc] cursor-pointer"
+                    className="bg-[#f3f4f6] text-black rounded px-2 py-1 shadow-xl hover:bg-[#e5e7eb] cursor-pointer"
                   >
                     <Copy size={16} />
                   </button>
                   <button
                     onClick={() => handleCapture("pdf")}
-                    className="bg-[#5647cc] text-white rounded px-2 py-1 hover:bg-[#155dfc] cursor-pointer"
+                    className="bg-[#f3f4f6] text-black rounded px-2 py-1 shadow-xl hover:bg-[#e5e7eb] cursor-pointer"
                   >
                     <FileText size={16} />
                   </button>
@@ -666,7 +666,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                           const label = node.children[0].value || "Button"; // Use the link text as button label
                           return (
                             <button
-                              className="px-3 py-1.5 my-1 bg-[#155dfc] text-white text-[0.8rem] text-left font-medium rounded-md shadow-sm hover:bg-[#1447e6] hover:shadow-md transition-all duration-200 cursor-pointer"
+                              className="px-3 py-1.5 my-1 bg-[#f3f4f6] text-black text-[0.8rem] text-left font-medium rounded-md shadow-lg hover:bg-[#e5e7eb] hover:shadow-md transition-all duration-200 cursor-pointer border border-gray-300"
                               onClick={() => handleWhatNextPrompt(label)}
                             >
                               {label}

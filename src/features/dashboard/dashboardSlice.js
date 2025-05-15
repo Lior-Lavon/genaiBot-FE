@@ -168,7 +168,8 @@ const extractAndReplaceWhatsNextSection = (text) => {
   // Step 1: Find "What's Next?" header
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
-    if (headerRegex.test(line)) {
+    // if (headerRegex.test(line)) {
+    if (line.toLowerCase().includes("what's next")) {
       headerIdx = i;
       // console.log(`Found "What's Next" header at line ${i}: "${lines[i]}"`);
       break;
@@ -187,10 +188,6 @@ const extractAndReplaceWhatsNextSection = (text) => {
   }
 
   if (i < lines.length && !/^[•\-*]/.test(lines[i].trim())) {
-    console
-      .log
-      // `Skipping potential subheader or non-bullet at ${i}: "${lines[i]}"`
-      ();
     i++;
   }
 

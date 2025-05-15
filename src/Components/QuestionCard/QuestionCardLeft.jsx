@@ -9,6 +9,7 @@ import ChatLoader from "../ChatLoader/ChatLoader";
 import { useDispatch, useSelector } from "react-redux";
 import { Plus, Minus, RotateCw } from "lucide-react"; // Optional: icons
 import {
+  addNewQuestion,
   initChunk,
   setImage,
   setStreamingStatus,
@@ -119,6 +120,10 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
       connect(prompt);
     }
   }, []);
+
+  const handleWhatNextPrompt = (inputPrompt) => {
+    dispatch(addNewQuestion({ prompt: inputPrompt }));
+  };
 
   const connect = async (prompt) => {
     dispatch(
@@ -337,11 +342,17 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     return key;
   };
 
+  // const safeAppendBase64Image = (markdown, base64, alt = "") => {
+  //   const cleanBase64 = base64.trim();
+  //   const imageBlock = `\n\n![${alt}](${cleanBase64})\n\n`;
+  //   return `${markdown.trim()}${imageBlock}`;
+  // };
+
   return (
     <div className="bg-white" style={{ width: `${leftWidth}px` }}>
       {/* prompt */}
       <div className="w-full bg-white">
-        <div className="w-full mx-4 px-4 py-3 text-left rounded-2xl text-xl border-l-3 border-[#5fbbc5] flex items-center justify-between bg-[#FFFABF] ">
+        <div className="w-full mx-4 px-4 py-3 text-left rounded-2xl text-lg border-l-3 border-[#5fbbc5] flex items-center justify-between bg-[#FFFABF] ">
           {/* {getPromptText(prompt)} */}
           {visiblePrompt}
 
@@ -511,13 +522,38 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                     rehypePlugins={[[rehypeSanitize, schemaWithDataUrls]]}
                     components={{
                       img({ node, ...props }) {
-                        const src = "data:image/png;base64," + props.src;
+                        let src = props.src || "";
+
+                        // Avoid duplicating the prefix if it's already a data URI
+                        if (!src.startsWith("data:image")) {
+                          src = "data:image/png;base64," + src;
+                        }
+
                         return (
                           <QuestionImage
                             src={src}
                             handleImageClick={handleImageClick}
                           />
                         );
+                      },
+                      a({ node, ...props }) {
+                        // Check if the link is a button format: `[Button Text]()`
+                        const isButton =
+                          props.href === "" || props.href === undefined; // Match empty URL for buttons
+
+                        if (isButton) {
+                          const label = node.children[0].value || "Button"; // Use the link text as button label
+                          return (
+                            <button
+                              className="px-3 py-1.5 my-1 bg-blue-600 text-white text-[0.8rem] text-left font-medium rounded-md shadow-sm hover:bg-blue-700 hover:shadow-md transition-all duration-200 cursor-pointer"
+                              onClick={() => handleWhatNextPrompt(label)}
+                            >
+                              {label}
+                            </button>
+                          );
+                        }
+
+                        return <a {...props} />; // Default handling for regular links
                       },
                       table: ({ node, ...props }) => {
                         const rowIndexRef = { current: -1 }; // Reset for each table
@@ -575,9 +611,26 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                       h4: ({ node, ...props }) => (
                         <h4 className="text-xl my-6" {...props} />
                       ),
-                      p: ({ node, ...props }) => (
-                        <p className="text-sm my-1" {...props} />
-                      ),
+                      // p: ({ node, ...props }) => (
+                      //   <p className="text-sm my-1" {...props} />
+                      // ),
+                      p({ node, children, ...props }) {
+                        // Unwrap <p> if it's only wrapping an <img>
+                        const firstChild = node.children[0];
+                        if (
+                          node.children.length === 1 &&
+                          firstChild.type === "element" &&
+                          firstChild.tagName === "img"
+                        ) {
+                          return <>{children}</>;
+                        }
+
+                        return (
+                          <p className="text-sm my-1" {...props}>
+                            {children}
+                          </p>
+                        );
+                      },
                       ul: ({ node, ...props }) => (
                         <ul className="mt-1" {...props} />
                       ),

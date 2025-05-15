@@ -83,7 +83,7 @@ export const startChat = createAsyncThunk(
       while (true) {
         const { value, done } = await reader.read();
         if (done) {
-          console.log("closing");
+          console.log("closing connection.");
           break;
         }
 
@@ -94,8 +94,6 @@ export const startChat = createAsyncThunk(
         if (chunk.startsWith('data: {"invocation_id')) {
           continue;
         }
-
-        const exit = false;
 
         // const parts = chunk.split(/(?=data: )/);
         const parts = buffer.split(/(?=data: )/);
@@ -111,6 +109,12 @@ export const startChat = createAsyncThunk(
             const jsonObj = JSON.parse(jsonString);
 
             if (jsonObj.type === "done") {
+              // console.log("1111");
+
+              // thunkAPI.dispatch({
+              //   type: "dashboard/streamFinished",
+              //   payload: { qPosition },
+              // });
               break;
             }
 
@@ -149,6 +153,102 @@ const newQuestion = (state, payload) => {
     state.chatList = tmpList;
     state.slideToBottom = true;
   }
+};
+
+const extractAndReplaceWhatsNextSection = (text) => {
+  console.log("=== Original Text Start ===");
+
+  const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+  const headerRegex = /^#{0,6}\s*what's next\b.*$/i;
+  const bulletLines = [];
+
+  let headerIdx = -1;
+  let startIdx = -1;
+  let endIdx = -1;
+
+  // Step 1: Find "What's Next?" header
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (headerRegex.test(line)) {
+      headerIdx = i;
+      // console.log(`Found "What's Next" header at line ${i}: "${lines[i]}"`);
+      break;
+    }
+  }
+
+  if (headerIdx === -1) {
+    console.log("No 'What's Next' section found.");
+    return text;
+  }
+
+  // Step 2: Skip blank lines and optional subheader
+  let i = headerIdx + 1;
+  while (i < lines.length && lines[i].trim() === "") {
+    // console.log(`Skipping empty line at ${i}`);
+    i++;
+  }
+
+  if (i < lines.length && !/^[•\-*]/.test(lines[i].trim())) {
+    console
+      .log
+      // `Skipping potential subheader or non-bullet at ${i}: "${lines[i]}"`
+      ();
+    i++;
+  }
+
+  // Step 3: Detect bullet points (including • character)
+  const bulletRegex = /^[•\-*]\s+/;
+
+  startIdx = i;
+  console.log(`Bullet section starts at line ${startIdx}`);
+  for (; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line === "") {
+      endIdx = i;
+      console.log(`Blank line encountered at ${i}, possible end of bullets`);
+      continue;
+    }
+
+    if (!bulletRegex.test(line)) {
+      endIdx = i;
+      break;
+    }
+
+    let newLine = line.replace(/\*/g, "").trimStart();
+    bulletLines.push(newLine);
+    console.log(`Collected bullet`);
+  }
+
+  if (bulletLines.length === 0) {
+    console.log("No bullet lines found under 'What's Next'");
+    return text;
+  } else {
+    endIdx = startIdx + bulletLines.length + 1;
+    console.log(`Bullet section ends`);
+  }
+
+  // Step 4: Create markdown buttons
+  const buttonMarkdown = bulletLines
+    .map((line) => {
+      const label = line.length > 120 ? line.slice(0, 120) + "..." : line;
+      return `\n [${label}]()`;
+    })
+    .join("");
+
+  console.log("Generated button markdown:");
+  console.log(buttonMarkdown);
+
+  // Step 5: Replace bullets in original text
+  const newLines = [
+    ...lines.slice(0, startIdx),
+    buttonMarkdown,
+    ...lines.slice(endIdx),
+  ];
+
+  const result = newLines.join("\n");
+  console.log("=== Modified Text End ===");
+
+  return result;
 };
 
 const dashboardSlice = createSlice({
@@ -203,6 +303,19 @@ const dashboardSlice = createSlice({
       let qPosition = action.payload;
       state.chatList[qPosition].response["JustASec"] = "";
     },
+    // streamFinished: (state, action) => {
+    //   console.log("streamFinished");
+    //   const qPosition = action.payload.qPosition;
+
+    //   console.log("start extractAndReplaceWhatsNextSection");
+
+    //   const responseWithButtons = extractAndReplaceWhatsNextSection(
+    //     state.chatList[qPosition].response["ResponseSynthesizerAgent"]
+    //   );
+    //   console.log("finish extractAndReplaceWhatsNextSection");
+    //   state.chatList[qPosition].response["ResponseSynthesizerAgent"] =
+    //     responseWithButtons;
+    // },
     streamChunk: (state, action) => {
       // console.log("payload : ", action.payload);
       const chunk = action.payload.chunk;
@@ -211,7 +324,6 @@ const dashboardSlice = createSlice({
       // console.log("qPosition : ", qPosition);
 
       let author = chunk?.author;
-
       console.log("author : ", author);
       // if (author == "VizCodeGeneratorAgent") {
       //   if ("ResponseSynthesizerAgent" in state.chatList[qPosition].response) {
@@ -245,6 +357,13 @@ const dashboardSlice = createSlice({
             state.chatList[qPosition].response = {};
             state.chatList[qPosition].response[author] = cleanedText;
           }
+        } else {
+          // once we received all the information for ResponseSynthesizerAgent, update the what's next
+          const responseWithButtons = extractAndReplaceWhatsNextSection(
+            state.chatList[qPosition].response["ResponseSynthesizerAgent"]
+          );
+          state.chatList[qPosition].response["ResponseSynthesizerAgent"] =
+            responseWithButtons;
         }
       }
 
@@ -271,7 +390,7 @@ const dashboardSlice = createSlice({
         const base64Image = base64Match[1];
         const imgTag = "![1](" + base64Image + ")";
         state.chatList[qPosition].response["ResponseSynthesizerAgent"] +=
-          imgTag;
+          "\n" + imgTag;
         return;
       }
 
@@ -280,6 +399,23 @@ const dashboardSlice = createSlice({
         author == "SqlGenerationAgent" ||
         author == "SqlExecutionAgent"
       ) {
+        if (chunk?.partial == undefined && author == "PlannerAgent") {
+          // get the type
+          const text = chunk?.content?.parts?.[0]?.text;
+          try {
+            const cleanedText = text
+              .replace(/^```json\s*/i, "")
+              .replace(/\s*```$/, "");
+
+            const jsonObj = JSON.parse(cleanedText);
+            console.log("jsonObj : ", jsonObj);
+            const type = jsonObj?.type;
+            if (type != undefined) console.log("type: ", type);
+          } catch (err) {
+            console.log("err : ", err);
+          }
+        }
+
         const response = state.chatList[qPosition].response;
         if (
           "ResponseSynthesizerAgent" in response ||

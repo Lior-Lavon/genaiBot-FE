@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getThunk, postThunk } from "./dashboardThunk";
+import extractAndReplaceWhatsNextSection from "../../utills/extractAndReplaceWhatsNextSection";
 
 const initialState = {
   isRightDrawerOpen: false,
@@ -50,14 +51,6 @@ export const loadData = createAsyncThunk(
 //     return postThunk("/test", body, thunkAPI);
 //   }
 // );
-
-function extractDataChunks(raw) {
-  return raw
-    .split("data:")
-    .map((chunk) => chunk.trim())
-    .filter((chunk) => chunk) // remove empty strings
-    .map((chunk) => "data: " + chunk);
-}
 
 export const startChat = createAsyncThunk(
   "dashboard/startChat",
@@ -154,87 +147,6 @@ const newQuestion = (state, payload) => {
     state.chatList = tmpList;
     state.slideToBottom = true;
   }
-};
-
-const extractAndReplaceWhatsNextSection = (text) => {
-  const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
-  const headerRegex = /^#{0,6}\s*what's next\b.*$/i;
-  const bulletLines = [];
-
-  let headerIdx = -1;
-  let startIdx = -1;
-  let endIdx = -1;
-
-  // Step 1: Find "What's Next?" header
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-    // if (headerRegex.test(line)) {
-    if (line.toLowerCase().includes("what's next")) {
-      headerIdx = i;
-      // console.log(`Found "What's Next" header at line ${i}: "${lines[i]}"`);
-      break;
-    }
-  }
-
-  if (headerIdx === -1) {
-    return text;
-  }
-
-  // Step 2: Skip blank lines and optional subheader
-  let i = headerIdx + 1;
-  while (i < lines.length && lines[i].trim() === "") {
-    // console.log(`Skipping empty line at ${i}`);
-    i++;
-  }
-
-  if (i < lines.length && !/^[•\-*]/.test(lines[i].trim())) {
-    i++;
-  }
-
-  // Step 3: Detect bullet points (including • character)
-  const bulletRegex = /^[•\-*]\s+/;
-
-  startIdx = i;
-  for (; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (line === "") {
-      endIdx = i;
-      continue;
-    }
-
-    if (!bulletRegex.test(line)) {
-      endIdx = i;
-      break;
-    }
-
-    let newLine = line.replace(/\*/g, "").trimStart();
-    bulletLines.push(newLine);
-  }
-
-  if (bulletLines.length === 0) {
-    return text;
-  } else {
-    endIdx = startIdx + bulletLines.length + 1;
-  }
-
-  // Step 4: Create markdown buttons
-  const buttonMarkdown = bulletLines
-    .map((line) => {
-      const label = line.length > 120 ? line.slice(0, 120) + "..." : line;
-      return `\n [${label}]()`;
-    })
-    .join("\n");
-
-  // Step 5: Replace bullets in original text
-  const newLines = [
-    ...lines.slice(0, startIdx),
-    buttonMarkdown,
-    ...lines.slice(endIdx),
-  ];
-
-  const result = newLines.join("\n");
-
-  return result;
 };
 
 const dashboardSlice = createSlice({
@@ -357,8 +269,7 @@ const dashboardSlice = createSlice({
           return;
         }
         const dataUrl = imageMarkdownMatch[1];
-        // console.log(dataUrl);
-        // // Extract the base64 content from the data URL
+        // Extract the base64 content from the data URL
         const base64Match = dataUrl.match(
           /^data:image\/[a-zA-Z]+;base64,(.+)$/
         );
@@ -367,9 +278,9 @@ const dashboardSlice = createSlice({
           return;
         }
         const base64Image = base64Match[1];
-        const imgTag = "![1](" + base64Image + ")";
-        state.chatList[qPosition].response["ResponseSynthesizerAgent"] +=
-          "\n" + imgTag;
+        const imgSrc = "data:image/png;base64," + base64Image;
+        // const imgTag = "![1](" + base64Image + ")";
+        state.chatList[qPosition].images.push(imgSrc);
         return;
       }
 
@@ -442,18 +353,6 @@ const dashboardSlice = createSlice({
         // console.log("fetchOptions - rejected");
         state.isLoading = false;
       })
-      // .addCase(testFunc.pending, (state) => {
-      //   console.log("testFunc - pending");
-      //   state.isLoading = true;
-      // })
-      // .addCase(testFunc.fulfilled, (state, { payload }) => {
-      //   console.log("testFunc - fulfilled : ", payload);
-      //   state.isLoading = false;
-      // })
-      // .addCase(testFunc.rejected, (state) => {
-      //   console.log("testFunc - rejected");
-      //   state.isLoading = false;
-      // })
       // loadData
       .addCase(loadData.pending, (state) => {
         // console.log("loadData - pending");
@@ -480,20 +379,6 @@ const dashboardSlice = createSlice({
         // console.log("loadData - rejected");
         state.isLoading = false;
       });
-    // startChat
-    //   .addCase(startChat.pending, (state) => {
-    //     // console.log("startChat - pending");
-    //     // state.isLoading = true;
-    //     state.chatStream = "";
-    //   })
-    //   .addCase(startChat.fulfilled, (state) => {
-    //     // console.log("startChat - fulfilled");
-    //     // state.isLoading = false;
-    //   })
-    //   .addCase(startChat.rejected, (state) => {
-    //     console.log("startChat - rejected");
-    //     // state.isLoading = false;
-    //   });
   },
 });
 

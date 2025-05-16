@@ -103,7 +103,10 @@ const QuestionImage = memo(({ src, handleImageClick }) => {
   };
 
   return (
-    <div className="relative w-80 my-4 flex " onClick={handleClickOutside}>
+    <div
+      className="relative p-2 w-[calc(30%-1rem)] flex "
+      onClick={handleClickOutside}
+    >
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded border">
           <div className="animate-spin h-6 w-6 border-2 border-gray-500 border-t-transparent rounded-full" />

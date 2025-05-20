@@ -10,6 +10,8 @@ import ReactSwal from "../../utills/alert";
 import ChatLoader from "../ChatLoader/ChatLoader";
 import { useDispatch, useSelector } from "react-redux";
 import { Plus, Minus, RotateCw } from "lucide-react"; // Optional: icons
+import handleCapture from "../../utills/handleCapture";
+import getPromptTime from "../../utills/getPromptTime";
 import {
   addNewQuestion,
   initChunk,
@@ -248,143 +250,12 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     return key;
   };
 
-  // const handleCapture = async () => {
-  //   if (!answerRef.current) return;
-
-  //   const canvas = await html2canvas(answerRef.current, {
-  //     backgroundColor: "#F0F0F0",
-  //     scale: 2,
-  //   });
-
-  //   canvas.toBlob(async (blob) => {
-  //     if (!blob) {
-  //       console.error("Failed to convert canvas to blob");
-  //       return;
-  //     }
-
-  //     try {
-  //       await navigator.clipboard.write([
-  //         new ClipboardItem({
-  //           "image/png": blob,
-  //         }),
-  //       ]);
-  //       alert("Image copied to clipboard!");
-  //     } catch (err) {
-  //       console.error("Failed to copy image to clipboard:", err);
-  //     }
-  //   }, "image/png");
-  // };
-  /*
-  const handleCapture = async (mode) => {
-    // mode = "clipboard" | "pdf"
-    if (!answerRef.current) return;
-
-    const canvas = await html2canvas(answerRef.current, {
-      backgroundColor: "#F0F0F0",
-      scale: 2,
-    });
-
-    if (mode === "clipboard") {
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          console.error("Failed to convert canvas to blob");
-          return;
-        }
-
-        try {
-          await navigator.clipboard.write([
-            new ClipboardItem({
-              "image/png": blob,
-            }),
-          ]);
-
-          ReactSwal.fire({
-            icon: "success",
-            title: "Heads up!",
-            text: "Image copied to clipboard!",
-            willOpen: () => {
-              const swalContainer = document.querySelector(".swal2-container");
-              if (swalContainer) {
-                swalContainer.style.zIndex = "99999";
-              }
-            },
-          });
-        } catch (err) {
-          console.error("Failed to copy image to clipboard:", err);
-        }
-      }, "image/png");
-    }
-
-    if (mode === "pdf") {
-      const imgData = canvas.toDataURL("image/png");
-
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      let position = 0;
-      let remainingHeight = imgHeight;
-
-      while (remainingHeight > 0) {
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        remainingHeight -= pageHeight;
-        if (remainingHeight > 0) {
-          pdf.addPage();
-        }
-      }
-
-      pdf.save("captured-content.pdf");
-    }
-  };
-*/
-  const handleCapture = (mode) => {
-    if (!answerRef.current) return;
-
-    if (mode === "clipboard") {
-      html2canvas(answerRef.current, {
-        backgroundColor: "#F0F0F0",
-        scale: 2,
-      }).then((canvas) => {
-        canvas.toBlob(async (blob) => {
-          if (blob) {
-            await navigator.clipboard.write([
-              new ClipboardItem({ "image/png": blob }),
-            ]);
-            ReactSwal.fire({
-              icon: "success",
-              title: "Heads up!",
-              text: "Image copied to clipboard!",
-            });
-          }
-        });
-      });
-    } else if (mode === "pdf") {
-      const opt = {
-        margin: 0.5,
-        filename: "report.pdf",
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-      };
-      html2pdf().set(opt).from(answerRef.current).save();
-    }
-  };
-
   return (
     <div className="bg-white" style={{ width: `${leftWidth}px` }}>
       {/* prompt */}
       <div className="w-full bg-white">
-        <div className="w-full mx-4 px-4 py-3 text-left rounded-2xl text-lg border-l-3 border-[#5fbbc5] flex items-center justify-between bg-[#FFFABF] ">
-          {/* {getPromptText(prompt)} */}
-          {visiblePrompt}
+        <div className="w-full mx-4 px-4 py-3 text-left rounded-2xl border-l-3 border-[#5fbbc5] flex items-center justify-between bg-[#FFFABF] ">
+          <div className="w-full flex flex-col text-base">{`${visiblePrompt}`}</div>
 
           <div className="flex items-center gap-2">
             {chatItem.finished && !isCollapsed && (
@@ -420,6 +291,11 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
             )}
           </div>
         </div>
+        {chatItem.timeStamp.start != 0 && chatItem.timeStamp.end != 0 && (
+          <span className="ml-5 text-[10px]">
+            {`Total: ${getPromptTime(chatItem.timeStamp)}`}
+          </span>
+        )}
       </div>
       {showBrandFlow != "" &&
         (showBrandFlow == "loader" ? (

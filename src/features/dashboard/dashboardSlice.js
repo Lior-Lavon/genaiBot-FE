@@ -68,6 +68,14 @@ export const startChat = createAsyncThunk(
         body: JSON.stringify(body),
       });
 
+      thunkAPI.dispatch({
+        type: "dashboard/updateTimeStamp",
+        payload: {
+          time: Date.now(),
+          qPosition,
+        },
+      });
+
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
 
@@ -142,6 +150,10 @@ const newQuestion = (state, payload) => {
       id: tmpList.length + 1,
       response: {},
       images: [],
+      timeStamp: {
+        start: 0,
+        end: 0,
+      },
     };
     tmpList.push(newPayload);
     state.chatList = tmpList;
@@ -206,6 +218,18 @@ const dashboardSlice = createSlice({
       console.log("streamFinished");
       const qPosition = action.payload.qPosition;
       state.chatList[qPosition].finished = true;
+
+      //
+      state.chatList[qPosition].timeStamp.end = Date.now();
+    },
+    updateTimeStamp: (state, action) => {
+      // console.log("updateTimeStamp : ", action.payload.time);
+      const qPosition = action.payload.qPosition;
+      const timeStamp = {
+        start: action.payload.time,
+        end: 0,
+      };
+      state.chatList[qPosition].timeStamp = timeStamp;
     },
     streamChunk: (state, action) => {
       // console.log("payload : ", action.payload);
@@ -292,18 +316,18 @@ const dashboardSlice = createSlice({
         if (chunk?.partial == undefined && author == "PlannerAgent") {
           // get the type
           const text = chunk?.content?.parts?.[0]?.text;
-          try {
-            const cleanedText = text
-              .replace(/^```json\s*/i, "")
-              .replace(/\s*```$/, "");
+          // try {
+          //   const cleanedText = text
+          //     .replace(/^```json\s*/i, "")
+          //     .replace(/\s*```$/, "");
 
-            const jsonObj = JSON.parse(cleanedText);
-            console.log("jsonObj : ", jsonObj);
-            const type = jsonObj?.type;
-            if (type != undefined) console.log("type: ", type);
-          } catch (err) {
-            console.log("err : ", err);
-          }
+          //   const jsonObj = JSON.parse(cleanedText);
+          //   console.log("jsonObj : ", jsonObj);
+          //   const type = jsonObj?.type;
+          //   if (type != undefined) console.log("type: ", type);
+          // } catch (err) {
+          //   console.log("err : ", err);
+          // }
         }
 
         const response = state.chatList[qPosition].response;

@@ -245,35 +245,35 @@ const dashboardSlice = createSlice({
       //   return;
       // }
 
-      // if (author == "ResponseSynthesizerAgent") {
-      //   const text = chunk?.content?.parts?.[0]?.text;
-      //   // check if text contain next step
-      //   // if (data?.partial && text.toLowerCase().includes("next step")) {
-      //   //   console.log("Found 'next step'");
-      //   //   console.log(text);
-      //   // }
+      if (author == "ResponseSynthesizerAgent") {
+        const text = chunk?.content?.parts?.[0]?.text;
+        // check if text contain next step
+        // if (data?.partial && text.toLowerCase().includes("next step")) {
+        //   console.log("Found 'next step'");
+        //   console.log(text);
+        // }
 
-      //   if (chunk?.partial && text) {
-      //     // get the interval updates
-      //     const cleanedText = text
-      //       .replace(/^```json\s*/i, "")
-      //       .replace(/\s*```$/, "");
+        if (chunk?.partial && text) {
+          // get the interval updates
+          const cleanedText = text
+            .replace(/^```json\s*/i, "")
+            .replace(/\s*```$/, "");
 
-      //     if (author in state.chatList[qPosition].response) {
-      //       state.chatList[qPosition].response[author] += cleanedText;
-      //     } else {
-      //       state.chatList[qPosition].response = {};
-      //       state.chatList[qPosition].response[author] = cleanedText;
-      //     }
-      //   } else {
-      //     // get the full text
-      //     const responseWithButtons = extractAndReplaceWhatsNextSection(
-      //       state.chatList[qPosition].response["ResponseSynthesizerAgent"]
-      //     );
-      //     state.chatList[qPosition].response["ResponseSynthesizerAgent"] =
-      //       responseWithButtons;
-      //   }
-      // }
+          if (author in state.chatList[qPosition].response) {
+            state.chatList[qPosition].response[author] += cleanedText;
+          } else {
+            state.chatList[qPosition].response = {};
+            state.chatList[qPosition].response[author] = cleanedText;
+          }
+        } else {
+          // get the full text
+          const responseWithButtons = extractAndReplaceWhatsNextSection(
+            state.chatList[qPosition].response["ResponseSynthesizerAgent"]
+          );
+          state.chatList[qPosition].response["ResponseSynthesizerAgent"] =
+            responseWithButtons;
+        }
+      }
 
       // if (author == "ArtifactLoader") {
       //   // remove the loader
@@ -330,31 +330,31 @@ const dashboardSlice = createSlice({
         }
       }
 
-      if (author == "ArtifactLoader") {
-        // remove the loader
-        delete state.chatList[qPosition].response.VizCodeGeneratorAgent;
-        const text = chunk?.content?.parts?.[0]?.text;
-        // Match Markdown image syntax and extract the data URL
-        const imageMarkdownMatch = text.match(/!\[.*?\]\((.*?)\)/);
-        if (!imageMarkdownMatch) {
-          console.warn("⚠️ No Markdown image found in input.");
-          return;
-        }
-        const dataUrl = imageMarkdownMatch[1];
-        // Extract the base64 content from the data URL
-        const base64Match = dataUrl.match(
-          /^data:image\/[a-zA-Z]+;base64,(.+)$/
-        );
-        if (!base64Match) {
-          console.warn("⚠️ Invalid or missing base64 image data.");
-          return;
-        }
-        const base64Image = base64Match[1];
-        const imgSrc = "data:image/png;base64," + base64Image;
-        // const imgTag = "![1](" + base64Image + ")";
-        state.chatList[qPosition].images.push(imgSrc);
-        return;
-      }
+      // if (author == "ArtifactLoader") {
+      //   // remove the loader
+      //   delete state.chatList[qPosition].response.VizCodeGeneratorAgent;
+      //   const text = chunk?.content?.parts?.[0]?.text;
+      //   // Match Markdown image syntax and extract the data URL
+      //   const imageMarkdownMatch = text.match(/!\[.*?\]\((.*?)\)/);
+      //   if (!imageMarkdownMatch) {
+      //     console.warn("⚠️ No Markdown image found in input.");
+      //     return;
+      //   }
+      //   const dataUrl = imageMarkdownMatch[1];
+      //   // Extract the base64 content from the data URL
+      //   const base64Match = dataUrl.match(
+      //     /^data:image\/[a-zA-Z]+;base64,(.+)$/
+      //   );
+      //   if (!base64Match) {
+      //     console.warn("⚠️ Invalid or missing base64 image data.");
+      //     return;
+      //   }
+      //   const base64Image = base64Match[1];
+      //   const imgSrc = "data:image/png;base64," + base64Image;
+      //   // const imgTag = "![1](" + base64Image + ")";
+      //   state.chatList[qPosition].images.push(imgSrc);
+      //   return;
+      // }
 
       if (
         author == "PlannerAgent" ||

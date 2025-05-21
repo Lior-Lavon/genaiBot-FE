@@ -380,10 +380,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
           isCollapsed ? "max-h-0 opacity-0" : "max-h-[10000px] opacity-100"
         } ${Object.keys(response).length === 0 ? "hidden" : ""}`}
       >
-        {/* seperation line */}
-        {/* <div
-          className={`mx-4 mt-2 mb-2 h-[.2rem] bg-gray-200 rounded-full`}
-        ></div> */}
         {/* answer */}
         <div className="relative">
           <div
@@ -401,10 +397,11 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
             >
               {Object.entries(response).map(([agent, text]) =>
                 agent == "JustASec" ||
+                agent == "Presto_iGenie_Conditional_Orchestrator" ||
                 // agent == "PlannerAgent" ||
                 agent == "SqlGenerationAgent" ||
                 agent == "SqlExecutionAgent" ? (
-                  <div key={agent} className="aaa">
+                  <div key={agent} className="aaa bg-red-600">
                     <AnimatedIconText text={getTitle(agent)} />
                   </div>
                 ) : agent == "VizCodeGeneratorAgent" ? (
@@ -421,14 +418,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                       // rehypePlugins={[]}
                       rehypePlugins={[[rehypeSanitize, schemaWithDataUrls]]}
                       components={{
-                        // img({ node, ...props }) {
-                        //   let src = props.src || "";
-                        //   if (!src.startsWith("data:image")) {
-                        //     src = "data:image/png;base64," + src;
-                        //   }
-
-                        //   return null; // don't render the image here
-                        // },
                         a({ node, ...props }) {
                           // Check if the link is a button format: `[Button Text]()`
                           const isButton =

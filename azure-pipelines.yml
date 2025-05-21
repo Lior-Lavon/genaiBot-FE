@@ -7,7 +7,7 @@ pool:
   vmImage: "ubuntu-latest"
 
 variables:
-  appName: "genie-bot-frontend/dev"
+  appName: "genie-bot-frontend"
   packageDir: "dist" # Vite uses dist/ instead of build/
 
 steps:

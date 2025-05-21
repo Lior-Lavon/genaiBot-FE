@@ -1,34 +1,3 @@
-# Node.js
-# Build a general Node.js project with npm.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
-
-# trigger:
-#   branches:
-#     include:
-#       - main # or your deployment branch
-
-# pool:
-#   vmImage: "ubuntu-latest"
-
-# steps:
-#   - task: NodeTool@0
-#     inputs:
-#       versionSpec: "18.x" # or whatever version you use
-#     displayName: "Use Node.js"
-
-#   - script: npm install
-#     displayName: "Install dependencies"
-
-#   - script: npm run build
-#     displayName: "Build React App"
-
-#   - task: AzureWebApp@1
-#     inputs:
-#       azureSubscription: "chatbot-service-connection" # service connection name
-#       appName: "genie-bot-frontend" # Azure App Service name
-#       package: "$(System.DefaultWorkingDirectory)/build" # React build output
-
 trigger:
   branches:
     include:
@@ -38,7 +7,7 @@ pool:
   vmImage: "ubuntu-latest"
 
 variables:
-  appName: "genie-bot-frontend"
+  appName: "genie-bot-frontend-dev"
   packageDir: "dist" # Vite uses dist/ instead of build/
 
 steps:
@@ -52,7 +21,6 @@ steps:
       npm run build  # Ensure you're using the default Vite build script
     displayName: "Install dependencies and build Vite app"
     env:
-      VITE_SERVER_CHAT_URL: "wss://genie-bot-backend.azurewebsites.net/ws/chat"
       VITE_API_BASE_URL: "https://genie-bot-backend.azurewebsites.net/api/v1"
 
   - script: |

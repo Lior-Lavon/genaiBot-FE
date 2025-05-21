@@ -11,7 +11,6 @@ export default function extractAndReplaceWhatsNextSection(text) {
   // Step 1: Find "What's Next?" header
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
-    console.log("***", line.toLowerCase());
 
     if (
       line.toLowerCase().includes("what's next") ||

@@ -1,5 +1,7 @@
 # Presto FE
 
+> > > > > > > 9c30dce567e000f98f1435dd03cc49aad27e07f4
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

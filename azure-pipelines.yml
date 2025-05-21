@@ -43,5 +43,6 @@ steps:
       azureSubscription: "chatbot-service-connection"
       appType: "webAppLinux"
       appName: "$(appName)"
+      slotName: "dev"
       package: "$(Build.ArtifactStagingDirectory)/vite-app.zip"
     displayName: "Deploy to Azure Web App"

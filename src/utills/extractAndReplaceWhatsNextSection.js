@@ -1,5 +1,5 @@
 export default function extractAndReplaceWhatsNextSection(text) {
-  console.log("text : ", text);
+  // console.log("text : ", text);
 
   const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
   const bulletLines = [];

@@ -398,10 +398,10 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
               {Object.entries(response).map(([agent, text]) =>
                 agent == "JustASec" ||
                 agent == "Presto_iGenie_Conditional_Orchestrator" ||
-                // agent == "PlannerAgent" ||
+                agent == "PlannerAgent" ||
                 agent == "SqlGenerationAgent" ||
                 agent == "SqlExecutionAgent" ? (
-                  <div key={agent} className="aaa bg-red-600">
+                  <div key={agent} className="aaa ">
                     <AnimatedIconText text={getTitle(agent)} />
                   </div>
                 ) : agent == "VizCodeGeneratorAgent" ? (

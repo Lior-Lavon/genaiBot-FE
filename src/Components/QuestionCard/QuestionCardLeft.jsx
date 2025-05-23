@@ -37,6 +37,8 @@ import html2canvas from "html2canvas";
 import { Copy, FileText } from "lucide-react";
 import html2pdf from "html2pdf.js";
 import { Tooltip } from "react-tooltip";
+import SelectBrand from "../SelectBrand/SelectBrand";
+import ClarificationQuestion from "../ClarificationQuestion/ClarificationQuestion";
 
 const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   // console.log("chatItem : ", chatItem);
@@ -64,9 +66,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   const { id, prompt } = chatItem;
 
   const [visiblePrompt, setVisiblePrompt] = useState(prompt); // this is the prompt that will be visible
-  const [selectedMyBrands, setSelectedMyBrands] = useState(null);
-  const [selectedCompetitorBrands, setSelectedCompetitorBrands] =
-    useState(null);
+  const [selectedBrands, setSelectedBrands] = useState(null);
 
   const [response, setResponse] = useState({});
   const [streamComplete, setStreamComplete] = useState(false);
@@ -90,22 +90,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   };
 
   useEffect(() => {
-    const brands = [];
-    myBrands.map((name) => {
-      brands.push({ name, selected: false });
-    });
-    setSelectedMyBrands(brands);
-  }, [myBrands]);
-
-  useEffect(() => {
-    const brands = [];
-    competitorBrands.map((name) => {
-      brands.push({ name, selected: false });
-    });
-    setSelectedCompetitorBrands(brands);
-  }, [competitorBrands]);
-
-  useEffect(() => {
     setResponse(chatItem.response);
   }, [chatItem]);
 
@@ -115,6 +99,18 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
         prompt.toLowerCase().includes("my brand") ||
         prompt.toLowerCase().includes("competitor brand")
       ) {
+        const brands = [];
+        if (prompt.toLowerCase().includes("my brand")) {
+          myBrands.map((name) => {
+            brands.push({ name, selected: false });
+          });
+        } else {
+          competitorBrands.map((name) => {
+            brands.push({ name, selected: false });
+          });
+        }
+        setSelectedBrands(brands);
+
         // check for MY_BRAND question
         setTimeout(() => {
           setShowBrandFlow("loader");
@@ -177,43 +173,37 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     dispatch(setImage({ show: true, src: imgBase64Data }));
   };
 
-  // handle clicks on brands
-  const handleMyBrandSelect = (item) => {
-    item.selected = !item.selected;
-    const tmpArr = selectedMyBrands.map((elm) =>
-      elm.name === item.name ? item : elm
-    );
+  // // handle clicks on brands
+  // const handleMyBrandSelect = (item) => {
+  //   item.selected = !item.selected;
+  //   const tmpArr = selectedMyBrands.map((elm) =>
+  //     elm.name === item.name ? item : elm
+  //   );
 
-    setSelectedMyBrands(tmpArr);
-  };
-  const handleCompetitorsBrandSelect = (item) => {
-    item.selected = !item.selected;
-    const tmpArr = selectedCompetitorBrands.map((elm) =>
-      elm.name === item.name ? item : elm
-    );
+  //   setSelectedMyBrands(tmpArr);
+  // };
+  // const handleCompetitorsBrandSelect = (item) => {
+  //   item.selected = !item.selected;
+  //   const tmpArr = selectedCompetitorBrands.map((elm) =>
+  //     elm.name === item.name ? item : elm
+  //   );
 
-    setSelectedCompetitorBrands(tmpArr);
-  };
+  //   setSelectedCompetitorBrands(tmpArr);
+  // };
 
   // submit prompt with my-brands
-  const submitBrandSelectPrompt = () => {
+  const submitBrandSelection = () => {
     let newPrompt = "";
-    if (showBrandFlow == "my-brand-question") {
-      if (selectedMyBrands.some((brand) => brand.selected === true)) {
-        const brands = `${selectedMyBrands
-          .filter((brand) => brand.selected)
-          .map((brand) => brand.name)
-          .join(", ")}`;
+    // if (showBrandFlow == "my-brand-question") {
+    if (selectedBrands.some((brand) => brand.selected === true)) {
+      const brands = `${selectedBrands
+        .filter((brand) => brand.selected)
+        .map((brand) => brand.name)
+        .join(", ")}`;
 
+      if (showBrandFlow == "my-brand-question") {
         newPrompt = chatItem.prompt.replace("my brand", `${brands}`);
-      }
-    } else if (showBrandFlow == "competitor-brand-question") {
-      if (selectedCompetitorBrands.some((brand) => brand.selected === true)) {
-        const brands = `${selectedCompetitorBrands
-          .filter((brand) => brand.selected)
-          .map((brand) => brand.name)
-          .join(", ")}`;
-
+      } else if (showBrandFlow == "competitor-brand-question") {
         newPrompt = chatItem.prompt.replace("my competitor brand", `${brands}`);
       }
     }
@@ -250,13 +240,29 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     return key;
   };
 
+  const handleClarificationResponse = (obj) => {
+    // format the inputPrompt
+    console.log(obj);
+    let inputPrompt = "Here are my selected options for asked clarifications :";
+
+    inputPrompt +=
+      "\n" +
+      Object.entries(obj)
+        .map(([key, values]) => `• ${key} : ${values.join(", ")}`)
+        .join("\n");
+
+    console.log(inputPrompt);
+
+    dispatch(addNewQuestion({ prompt: inputPrompt }));
+  };
+
   return (
     <div className="bg-white" style={{ width: `${leftWidth}px` }}>
       {/* prompt */}
       <div className="w-full bg-white">
         <div className="w-full mx-4 px-4 py-2 text-left rounded-2xl border-l-3 border-[#5fbbc5] flex items-center justify-between bg-[#FFFABF] ">
-          {/* <div className="w-full flex flex-col text-base font-semibold">{`${visiblePrompt}`}</div> */}
-          <div className="text-lg text-gray-800 tracking-wide">{`${visiblePrompt}`}</div>
+          {/* <div className="text-base text-gray-800 tracking-wide">{`${visiblePrompt}`}</div> */}
+          <pre className="text-base text-gray-800 whitespace-pre-wrap font-sans">{`${visiblePrompt}`}</pre>
 
           <div className="flex items-center gap-2">
             {chatItem.finished && !isCollapsed && (
@@ -292,11 +298,11 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
             )}
           </div>
         </div>
-        {chatItem.timeStamp.start != 0 && chatItem.timeStamp.end != 0 && (
+        {/* {chatItem.timeStamp.start != 0 && chatItem.timeStamp.end != 0 && (
           <span className="ml-5 text-[10px]">
             {`Total: ${getPromptTime(chatItem.timeStamp)}`}
           </span>
-        )}
+        )} */}
       </div>
       {showBrandFlow != "" &&
         (showBrandFlow == "loader" ? (
@@ -307,70 +313,16 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
           (showBrandFlow == "my-brand-question" ||
             showBrandFlow == "competitor-brand-question") && (
             <div className="w-full ml-4 pl-4 mt-2 flex flex-col justify-start gap-2 bg-transparent">
-              <div
-                className={`mt-2 w-full flex justify-right gap-2 items-center `}
-              >
-                <p className="w-fit py-1">
-                  {showBrandFlow == "my-brand-question"
+              <SelectBrand
+                title={
+                  showBrandFlow == "my-brand-question"
                     ? "Please select your brands :"
-                    : "Please select competitor brands :"}
-                </p>
-                {/* options */}
-                {showBrandFlow == "my-brand-question" && (
-                  <div className="flex items-center gap-2 ">
-                    {selectedMyBrands?.map((item, index) => {
-                      return (
-                        <div
-                          key={index}
-                          className={`text-sm w-fit px-2 py-1 rounded-2xl cursor-pointer transition-colors duration-300 ${
-                            item.selected
-                              ? "bg-[#5fbbc5] text-black"
-                              : "bg-black text-white"
-                          }`}
-                          onClick={() => handleMyBrandSelect(item)}
-                        >
-                          {item.name}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-                {showBrandFlow === "competitor-brand-question" &&
-                  (selectedCompetitorBrands.length <= 5 ? (
-                    <div className="flex items-center gap-2">
-                      {selectedCompetitorBrands?.map((item, index) => (
-                        <div
-                          key={index}
-                          className={`text-sm w-fit px-2 py-1 rounded-2xl cursor-pointer transition-colors duration-300 ${
-                            item.selected
-                              ? "bg-[#5fbbc5] text-black"
-                              : "bg-black text-white"
-                          }`}
-                          onClick={() => handleCompetitorsBrandSelect(item)}
-                        >
-                          {item.name}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="w-[500px]">
-                      <MultiSelectDropdown
-                        op={selectedCompetitorBrands}
-                        setSelectedCompetitorBrands={
-                          setSelectedCompetitorBrands
-                        }
-                      />
-                    </div>
-                  ))}
-
-                {/* proceed */}
-                <button
-                  className="bg-indigo-50 mt-1 py-1 px-4 text-blue-900 rounded-2xl shadow-sm cursor-pointer hover:bg-indigo-100 transition-all duration-400 mb-2"
-                  onClick={submitBrandSelectPrompt}
-                >
-                  Proceed
-                </button>
-              </div>
+                    : "Please select competitor brands :"
+                }
+                options={selectedBrands}
+                setSelectedBrands={setSelectedBrands}
+                submitBrandSelection={submitBrandSelection}
+              />
             </div>
           )
         ))}
@@ -398,7 +350,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
               {Object.entries(response).map(([agent, text]) =>
                 agent == "JustASec" ||
                 agent == "Presto_iGenie_Conditional_Orchestrator" ||
-                agent == "PlannerAgent" ||
+                // agent == "PlannerAgent" ||
                 agent == "SqlGenerationAgent" ||
                 agent == "SqlExecutionAgent" ? (
                   <div key={agent} className="aaa ">
@@ -434,6 +386,9 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                             );
                           }
                           return <a {...props} />; // Default handling for regular links
+                        },
+                        Hello({ node, ...props }) {
+                          console.log("Hello !! ");
                         },
                         table: ({ node, ...props }) => {
                           const rowIndexRef = { current: -1 }; // Reset for each table
@@ -536,6 +491,15 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                           />
                         ))}
                       </div>
+                    )}
+
+                    {chatItem.clarifications.length > 0 && (
+                      <ClarificationQuestion
+                        chatItem={chatItem}
+                        handleClarificationResponse={
+                          handleClarificationResponse
+                        }
+                      />
                     )}
                   </div>
                 )

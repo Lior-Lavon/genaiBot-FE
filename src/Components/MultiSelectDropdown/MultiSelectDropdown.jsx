@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
 
-// const options = [
-//   { value: "apple", label: "Apple" },
-//   { value: "banana", label: "Banana" },
-//   { value: "orange", label: "Orange" },
-//   { value: "grape", label: "Grape" },
-//   { value: "mango", label: "Mango" },
-// ];
+const options = [
+  { value: "apple", label: "Apple" },
+  { value: "banana", label: "Banana" },
+  { value: "orange", label: "Orange" },
+  { value: "grape", label: "Grape" },
+  { value: "mango", label: "Mango" },
+];
 
-const MultiSelectDropdown = ({ op, setSelectedCompetitorBrands }) => {
+const MultiSelectDropdown = ({ op, setSelectedBrands }) => {
   const [options, setOptions] = useState([]);
   const [selectedOptions, setSelectedOptions] = useState([]);
 
@@ -19,7 +19,7 @@ const MultiSelectDropdown = ({ op, setSelectedCompetitorBrands }) => {
 
   useEffect(() => {
     let arr = [];
-    op.map((brand) => {
+    op?.map((brand) => {
       arr.push({
         value: brand.name,
         label: brand.name,
@@ -29,11 +29,12 @@ const MultiSelectDropdown = ({ op, setSelectedCompetitorBrands }) => {
   }, [op]);
 
   useEffect(() => {
-    op = op.map((obj) => ({
-      ...obj,
+    const ret = op?.map((obj) => ({
+      name: obj.name,
       selected: selectedOptions.some((opt) => opt.value === obj.name),
     }));
-    setSelectedCompetitorBrands(op);
+
+    setSelectedBrands(ret);
   }, [selectedOptions]);
 
   return (

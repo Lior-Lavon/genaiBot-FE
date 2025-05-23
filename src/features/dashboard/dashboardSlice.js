@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getThunk, postThunk } from "./dashboardThunk";
 import extractAndReplaceWhatsNextSection from "../../utills/extractAndReplaceWhatsNextSection";
 import extractResponse from "../../utills/extractResponse";
+import extractClarificationResponse from "../../utills/extractClarificationResponse";
 
 const initialState = {
   isRightDrawerOpen: false,
@@ -143,6 +144,7 @@ const newQuestion = (state, payload) => {
       id: tmpList.length + 1,
       response: {},
       images: [],
+      clarifications: [],
       timeStamp: {
         start: 0,
         end: 0,
@@ -307,38 +309,56 @@ const dashboardSlice = createSlice({
         author == "SqlGenerationAgent" ||
         author == "SqlExecutionAgent"
       ) {
-        // if (author == "PlannerAgent") {
-        //   if (chunk?.partial == undefined) {
-        //     // get the type
-        //     const text = chunk?.content?.parts?.[0]?.text;
-        //     if (text != undefined) {
-        //       try {
-        //         const cleanedText = text
-        //           .replace(/^```json\s*/i, "")
-        //           .replace(/\s*```$/, "");
-        //         console.log("cleanedText : ", cleanedText);
-        //         const jsonObj = JSON.parse(cleanedText);
-        //         console.log("jsonObj : ", jsonObj);
-        //         const type = jsonObj?.type;
-        //         if (type != undefined) {
-        //           if (type == "greeting" || type == "irrelevant") {
-        //             const response = extractResponse(jsonObj);
-        //             state.chatList[qPosition].response = {};
-        //             state.chatList[qPosition].response[author] = response;
-        //           }
-        //         } else {
-        //           console.log("type == undefined");
-        //         }
-        //       } catch (err) {
-        //         console.log("err : ", err);
-        //       }
-        //     } else {
-        //       console.log("ops check this ...");
-        //     }
-        //   } else {
-        //     return;
-        //   }
-        // }
+        if (author == "PlannerAgent") {
+          if (chunk?.partial == undefined) {
+            // get the type
+            const text = chunk?.content?.parts?.[0]?.text;
+            if (text != undefined) {
+              try {
+                const cleanedText = text
+                  .replace(/^```json\s*/i, "")
+                  .replace(/\s*```$/, "");
+                // console.log("cleanedText : ", cleanedText);
+                const jsonObj = JSON.parse(cleanedText);
+                console.log("jsonObj : ", jsonObj);
+                const type = jsonObj?.type;
+                if (type != undefined) {
+                  console.log("type : ", type);
+                  if (
+                    type == "greeting" ||
+                    type == "irrelevant" ||
+                    type == "context_query"
+                  ) {
+                    const response = extractResponse(jsonObj);
+                    console.log("response : ", response);
+
+                    state.chatList[qPosition].response = {};
+                    state.chatList[qPosition].response[author] = response;
+                  } else if (
+                    type == "data_query" ||
+                    type == "data_query_error"
+                  ) {
+                    // state.chatList[qPosition].response = {};
+                    // state.chatList[qPosition].response[author] =
+                    //   jsonObj?.response;
+                  } else if (type == "clarification") {
+                    const { clarifications, title } =
+                      extractClarificationResponse(jsonObj);
+                    state.chatList[qPosition].response = {};
+                    state.chatList[qPosition].response[author] = title;
+                    state.chatList[qPosition].clarifications = clarifications;
+                  }
+                } else {
+                  console.log("type == undefined");
+                }
+              } catch (err) {
+                console.log("err : ", err);
+              }
+            }
+          } else {
+            return;
+          }
+        }
 
         if (author in state.chatList[qPosition].response) {
           // do nothing
@@ -389,9 +409,15 @@ const dashboardSlice = createSlice({
         if (payload.status == "success") {
           state.session_id = payload.session_id;
           state.selectedFolders = payload.defaults;
-          state.myBrands = [...payload.global_options.my_brands_list];
+          // state.myBrands = [...payload.global_options.my_brands_list];
+          state.myBrands = [
+            // ...payload.global_options.my_brands_list.slice(0, 4),
+            ...payload.global_options.my_brands_list,
+          ];
           state.competitorBrands = [
+            // ...payload.global_options.competitor_brands_list.slice(0, 4),
             ...payload.global_options.competitor_brands_list,
+            ,
           ];
 
           if (state.tmpPrompt != null && state.tmpPrompt != "") {

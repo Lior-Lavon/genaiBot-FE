@@ -13,6 +13,8 @@ import NotSupported from "./NotSupported/NotSupported";
 import AnimatedIconText from "./AnimatedIconText/AnimatedIconText";
 import TextWithAnimatedDots from "./TextWithAnimatedDots/TextWithAnimatedDots";
 import MultiSelectDropdown from "./MultiSelectDropdown/MultiSelectDropdown";
+import ClarificationDropdown from "./ClarificationDropdown/ClarificationDropdown";
+import ClarificationQuestion from "./ClarificationQuestion/ClarificationQuestion";
 
 export {
   TopBar,
@@ -30,4 +32,6 @@ export {
   AnimatedIconText,
   TextWithAnimatedDots,
   MultiSelectDropdown,
+  ClarificationDropdown,
+  ClarificationQuestion,
 };

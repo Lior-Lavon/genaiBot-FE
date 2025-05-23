@@ -122,7 +122,7 @@ const Kickstarters = () => {
     {
       id: 6,
       prompt:
-        "My brand is. Which 3 brands pose the biggest threat to my brand pulse position",
+        "Which 3 brands pose the biggest threat to my brand pulse position",
     },
     { id: 7, prompt: "Do a SWOT analysis for my competitor brand" },
   ];

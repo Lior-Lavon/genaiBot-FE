@@ -3,6 +3,7 @@ import { getThunk, postThunk } from "./dashboardThunk";
 import extractAndReplaceWhatsNextSection from "../../utills/extractAndReplaceWhatsNextSection";
 import extractResponse from "../../utills/extractResponse";
 import extractClarificationResponse from "../../utills/extractClarificationResponse";
+import highlightMarkdownTable from "../../utills/highlightMarkdownTable";
 
 const initialState = {
   isRightDrawerOpen: false,
@@ -215,6 +216,24 @@ const dashboardSlice = createSlice({
       state.chatList[qPosition].finished = true;
 
       state.chatList[qPosition].timeStamp.end = Date.now();
+
+      const fullMarkdown =
+        state.chatList[qPosition].response["ResponseSynthesizerAgent"];
+
+      if (fullMarkdown != undefined) {
+        console.log("---------------------");
+        console.log("input :", fullMarkdown);
+        console.log("---------------------");
+
+        const updatedMarkdown = highlightMarkdownTable(fullMarkdown);
+        state.chatList[qPosition].response["ResponseSynthesizerAgent"] =
+          updatedMarkdown;
+        console.log("finished updating table");
+
+        console.log("---------------------");
+        console.log("output :", updatedMarkdown);
+        console.log("---------------------");
+      }
     },
     updateTimeStamp: (state, action) => {
       // console.log("updateTimeStamp : ", action.payload.time);
@@ -233,7 +252,7 @@ const dashboardSlice = createSlice({
       // console.log("qPosition : ", qPosition);
 
       let author = chunk?.author;
-      console.log("author : ", author);
+      // console.log("author : ", author);
       // if (author == "VizCodeGeneratorAgent") {
       //   if ("ResponseSynthesizerAgent" in state.chatList[qPosition].response) {
       //     if (
@@ -320,27 +339,25 @@ const dashboardSlice = createSlice({
                   .replace(/\s*```$/, "");
                 // console.log("cleanedText : ", cleanedText);
                 const jsonObj = JSON.parse(cleanedText);
-                console.log("jsonObj : ", jsonObj);
+                // console.log("jsonObj : ", jsonObj);
                 const type = jsonObj?.type;
                 if (type != undefined) {
-                  console.log("type : ", type);
+                  // console.log("type : ", type);
                   if (
                     type == "greeting" ||
                     type == "irrelevant" ||
                     type == "context_query"
                   ) {
                     const response = extractResponse(jsonObj);
-                    console.log("response : ", response);
-
                     state.chatList[qPosition].response = {};
                     state.chatList[qPosition].response[author] = response;
                   } else if (
                     type == "data_query" ||
                     type == "data_query_error"
                   ) {
-                    // state.chatList[qPosition].response = {};
-                    // state.chatList[qPosition].response[author] =
-                    //   jsonObj?.response;
+                    state.chatList[qPosition].response = {};
+                    state.chatList[qPosition].response[author] =
+                      jsonObj?.response;
                   } else if (type == "clarification") {
                     const { clarifications, title } =
                       extractClarificationResponse(jsonObj);

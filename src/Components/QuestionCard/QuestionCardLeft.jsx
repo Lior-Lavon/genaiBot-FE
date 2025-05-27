@@ -444,7 +444,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                           return (
                             <RowIndexContext.Provider value={rowIndexRef}>
                               <table
-                                className="ml-4 border-collapse table-auto"
+                                className="ml-4 mt-8 border-collapse table-auto"
                                 {...props}
                               />
                             </RowIndexContext.Provider>
@@ -485,7 +485,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                         ),
                         h2: ({ node, ...props }) => (
                           <h2
-                            className="text-3xl my-10 text-[#ba577d]"
+                            className="text-3xl my-6 text-[#ba577d]"
                             {...props}
                           />
                         ),
@@ -512,14 +512,18 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                             return <>{children}</>;
                           }
                           return (
-                            <p className="text-sm my-1 ml-4" {...props}>
+                            <p className="text-sm my-2 ml-4" {...props}>
                               {children}
                             </p>
                           );
                         },
                         ul: ({ node, ...props }) => (
-                          <ul className="mt-1" {...props} />
+                          <ul className="mt-4" {...props} />
                         ),
+                        hr: ({ node, ...props }) => (
+                          <hr className="mt-4" {...props} />
+                        ),
+
                         li: ({ node, ...props }) => (
                           <li
                             className="text-sm list-disc py-1 ml-6"

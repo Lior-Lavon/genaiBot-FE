@@ -2,7 +2,11 @@
 export default {
   content: [],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        figtree: ["Figtree", "sans-serif"],
+      },
+    },
   },
   plugins: [],
 };

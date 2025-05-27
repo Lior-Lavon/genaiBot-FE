@@ -81,6 +81,7 @@ export const startChat = createAsyncThunk(
         const { value, done } = await reader.read();
         if (done) {
           console.log("closing connection.");
+          console.log("2222");
           break;
         }
 
@@ -111,6 +112,7 @@ export const startChat = createAsyncThunk(
                 type: "dashboard/streamFinished",
                 payload: { qPosition },
               });
+              console.log("1111");
               break;
             }
 
@@ -154,6 +156,7 @@ const newQuestion = (state, payload) => {
     tmpList.push(newPayload);
     state.chatList = tmpList;
     state.slideToBottom = true;
+    state.isStreaming = true;
   }
 };
 
@@ -199,9 +202,6 @@ const dashboardSlice = createSlice({
       state.isLoading = false;
       state.isStreaming = false;
     },
-    setStreamingStatus: (state, { payload }) => {
-      state.isStreaming = payload;
-    },
     setMissingSelectedFoldersFlag: (state, { payload }) => {
       state.missingProductIdOrCategoryId = payload;
     },
@@ -221,18 +221,20 @@ const dashboardSlice = createSlice({
         state.chatList[qPosition].response["ResponseSynthesizerAgent"];
 
       if (fullMarkdown != undefined) {
-        console.log("---------------------");
-        console.log("input :", fullMarkdown);
-        console.log("---------------------");
+        // console.log("---------------------");
+        // console.log("input :", fullMarkdown);
+        // console.log("---------------------");
 
         const updatedMarkdown = highlightMarkdownTable(fullMarkdown);
         state.chatList[qPosition].response["ResponseSynthesizerAgent"] =
           updatedMarkdown;
         console.log("finished updating table");
 
-        console.log("---------------------");
-        console.log("output :", updatedMarkdown);
-        console.log("---------------------");
+        // console.log("---------------------");
+        // console.log("output :", updatedMarkdown);
+        // console.log("---------------------");
+
+        state.isStreaming = false;
       }
     },
     updateTimeStamp: (state, action) => {
@@ -466,7 +468,6 @@ export const {
   initFolders,
   slideContentToBottom,
   restartChat,
-  setStreamingStatus,
   setUserId,
   initChunk,
   setMissingSelectedFoldersFlag,

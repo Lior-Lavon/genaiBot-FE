@@ -19,7 +19,7 @@ const SelectBrand = ({
   };
 
   return (
-    <div className={`mt-2 w-full flex items-center gap-2`}>
+    <div className={`mt-2 w-full flex items-center gap-3`}>
       <p className="w-fit py-1 ">{title}</p>
       {/* options */}
       <div className="flex items-center gap-2 ">
@@ -76,7 +76,7 @@ const SelectBrand = ({
         ))} */}
       {/* proceed */}
       <button
-        className="bg-indigo-50 mt-1 py-1 px-4 text-blue-900 rounded-2xl shadow-sm cursor-pointer hover:bg-indigo-100 transition-all duration-400 mb-2"
+        className="bg-[#dceef1] mt-1 py-1 px-4 text-blue-900 rounded-2xl shadow-sm cursor-pointer hover:bg-[#bcdde5] transition-all duration-300 mb-2"
         onClick={submitBrandSelection}
       >
         Proceed

@@ -16,14 +16,12 @@ import {
   addNewQuestion,
   initChunk,
   setImage,
-  setStreamingStatus,
   startChat,
   // startChat,
   updateResponseImages,
 } from "../../features/dashboard/dashboardSlice";
 import { v4 as uuidv4 } from "uuid";
 import ReactMarkdown from "react-markdown";
-import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import Spinner from "../Spinner/Spinner";
@@ -39,6 +37,7 @@ import html2pdf from "html2pdf.js";
 import { Tooltip } from "react-tooltip";
 import SelectBrand from "../SelectBrand/SelectBrand";
 import ClarificationQuestion from "../ClarificationQuestion/ClarificationQuestion";
+import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 
 const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   // console.log("chatItem : ", chatItem);
@@ -60,8 +59,53 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
         ...(defaultSchema.attributes?.img || []),
         ["src", /^data:image\/(png|jpeg|jpg|gif|webp);base64,/], // Allow base64 data URLs for common image types
       ],
+      div: [
+        ...(defaultSchema.attributes?.td || []),
+        "style", // ✅ Allow style attribute on <div>
+      ],
+      span: [
+        ...(defaultSchema.attributes?.td || []),
+        "style", // ✅ Allow style attribute on <span>
+      ],
+      td: [
+        ...(defaultSchema.attributes?.td || []),
+        "style", // ✅ Allow style attribute on <td>
+      ],
+      tr: [
+        ...(defaultSchema.attributes?.tr || []),
+        "style", // Optional: Allow style on <tr> if needed
+      ],
     },
   };
+
+  // const schemaWithDataUrls = {
+  //   ...defaultSchema,
+  //   tagNames: [
+  //     ...(defaultSchema.tagNames || []),
+  //     "table",
+  //     "thead",
+  //     "tbody",
+  //     "tr",
+  //     "th",
+  //     "td",
+  //     "div",
+  //   ],
+  //   attributes: {
+  //     ...defaultSchema.attributes,
+  //     div: ["style", "className"],
+  //     table: ["className", "style"],
+  //     thead: ["className", "style"],
+  //     tbody: ["className", "style"],
+  //     tr: ["className", "style"],
+  //     span: [...(defaultSchema.attributes?.span ?? []), "style"],
+  //     th: ["className", "style"],
+  //     td: ["className", "style"],
+  //     img: [
+  //       ...(defaultSchema.attributes?.img || []),
+  //       ["src", /^data:image\/(png|jpeg|jpg|gif|webp);base64,/],
+  //     ],
+  //   },
+  // };
 
   const { id, prompt } = chatItem;
 
@@ -240,6 +284,8 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     return key;
   };
 
+  const testHtml = `<div style="background-color: red; padding: 20px;">Hello</div>`;
+
   const handleClarificationResponse = (obj) => {
     // format the inputPrompt
     console.log(obj);
@@ -260,14 +306,14 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     <div className="bg-white" style={{ width: `${leftWidth}px` }}>
       {/* prompt */}
       <div className="w-full bg-white">
-        <div className="w-full mx-4 px-4 py-2 text-left rounded-2xl border-l-3 border-[#5fbbc5] flex items-center justify-between bg-[#FFFABF] ">
+        <div className="w-full mx-4 px-4 py-2 text-left rounded-2xl border-l-3 border-[#bcdde5] flex items-center justify-between bg-[#dceef1] ">
           {/* <div className="text-base text-gray-800 tracking-wide">{`${visiblePrompt}`}</div> */}
           <pre className="text-base text-gray-800 whitespace-pre-wrap font-sans">{`${visiblePrompt}`}</pre>
 
           <div className="flex items-center gap-2">
             {chatItem.finished && !isCollapsed && (
               <div>
-                <div className="inline-flex gap-2 p-2 rounded backdrop-blur-sm bg-amber-100">
+                <div className="inline-flex gap-2 p-2 rounded backdrop-blur-sm">
                   <button
                     onClick={() => handleCapture("clipboard")}
                     className="bg-[#eef2ff] text-black rounded px-2 py-1 shadow-xl hover:bg-[#dbe1ff] cursor-pointer"
@@ -336,7 +382,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
         <div className="relative">
           <div
             ref={answerRef}
-            className="relative m-4 p-4 text-left rounded-tl-2xl rounded-bl-2xl text-lg border-l-2 overflow-x-auto overflow-hidden"
+            className="relative m-4 p-4 text-left rounded-tl-2xl rounded-bl-2xl text-lg overflow-x-auto overflow-hidden"
           >
             <div
               className="zoom-wrapper "
@@ -368,7 +414,10 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
                       // rehypePlugins={[]}
-                      rehypePlugins={[[rehypeSanitize, schemaWithDataUrls]]}
+                      rehypePlugins={[
+                        rehypeRaw,
+                        [rehypeSanitize, schemaWithDataUrls],
+                      ]}
                       components={{
                         a({ node, ...props }) {
                           // Check if the link is a button format: `[Button Text]()`
@@ -378,7 +427,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                             const label = node.children[0].value || "Button"; // Use the link text as button label
                             return (
                               <button
-                                className="px-3 py-1.5 my-1 bg-[#eef2ff] text-black text-[0.8rem] text-left font-medium rounded-md shadow-lg hover:bg-[#e0e7ff] hover:shadow-md transition-all duration-200 cursor-pointer "
+                                className="px-3 py-1.5 my-1 bg-[#DFF1F4] text-black text-[0.8rem] text-left font-medium rounded-md shadow-sm hover:bg-[#bcdde5] hover:shadow-md transition-all duration-300 cursor-pointer "
                                 onClick={() => handleWhatNextPrompt(label)}
                               >
                                 {label}
@@ -395,7 +444,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                           return (
                             <RowIndexContext.Provider value={rowIndexRef}>
                               <table
-                                className="border-collapse table-auto"
+                                className="ml-4 border-collapse table-auto"
                                 {...props}
                               />
                             </RowIndexContext.Provider>
@@ -406,16 +455,18 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                         ),
                         th: ({ node, ...props }) => (
                           <th
-                            className="px-2 py-2 border-b bg-[#d0ecea] border-[#6ba3f6] font-bold text-[#1e2939] text-sm"
+                            className="px-2 py-2 border-b bg-[#dff1f5] border-[#addadf] font-bold text-[#1e2939] text-sm"
                             {...props}
                           />
                         ),
-                        td: ({ node, ...props }) => (
-                          <td
-                            className="px-2 py-2 border-b border-[#c1d6fa] text-sm text-[#364153]"
-                            {...props}
-                          />
-                        ),
+                        td: ({ node, ...props }) => {
+                          return (
+                            <td
+                              className="px-2 py-2 border-b border-[#c1d6fa] text-sm text-[#364153]"
+                              {...props}
+                            />
+                          );
+                        },
                         tr: ({ node, ...props }) => {
                           const rowIndexRef = useContext(RowIndexContext);
                           if (!rowIndexRef) return <tr {...props} />; // fallback
@@ -430,19 +481,25 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                           return <tr className={bgColor} {...props} />;
                         },
                         h1: ({ node, ...props }) => (
-                          <h1 className="text-2xl" {...props} />
+                          <h1 className="text-3xl text-[#ba577d]" {...props} />
                         ),
                         h2: ({ node, ...props }) => (
-                          <h2 className="text-2xl my-10" {...props} />
+                          <h2
+                            className="text-3xl my-10 text-[#ba577d]"
+                            {...props}
+                          />
                         ),
                         h3: ({ node, ...props }) => (
-                          <h3 className="text-xl my-8" {...props} />
+                          <h3
+                            className="text-xl my-8 ml-4 text-[#498d49]"
+                            {...props}
+                          />
                         ),
                         h4: ({ node, ...props }) => (
-                          <h4 className="text-xl my-6" {...props} />
+                          <h4 className="text-xl my-4 ml-4" {...props} />
                         ),
                         h5: ({ node, ...props }) => (
-                          <h4 className="text-lg my-6" {...props} />
+                          <h4 className="text-lg my-4" {...props} />
                         ),
                         p({ node, children, ...props }) {
                           // Unwrap <p> if it's only wrapping an <img>
@@ -455,7 +512,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                             return <>{children}</>;
                           }
                           return (
-                            <p className="text-sm my-1" {...props}>
+                            <p className="text-sm my-1 ml-4" {...props}>
                               {children}
                             </p>
                           );
@@ -472,6 +529,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                       }}
                     >
                       {text}
+                      {/* {`# Markdown heading\n\n${testHtml}`} */}
                     </ReactMarkdown>
 
                     {/* place images at the bottom*/}

@@ -71,11 +71,7 @@ const LauncherCard = () => {
   return (
     <div className="flex items-center gap-4 ">
       {/* Genie Product */}
-      <div className="w-[260px] flex items-center border border-gray-200 rounded-xl p-2">
-        {/* <label className="w-[150px] block text-[.8rem] font-semibold text-gray-800"> */}
-        <label className="w-[196px] block text-[.8rem] font-semibold text-gray-800 m-1">
-          Genie Product:
-        </label>
+      <div className="w-[160px] flex items-center rounded-xl p-2">
         <select
           ref={pProductRef}
           className="w-[200px] text-black bg-white p-2 text-[.7rem] border border-gray-300 focus:outline-none"
@@ -91,13 +87,10 @@ const LauncherCard = () => {
       </div>
 
       {/* Product Category */}
-      <div className="w-[270px] flex items-center border border-gray-200 rounded-xl p-2">
-        <label className="w-[196px] block text-[.8rem] font-semibold text-gray-800 m-1">
-          Product Category:
-        </label>
+      <div className="w-[160px] flex items-center p-2">
         <select
           ref={pCategoryRef}
-          className="w-[200px] text-black bg-white p-2 text-[.7rem] border border-gray-300 focus:outline-none"
+          className="w-[200px] text-black bg-white p-2 text-[.7rem] focus:outline-none"
           value={defaultCategory}
           onChange={handleCategoriesChange}
         >

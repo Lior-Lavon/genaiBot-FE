@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import ReactSwal from "../../utills/alert";
+
 import ChatLoader from "../ChatLoader/ChatLoader";
 import { useDispatch, useSelector } from "react-redux";
 import { Plus, Minus, RotateCw } from "lucide-react"; // Optional: icons
@@ -31,9 +31,7 @@ import QuestionImage from "./QuestionImage";
 import AnimatedIconText from "../AnimatedIconText/AnimatedIconText";
 import TextWithAnimatedDots from "../TextWithAnimatedDots/TextWithAnimatedDots";
 import MultiSelectDropdown from "../MultiSelectDropdown/MultiSelectDropdown";
-import html2canvas from "html2canvas";
 import { Copy, FileText } from "lucide-react";
-import html2pdf from "html2pdf.js";
 import { Tooltip } from "react-tooltip";
 import SelectBrand from "../SelectBrand/SelectBrand";
 import ClarificationQuestion from "../ClarificationQuestion/ClarificationQuestion";
@@ -315,13 +313,13 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
               <div>
                 <div className="inline-flex gap-2 p-2 rounded backdrop-blur-sm">
                   <button
-                    onClick={() => handleCapture("clipboard")}
+                    onClick={() => handleCapture(answerRef, "clipboard")}
                     className="bg-[#eef2ff] text-black rounded px-2 py-1 shadow-xl hover:bg-[#dbe1ff] cursor-pointer"
                   >
                     <Copy size={16} />
                   </button>
                   <button
-                    onClick={() => handleCapture("pdf")}
+                    onClick={() => handleCapture(answerRef, "pdf")}
                     className="bg-[#eef2ff] text-black rounded px-2 py-1 shadow-xl hover:bg-[#dbe1ff] cursor-pointer"
                   >
                     <FileText size={16} />

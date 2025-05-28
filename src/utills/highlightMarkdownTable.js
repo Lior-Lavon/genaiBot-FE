@@ -119,7 +119,17 @@ function processTable(tableMarkdown) {
         return displayValue;
       }
 
-      if (num >= threshold.top10) {
+      // if (num >= threshold.top10) {
+      //   return `<div style="color: ${lightGreen}; font-weight: bold; height: 100%; width: 100%;">${displayValue}</div>`;
+      // } else if (num <= threshold.bottom10) {
+      //   return `<div style="color: ${lightRed}; font-weight: bold; height: 100%; width: 100%;">${displayValue}</div>`;
+      // } else {
+      //   return displayValue;
+      // }
+      if (threshold.top10 === threshold.bottom10) {
+        // All values are the same, no highlighting
+        return displayValue;
+      } else if (num >= threshold.top10) {
         return `<div style="color: ${lightGreen}; font-weight: bold; height: 100%; width: 100%;">${displayValue}</div>`;
       } else if (num <= threshold.bottom10) {
         return `<div style="color: ${lightRed}; font-weight: bold; height: 100%; width: 100%;">${displayValue}</div>`;

@@ -74,7 +74,7 @@ const LauncherCard = () => {
       <div className="w-[160px] flex items-center rounded-xl p-2">
         <select
           ref={pProductRef}
-          className="w-[200px] text-black bg-white p-2 text-[.7rem] border border-[#f79b37] rounded-lg focus:outline-none"
+          className="w-[200px] text-black bg-white p-2 text-[.85rem] border border-[#f79b37] rounded-lg focus:outline-none"
           value={defaultProduct}
           onChange={handleProductChange}
         >
@@ -90,7 +90,7 @@ const LauncherCard = () => {
       <div className="w-[160px] flex items-center p-2">
         <select
           ref={pCategoryRef}
-          className="w-[200px] text-black bg-white p-2 text-[.7rem] border border-[#f79b37] rounded-lg focus:outline-none"
+          className="w-[200px] text-black bg-white p-2 text-[.85rem] border border-[#f79b37] rounded-lg focus:outline-none"
           value={defaultCategory}
           onChange={handleCategoriesChange}
         >

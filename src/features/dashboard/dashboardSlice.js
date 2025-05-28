@@ -233,9 +233,8 @@ const dashboardSlice = createSlice({
         // console.log("---------------------");
         // console.log("output :", updatedMarkdown);
         // console.log("---------------------");
-
-        state.isStreaming = false;
       }
+      state.isStreaming = false;
     },
     updateTimeStamp: (state, action) => {
       // console.log("updateTimeStamp : ", action.payload.time);

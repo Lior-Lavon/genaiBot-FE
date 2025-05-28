@@ -29,6 +29,7 @@ const PromptView = () => {
         dispatch(addNewQuestion({ prompt }));
       }
     }
+    setPrompt("");
   };
 
   const handleKeyDown = (e) => {

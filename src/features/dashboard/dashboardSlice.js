@@ -81,7 +81,6 @@ export const startChat = createAsyncThunk(
         const { value, done } = await reader.read();
         if (done) {
           console.log("closing connection.");
-          console.log("2222");
           break;
         }
 
@@ -112,7 +111,6 @@ export const startChat = createAsyncThunk(
                 type: "dashboard/streamFinished",
                 payload: { qPosition },
               });
-              console.log("1111");
               break;
             }
 
@@ -148,6 +146,7 @@ const newQuestion = (state, payload) => {
       response: {},
       images: [],
       clarifications: [],
+      whatIsNext: "",
       timeStamp: {
         start: 0,
         end: 0,
@@ -213,7 +212,6 @@ const dashboardSlice = createSlice({
     streamFinished: (state, action) => {
       console.log("streamFinished");
       const qPosition = action.payload.qPosition;
-      state.chatList[qPosition].finished = true;
 
       state.chatList[qPosition].timeStamp.end = Date.now();
 
@@ -225,7 +223,12 @@ const dashboardSlice = createSlice({
         // console.log("input :", fullMarkdown);
         // console.log("---------------------");
 
+        // console.log("input : ", fullMarkdown);
+
         const updatedMarkdown = highlightMarkdownTable(fullMarkdown);
+
+        // console.log("updatedMarkdown : ", updatedMarkdown);
+
         state.chatList[qPosition].response["ResponseSynthesizerAgent"] =
           updatedMarkdown;
         console.log("finished updating table");
@@ -234,6 +237,7 @@ const dashboardSlice = createSlice({
         // console.log("output :", updatedMarkdown);
         // console.log("---------------------");
       }
+      state.chatList[qPosition].finished = true;
       state.isStreaming = false;
     },
     updateTimeStamp: (state, action) => {
@@ -254,18 +258,22 @@ const dashboardSlice = createSlice({
 
       let author = chunk?.author;
       // console.log("author : ", author);
-      // if (author == "VizCodeGeneratorAgent") {
-      //   if ("ResponseSynthesizerAgent" in state.chatList[qPosition].response) {
-      //     if (
-      //       !("VizCodeGeneratorAgent" in state.chatList[qPosition].response)
-      //     ) {
-      //       // add loader if not exist
-      //       state.chatList[qPosition].response["VizCodeGeneratorAgent"] =
-      //         "[LOADER]";
-      //     }
-      //   }
-      //   return;
-      // }
+
+      if (
+        author == "VizCodeGeneratorAgent" ||
+        author == "VizDataCuratorAgent"
+      ) {
+        if ("ResponseSynthesizerAgent" in state.chatList[qPosition].response) {
+          if (
+            !("VizCodeGeneratorAgent" in state.chatList[qPosition].response)
+          ) {
+            // add loader if not exist
+            state.chatList[qPosition].response["VizCodeGeneratorAgent"] =
+              "[LOADER]";
+          }
+        }
+        return;
+      }
 
       if (author == "ResponseSynthesizerAgent") {
         const text = chunk?.content?.parts?.[0]?.text;
@@ -289,11 +297,17 @@ const dashboardSlice = createSlice({
           }
         } else {
           // get the full text
-          const responseWithButtons = extractAndReplaceWhatsNextSection(
-            state.chatList[qPosition].response["ResponseSynthesizerAgent"]
-          );
+          const { cleanedText, whatsNextSection } =
+            extractAndReplaceWhatsNextSection(
+              state.chatList[qPosition].response["ResponseSynthesizerAgent"]
+            );
+
+          // set the full darkdown response
           state.chatList[qPosition].response["ResponseSynthesizerAgent"] =
-            responseWithButtons;
+            cleanedText;
+
+          // set only the buttons
+          state.chatList[qPosition].whatIsNext = whatsNextSection;
         }
         return;
       }

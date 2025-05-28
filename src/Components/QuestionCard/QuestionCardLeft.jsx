@@ -36,6 +36,7 @@ import { Tooltip } from "react-tooltip";
 import SelectBrand from "../SelectBrand/SelectBrand";
 import ClarificationQuestion from "../ClarificationQuestion/ClarificationQuestion";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
+import VisualsLoader from "../VisualsLoader/VisualsLoader";
 
 const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   // console.log("chatItem : ", chatItem);
@@ -403,9 +404,9 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                 ) : agent == "VizCodeGeneratorAgent" ? (
                   <div
                     key={getUniqueKey()}
-                    className="w-full flex items-center justify-start"
+                    className="w-full m-4 flex items-center justify-start"
                   >
-                    <ChatLoader />
+                    <VisualsLoader />
                   </div>
                 ) : (
                   <div key={agent}>
@@ -433,9 +434,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                             );
                           }
                           return <a {...props} />; // Default handling for regular links
-                        },
-                        Hello({ node, ...props }) {
-                          console.log("Hello !! ");
                         },
                         table: ({ node, ...props }) => {
                           const rowIndexRef = { current: -1 }; // Reset for each table
@@ -516,7 +514,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                           );
                         },
                         ul: ({ node, ...props }) => (
-                          <ul className="mt-4" {...props} />
+                          <ul className="mt-4 ml-6" {...props} />
                         ),
                         hr: ({ node, ...props }) => (
                           <hr className="mt-4" {...props} />
@@ -536,20 +534,90 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
                     {/* place images at the bottom*/}
                     {chatItem.images.length > 0 && (
-                      <div
-                        className={`image-container m-4 flex items-center ${
-                          chatItem.images.length <= 2
-                            ? "justify-left"
-                            : "justify-evenly"
-                        } flex-wrap`}
-                      >
-                        {chatItem.images.map((src, idx) => (
-                          <QuestionImage
-                            key={idx}
-                            src={src}
-                            handleImageClick={handleImageClick}
-                          />
-                        ))}
+                      <div className="w-full">
+                        <h3 className="text-xl my-8 ml-4 text-[#498d49]">
+                          Visuals 📊
+                        </h3>
+
+                        <div
+                          className={`image-container m-4 flex items-center ${
+                            chatItem.images.length <= 2
+                              ? "justify-left"
+                              : "justify-evenly"
+                          } flex-wrap`}
+                        >
+                          {chatItem.images.map((src, idx) => (
+                            <QuestionImage
+                              key={idx}
+                              src={src}
+                              handleImageClick={handleImageClick}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* place the what is next here */}
+                    {chatItem.whatIsNext != "" && chatItem.finished && (
+                      <div className="w-full">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          // rehypePlugins={[]}
+                          rehypePlugins={[
+                            rehypeRaw,
+                            [rehypeSanitize, schemaWithDataUrls],
+                          ]}
+                          components={{
+                            a({ node, ...props }) {
+                              // Check if the link is a button format: `[Button Text]()`
+                              const isButton =
+                                props.href === "" || props.href === undefined; // Match empty URL for buttons
+                              if (isButton) {
+                                const label =
+                                  node.children[0].value || "Button"; // Use the link text as button label
+                                return (
+                                  <button
+                                    className="px-3 py-1.5 my-1 bg-[#DFF1F4] text-black text-[0.8rem] text-left font-medium rounded-md shadow-sm hover:bg-[#bcdde5] hover:shadow-md transition-all duration-300 cursor-pointer "
+                                    onClick={() => handleWhatNextPrompt(label)}
+                                  >
+                                    {label}
+                                  </button>
+                                );
+                              }
+                              return <a {...props} />; // Default handling for regular links
+                            },
+                            h2: ({ node, ...props }) => (
+                              <h2
+                                className="text-3xl my-6 text-[#ba577d]"
+                                {...props}
+                              />
+                            ),
+                            h3: ({ node, ...props }) => (
+                              <h3
+                                className="text-xl my-8 ml-4 text-[#498d49]"
+                                {...props}
+                              />
+                            ),
+                            p({ node, children, ...props }) {
+                              // Unwrap <p> if it's only wrapping an <img>
+                              const firstChild = node.children[0];
+                              if (
+                                node.children.length === 1 &&
+                                firstChild.type === "element" &&
+                                firstChild.tagName === "img"
+                              ) {
+                                return <>{children}</>;
+                              }
+                              return (
+                                <p className="text-sm my-2 ml-4" {...props}>
+                                  {children}
+                                </p>
+                              );
+                            },
+                          }}
+                        >
+                          {chatItem.whatIsNext}
+                        </ReactMarkdown>
                       </div>
                     )}
 

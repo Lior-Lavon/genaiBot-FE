@@ -62,7 +62,7 @@ const ClarificationQuestion = ({ chatItem, handleClarificationResponse }) => {
       })}
       {/* proceed */}
       <button
-        className="text-sm bg-indigo-50 ml-4  py-1 px-4 text-blue-900 rounded-2xl shadow-md cursor-pointer hover:bg-indigo-100 transition-all duration-400"
+        className="text-sm bg-indigo-50 ml-4  py-1 px-4 text-gray-800 rounded-2xl shadow-md cursor-pointer hover:bg-indigo-100 transition-all duration-400"
         onClick={submitClarificationAnswers}
       >
         Proceed

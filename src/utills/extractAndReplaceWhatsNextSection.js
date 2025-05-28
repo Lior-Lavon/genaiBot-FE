@@ -1,84 +1,83 @@
-export default function extractAndReplaceWhatsNextSection(text) {
-  // console.log("text : ", text);
+export default function extractAndConvertWhatsNextSection(text) {
+  console.log("text : ", text);
 
-  const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
-  const bulletLines = [];
+  const lines = text.replace(/\r\n|\r/g, "\n").split("\n");
+  const bulletRegex = /^[•\-*]\s+/;
+  const headerRegex = /^(#+\s*)(what's next\?|next steps|try these)/i;
+  // const headerRegex = /^(#+\s*(what's next\?|next steps|try these)|\s*(what's next\?|next steps|try these))/i;
 
-  let headerIdx = -1;
-  let startIdx = -1;
-  let endIdx = -1;
-
-  // Step 1: Find "What's Next?" header
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-
-    if (
-      line.toLowerCase().includes("what's next") ||
-      line.toLowerCase().includes("next steps") ||
-      line.toLowerCase().includes("try these")
-    ) {
-      headerIdx = i;
-      // console.log(`Found "What's Next" header at line ${i}: "${lines[i]}"`);
-      break;
-    }
-  }
+  // Step 1: Find header
+  const headerIdx = lines.findIndex((line) => headerRegex.test(line.trim()));
 
   if (headerIdx === -1) {
-    return text;
+    return {
+      cleanedText: text,
+      whatsNextSection: null,
+    };
   }
 
-  // Step 2: Skip blank lines and optional subheader
+  const headerLine = lines[headerIdx];
+  const sectionLines = [];
+  const bulletLines = [];
+
   let i = headerIdx + 1;
+
+  // Skip blank lines
   while (i < lines.length && lines[i].trim() === "") {
-    // console.log(`Skipping empty line at ${i}`);
-    i++;
+    sectionLines.push(lines[i++]);
   }
 
-  if (i < lines.length && !/^[•\-*]/.test(lines[i].trim())) {
-    i++;
+  // Optional paragraphs before bullets
+  while (
+    i < lines.length &&
+    lines[i].trim() !== "" &&
+    !bulletRegex.test(lines[i].trim())
+  ) {
+    sectionLines.push(lines[i++]);
   }
 
-  // Step 3: Detect bullet points (including • character)
-  const bulletRegex = /^[•\-*]\s+/;
-
-  startIdx = i;
-  for (; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (line === "") {
-      endIdx = i;
-      continue;
-    }
-
-    if (!bulletRegex.test(line)) {
-      endIdx = i;
+  // Bullets and subparagraphs
+  while (i < lines.length) {
+    const line = lines[i];
+    if (bulletRegex.test(line.trim())) {
+      let bullet = line.replace(bulletRegex, "");
+      i++;
+      while (
+        i < lines.length &&
+        lines[i].trim() !== "" &&
+        !bulletRegex.test(lines[i].trim())
+      ) {
+        bullet += " " + lines[i++].trim();
+      }
+      bulletLines.push(bullet.replace(/\*\*(.*?)\*\*/g, "$1").trim());
+    } else if (line.trim() === "") {
+      sectionLines.push(line);
+      i++;
+    } else {
       break;
     }
-
-    // let newLine = line.replace(/\*/g, "").trimStart();
-    let newLine = line.replace(/^\*/, "").trimStart();
-    bulletLines.push(newLine);
   }
 
-  if (bulletLines.length === 0) {
-    return text;
-  } else {
-    endIdx = startIdx + bulletLines.length + 1;
-  }
-
-  // Step 4: Create markdown buttons
+  // Convert bullets to buttons
   const buttonMarkdown = bulletLines
     .map((line) => {
       const label = line.length > 120 ? line.slice(0, 120) + "..." : line;
-      return `\n [${label}]()`;
+      return `[${label}]()`;
     })
-    .join("\n");
+    .join("\n\n");
 
-  // Step 5: Replace bullets in original text
-  const newLines = [
-    ...lines.slice(0, startIdx),
+  const whatsNextSection = [
+    headerLine,
+    ...sectionLines,
+    "",
     buttonMarkdown,
-    ...lines.slice(endIdx),
-  ];
+  ].join("\n");
+  const cleanedText = [...lines.slice(0, headerIdx), ...lines.slice(i)].join(
+    "\n"
+  );
 
-  return newLines.join("\n");
+  return {
+    cleanedText,
+    whatsNextSection,
+  };
 }

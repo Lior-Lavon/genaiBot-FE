@@ -15,6 +15,7 @@ import TextWithAnimatedDots from "./TextWithAnimatedDots/TextWithAnimatedDots";
 import MultiSelectDropdown from "./MultiSelectDropdown/MultiSelectDropdown";
 import ClarificationDropdown from "./ClarificationDropdown/ClarificationDropdown";
 import ClarificationQuestion from "./ClarificationQuestion/ClarificationQuestion";
+import VisualsLoader from "./VisualsLoader/VisualsLoader";
 
 export {
   TopBar,
@@ -34,4 +35,5 @@ export {
   MultiSelectDropdown,
   ClarificationDropdown,
   ClarificationQuestion,
+  VisualsLoader,
 };

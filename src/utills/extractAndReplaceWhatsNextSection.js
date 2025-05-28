@@ -61,7 +61,8 @@ export default function extractAndConvertWhatsNextSection(text) {
   // Convert bullets to buttons
   const buttonMarkdown = bulletLines
     .map((line) => {
-      const label = line.length > 120 ? line.slice(0, 120) + "..." : line;
+      // const label = line.length > 120 ? line.slice(0, 120) + "..." : line;
+      const label = line;
       return `[${label}]()`;
     })
     .join("\n\n");

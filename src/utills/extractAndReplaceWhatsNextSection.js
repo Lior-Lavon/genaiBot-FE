@@ -1,5 +1,5 @@
 export default function extractAndConvertWhatsNextSection(text) {
-  // console.log("text : ", text);
+  console.log("text : ", text);
 
   const lines = text.replace(/\r\n|\r/g, "\n").split("\n");
   const bulletRegex = /^[•\-*]\s+/;

@@ -18,7 +18,7 @@ const getImageDimensions = (imageSrc) => {
 
 const ImageViewer = ({ imageSrc }) => {
   const dispatch = useDispatch();
-  const ImgWidthFromScreen = 0.65;
+  const ImgWidthFromScreen = 0.55;
   const [aspectRatio, setAspectRatio] = useState(null);
   const implRef = useRef();
 

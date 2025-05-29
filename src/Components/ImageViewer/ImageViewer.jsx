@@ -29,7 +29,7 @@ const ImageViewer = ({ imageSrc }) => {
           const { width, height } = await getImageDimensions(imageSrc);
           setAspectRatio(height / width);
         } catch (err) {
-          console.error("Failed to load image", err);
+          console.error("Failed to load image.", err);
         }
       }
     };

@@ -48,6 +48,8 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     myBrands,
     competitorBrands,
     authorKeys,
+    isLoading,
+    isStreaming,
   } = useSelector((store) => store.dashboard);
 
   const schemaWithDataUrls = {
@@ -167,7 +169,9 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   }, []);
 
   const handleWhatNextPrompt = (inputPrompt) => {
-    dispatch(addNewQuestion({ prompt: inputPrompt }));
+    if (!isLoading && !isStreaming) {
+      dispatch(addNewQuestion({ prompt: inputPrompt }));
+    }
   };
 
   const connect = async (prompt) => {
@@ -426,7 +430,11 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                             const label = node.children[0].value || "Button"; // Use the link text as button label
                             return (
                               <button
-                                className="px-3 py-1.5 my-1 bg-[#DFF1F4] text-black text-[0.8rem] text-left font-medium rounded-md shadow-sm hover:bg-[#bcdde5] hover:shadow-md transition-all duration-300 cursor-pointer "
+                                className={`px-3 py-1.5 my-1 bg-[#DFF1F4] text-black text-[0.8rem] text-left font-medium rounded-md shadow-sm ${
+                                  isLoading || isStreaming
+                                    ? "cursor-not-allowed"
+                                    : "cursor-pointer hover:bg-[#bcdde5] hover:shadow-md transition-all duration-300"
+                                }`}
                                 onClick={() => handleWhatNextPrompt(label)}
                               >
                                 {label}
@@ -577,7 +585,11 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                                   node.children[0].value || "Button"; // Use the link text as button label
                                 return (
                                   <button
-                                    className="px-3 py-1.5 my-1 bg-[#DFF1F4] text-black text-[0.8rem] text-left font-medium rounded-md shadow-sm hover:bg-[#bcdde5] hover:shadow-md transition-all duration-300 cursor-pointer "
+                                    className={`px-3 py-1.5 my-1 bg-[#DFF1F4] text-black text-[0.8rem] text-left font-medium rounded-md  ${
+                                      isLoading || isStreaming
+                                        ? "cursor-not-allowed"
+                                        : "cursor-pointer shadow-sm hover:bg-[#bcdde5] hover:shadow-md transition-all duration-300"
+                                    }`}
                                     onClick={() => handleWhatNextPrompt(label)}
                                   >
                                     {label}

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
+import selectStyles from "../../utills/selectStyles";
 
 // const options = [
 //   { value: "apple", label: "Apple" },
@@ -36,6 +37,7 @@ const ClarificationDropdown = ({
         onChange={handleChange}
         placeholder="Select Options ..."
         className="text-sm"
+        styles={selectStyles}
       />
     </div>
   );

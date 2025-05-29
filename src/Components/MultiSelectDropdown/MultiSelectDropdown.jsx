@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
+import selectStyles from "../../utills/selectStyles";
 
 const options = [
   { value: "apple", label: "Apple" },
@@ -46,6 +47,7 @@ const MultiSelectDropdown = ({ op, setSelectedBrands }) => {
         onChange={handleChange}
         placeholder="Select Brand(s) ..."
         className="text-sm"
+        styles={selectStyles}
       />
     </div>
   );

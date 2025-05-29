@@ -30,11 +30,11 @@ const ChatLoader = () => {
   return (
     // flex justify-end
     <div className="w-fit py-4">
-      <div className="w-16 h-8 bg-gray-600 flex justify-center items-center rounded-2xl mx-2">
+      <div className="w-16 h-8 bg-[#dff1f4] flex justify-center items-center rounded-2xl mx-2">
         <div className="flex">
           <div className="w-2 h-2 bg-white rounded-full mx-1 animate-dot-1"></div>
-          <div className="w-2 h-2 bg-gray-700 rounded-full mx-1 animate-dot-2"></div>
-          <div className="w-2 h-2 bg-gray-700 rounded-full mx-1 animate-dot-3"></div>
+          <div className="w-2 h-2 bg-[#82d0d8] rounded-full mx-1 animate-dot-2"></div>
+          <div className="w-2 h-2 bg-gray-[#82d0d8] rounded-full mx-1 animate-dot-3"></div>
         </div>
       </div>
     </div>

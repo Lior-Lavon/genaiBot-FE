@@ -47,7 +47,8 @@ const PromptView = () => {
           onChange={handleOnChange}
           onKeyDown={handleKeyDown}
           placeholder="Please ask Presto !"
-          className="w-full rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-0"
+          className={`w-full rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-0`}
+          disabled={isStreaming || isLoading}
         />
         <button
           className={`w-11 h-11 flex items-center justify-center text-white text-xl border border-[#f79b37] rounded-full bg-white ${

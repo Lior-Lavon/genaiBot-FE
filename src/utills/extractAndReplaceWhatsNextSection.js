@@ -1,10 +1,16 @@
-export default function extractAndConvertWhatsNextSection(text) {
+function normalizeHeaderLine(line) {
+  const stripped = line.replace(/\*/g, "").trim();
+  const noHeading = stripped.replace(/^#+\s*/, "");
+  return "### " + noHeading;
+}
+
+export default function extractAndReplaceWhatsNextSection(text) {
   console.log("text : ", text);
 
   const lines = text.replace(/\r\n|\r/g, "\n").split("\n");
   const bulletRegex = /^[•\-*]\s+/;
-  const headerRegex = /^(#+\s*)(what's next\?|next steps|try these)/i;
-  // const headerRegex = /^(#+\s*(what's next\?|next steps|try these)|\s*(what's next\?|next steps|try these))/i;
+  const headerRegex =
+    /^(?:\*{2}|#+\s*)?\s*(what's next|next steps|try these)(\W|$)/i;
 
   // Step 1: Find header
   const headerIdx = lines.findIndex((line) => headerRegex.test(line.trim()));
@@ -16,7 +22,8 @@ export default function extractAndConvertWhatsNextSection(text) {
     };
   }
 
-  const headerLine = lines[headerIdx];
+  // normalize the header
+  let headerLine = normalizeHeaderLine(lines[headerIdx]);
   const sectionLines = [];
   const bulletLines = [];
 

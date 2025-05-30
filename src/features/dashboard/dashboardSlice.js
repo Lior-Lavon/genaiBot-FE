@@ -81,6 +81,11 @@ export const startChat = createAsyncThunk(
         const { value, done } = await reader.read();
         if (done) {
           console.log("closing connection.");
+          console.log("streamFinished called");
+          thunkAPI.dispatch({
+            type: "dashboard/streamFinished",
+            payload: { qPosition },
+          });
           break;
         }
 
@@ -106,11 +111,6 @@ export const startChat = createAsyncThunk(
             const jsonObj = JSON.parse(jsonString);
 
             if (jsonObj.type === "done") {
-              console.log("streamFinished called");
-              thunkAPI.dispatch({
-                type: "dashboard/streamFinished",
-                payload: { qPosition },
-              });
               break;
             }
 
@@ -237,6 +237,9 @@ const dashboardSlice = createSlice({
         // console.log("output :", updatedMarkdown);
         // console.log("---------------------");
       }
+      // remove the loader from the bottom
+      delete state.chatList[qPosition].response["VizCodeGeneratorAgent"];
+
       state.chatList[qPosition].finished = true;
       state.isStreaming = false;
     },
@@ -257,7 +260,6 @@ const dashboardSlice = createSlice({
       // console.log("qPosition : ", qPosition);
 
       let author = chunk?.author;
-      // console.log("author : ", author);
 
       if (
         author == "VizCodeGeneratorAgent" ||
@@ -283,7 +285,7 @@ const dashboardSlice = createSlice({
         //   console.log(text);
         // }
 
-        if (chunk?.partial && text) {
+        if (chunk?.partial != undefined && text) {
           // get the interval updates
           const cleanedText = text
             .replace(/^```json\s*/i, "")

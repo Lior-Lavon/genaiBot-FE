@@ -147,6 +147,7 @@ const newQuestion = (state, payload) => {
       images: [],
       clarifications: [],
       whatIsNext: "",
+      dataQueryDescription: "",
       timeStamp: {
         start: 0,
         end: 0,
@@ -260,6 +261,7 @@ const dashboardSlice = createSlice({
       // console.log("qPosition : ", qPosition);
 
       let author = chunk?.author;
+      console.log("author : ", author);
 
       if (
         author == "VizCodeGeneratorAgent" ||
@@ -372,8 +374,7 @@ const dashboardSlice = createSlice({
                     type == "data_query" ||
                     type == "data_query_error"
                   ) {
-                    state.chatList[qPosition].response = {};
-                    state.chatList[qPosition].response[author] =
+                    state.chatList[qPosition].dataQueryDescription =
                       jsonObj?.response;
                   } else if (type == "clarification") {
                     const { clarifications, title } =

@@ -275,9 +275,18 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
     }
   };
 
-  const getTitle = (agent) => {
-    if (agent == "SqlExecutionAgent") {
-      return "Fetching: " + visiblePrompt;
+  // JustASec: { label: "Just a sec...", persistent: false },
+  // PlannerAgent: { label: "Thinking ...", persistent: false },
+  // SqlGenerationAgent: { label: "Thinking ...", persistent: false },
+  // SqlExecutionAgent: { label: "Thinking ...", persistent: false },
+  // ResponseSynthesizerAgent: { label: "", persistent: true },
+  // VizCodeGeneratorAgent: { label: "", persistent: true },
+
+  const getTitle = (agent, text) => {
+    console.log(agent, text);
+
+    if (agent == "SqlExecutionAgent" || agent == "SqlGenerationAgent") {
+      return chatItem?.dataQueryDescription;
     }
     return authorKeys[agent]?.label;
   };
@@ -402,8 +411,8 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                 // agent == "PlannerAgent" ||
                 agent == "SqlGenerationAgent" ||
                 agent == "SqlExecutionAgent" ? (
-                  <div key={agent} className="aaa ">
-                    <AnimatedIconText text={getTitle(agent)} />
+                  <div key={agent} className="w-full">
+                    <AnimatedIconText text={getTitle(agent, text)} />
                   </div>
                 ) : agent == "VizCodeGeneratorAgent" ? (
                   <div
@@ -585,10 +594,10 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                                   node.children[0].value || "Button"; // Use the link text as button label
                                 return (
                                   <button
-                                    className={`px-3 py-1.5 my-1 bg-[#DFF1F4] text-black text-[0.8rem] text-left font-medium rounded-md  ${
+                                    className={`px-3 py-1.5 my-1 bg-[#DFF1F4] text-black text-[0.8rem] text-left font-medium rounded-full   ${
                                       isLoading || isStreaming
                                         ? "cursor-not-allowed"
-                                        : "cursor-pointer shadow-sm hover:bg-[#bcdde5] hover:shadow-md transition-all duration-300"
+                                        : "border border-[#6ec2ca] cursor-pointer shadow-sm hover:bg-[#bcdde5] hover:shadow-md transition-all duration-300"
                                     }`}
                                     onClick={() => handleWhatNextPrompt(label)}
                                   >

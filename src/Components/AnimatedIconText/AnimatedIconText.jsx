@@ -133,9 +133,9 @@ const AnimatedIconText = ({
   arrowColor = "text-black",
 }) => {
   return (
-    <button
+    <div
       type="button"
-      className={`bbb inline-flex items-start gap-2 px-3 py-1.5 rounded-full transition-colors duration-150`}
+      className={`w-full h-full flex flex-row items-start gap-2 px-3 py-1.5 transition-colors duration-150`}
     >
       {/* Icon with Animated Border */}
       <div className="relative w-6 h-6 shrink-0 self-start">
@@ -151,26 +151,9 @@ const AnimatedIconText = ({
           className={`w-4 h-4 ${iconColor} z-10 absolute inset-1`}
         />
       </div>
-
       {/* Text and Subtext */}
-      <div className="flex flex-col items-start leading-tight">
-        <div className="flex flex-row gap-2 items-center">
-          <span
-            className={`text-base font-medium ${textColor} whitespace-nowrap`}
-          >
-            {text}
-          </span>
-          {subtext && (
-            <PlaceholderArrowIcon className={`w-3 h-3 ${arrowColor} ml-0.5`} />
-          )}
-        </div>
-        {subtext && (
-          <span className="text-xs text-gray-500 whitespace-wrap text-left">
-            {subtext}
-          </span>
-        )}
-      </div>
-    </button>
+      <p className={`text-base font-medium ${textColor}`}>{text}</p>
+    </div>
   );
 };
 

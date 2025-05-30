@@ -283,8 +283,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
   // VizCodeGeneratorAgent: { label: "", persistent: true },
 
   const getTitle = (agent, text) => {
-    console.log(agent, text);
-
     if (agent == "SqlExecutionAgent" || agent == "SqlGenerationAgent") {
       return chatItem?.dataQueryDescription;
     }
@@ -300,7 +298,6 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
 
   const handleClarificationResponse = (obj) => {
     // format the inputPrompt
-    console.log(obj);
     let inputPrompt = "Here are my selected options for asked clarifications :";
 
     inputPrompt +=
@@ -323,8 +320,9 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
           <pre className="text-base text-gray-800 whitespace-pre-wrap font-sans">{`${visiblePrompt}`}</pre>
 
           <div className="flex items-center gap-2">
-            {chatItem.finished && !isCollapsed && (
-              <div>
+            {chatItem.finished &&
+              !isCollapsed &&
+              chatItem?.questionType === "data_query" && (
                 <div className="inline-flex gap-2 p-2 rounded backdrop-blur-sm">
                   <button
                     onClick={() => handleCapture(answerRef, "clipboard")}
@@ -339,8 +337,7 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                     <FileText size={16} />
                   </button>
                 </div>
-              </div>
-            )}
+              )}
 
             {response && (
               <div

@@ -144,6 +144,7 @@ const newQuestion = (state, payload) => {
       finished: false,
       id: tmpList.length + 1,
       response: {},
+      questionType: "",
       images: [],
       clarifications: [],
       whatIsNext: "",
@@ -227,7 +228,7 @@ const dashboardSlice = createSlice({
         // console.log("input : ", fullMarkdown);
 
         const updatedMarkdown = highlightMarkdownTable(fullMarkdown);
-
+        // const updatedMarkdown = fullMarkdown;
         // console.log("updatedMarkdown : ", updatedMarkdown);
 
         state.chatList[qPosition].response["ResponseSynthesizerAgent"] =
@@ -261,7 +262,7 @@ const dashboardSlice = createSlice({
       // console.log("qPosition : ", qPosition);
 
       let author = chunk?.author;
-      console.log("author : ", author);
+      // console.log("author : ", author);
 
       if (
         author == "VizCodeGeneratorAgent" ||
@@ -309,6 +310,8 @@ const dashboardSlice = createSlice({
           // set the full darkdown response
           state.chatList[qPosition].response["ResponseSynthesizerAgent"] =
             cleanedText;
+
+          console.log("cleanedText : ", cleanedText);
 
           // set only the buttons
           state.chatList[qPosition].whatIsNext = whatsNextSection;
@@ -362,6 +365,7 @@ const dashboardSlice = createSlice({
                 const type = jsonObj?.type;
                 if (type != undefined) {
                   // console.log("type : ", type);
+                  state.chatList[qPosition].questionType = type;
                   if (
                     type == "greeting" ||
                     type == "irrelevant" ||

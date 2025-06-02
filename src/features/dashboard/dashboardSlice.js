@@ -318,6 +318,7 @@ const dashboardSlice = createSlice({
         }
         return;
       }
+      console.log("xx");
 
       if (author == "ArtifactLoader") {
         // remove the loader

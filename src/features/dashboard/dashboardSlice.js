@@ -337,6 +337,11 @@ const dashboardSlice = createSlice({
         const base64Image = base64Match[1];
         const imgSrc = "data:image/png;base64," + base64Image;
         // const imgTag = "![1](" + base64Image + ")";
+        console.log(
+          "adding image to list : ",
+          state.chatList[qPosition].images.length
+        );
+
         state.chatList[qPosition].images.push(imgSrc);
         return;
       }

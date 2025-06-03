@@ -553,6 +553,11 @@ const QuestionCardLeft = ({ chatItem, leftWidth }) => {
                           Visuals 📊
                         </h3>
 
+                        {console.log(
+                          "Number of images:",
+                          chatItem.images.length
+                        )}
+
                         <div
                           className={`image-container m-4 flex items-center ${
                             chatItem.images.length <= 2

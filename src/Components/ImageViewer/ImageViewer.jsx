@@ -20,7 +20,6 @@ const ImageViewer = ({ imageSrc }) => {
   const dispatch = useDispatch();
   const ImgWidthFromScreen = 0.7;
   const [aspectRatio, setAspectRatio] = useState(null);
-  const [imageHeight, setImageHeight] = useState(null);
   const implRef = useRef();
 
   useEffect(() => {
@@ -28,7 +27,6 @@ const ImageViewer = ({ imageSrc }) => {
       if (imageSrc) {
         try {
           const { width, height } = await getImageDimensions(imageSrc);
-          setImageHeight(height);
           setAspectRatio(width / height);
         } catch (err) {
           console.error("Failed to load image.", err);
@@ -38,17 +36,16 @@ const ImageViewer = ({ imageSrc }) => {
     load();
   }, [imageSrc]);
 
-  // const getHeight = () => {
-  //   return Math.floor(window.innerWidth * ImgWidthFromScreen * aspectRatio);
-  // };
-
   const calculateFrame = () => {
     let height = window.innerHeight * ImgWidthFromScreen;
     let width = height * aspectRatio;
-    return {
+    const frame = {
       width: `${width}px`,
       height: `${height}px`,
     };
+    console.log("frame : ", frame);
+
+    return frame;
   };
 
   const handleClose = () => {

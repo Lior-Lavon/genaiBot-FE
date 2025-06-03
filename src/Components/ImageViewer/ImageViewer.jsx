@@ -18,8 +18,9 @@ const getImageDimensions = (imageSrc) => {
 
 const ImageViewer = ({ imageSrc }) => {
   const dispatch = useDispatch();
-  const ImgWidthFromScreen = 0.55;
+  const ImgWidthFromScreen = 0.7;
   const [aspectRatio, setAspectRatio] = useState(null);
+  const [imageHeight, setImageHeight] = useState(null);
   const implRef = useRef();
 
   useEffect(() => {
@@ -27,7 +28,8 @@ const ImageViewer = ({ imageSrc }) => {
       if (imageSrc) {
         try {
           const { width, height } = await getImageDimensions(imageSrc);
-          setAspectRatio(height / width);
+          setImageHeight(height);
+          setAspectRatio(width / height);
         } catch (err) {
           console.error("Failed to load image.", err);
         }
@@ -36,8 +38,17 @@ const ImageViewer = ({ imageSrc }) => {
     load();
   }, [imageSrc]);
 
-  const getHeight = () => {
-    return Math.floor(window.innerWidth * ImgWidthFromScreen * aspectRatio);
+  // const getHeight = () => {
+  //   return Math.floor(window.innerWidth * ImgWidthFromScreen * aspectRatio);
+  // };
+
+  const calculateFrame = () => {
+    let height = window.innerHeight * ImgWidthFromScreen;
+    let width = height * aspectRatio;
+    return {
+      width: `${width}px`,
+      height: `${height}px`,
+    };
   };
 
   const handleClose = () => {
@@ -69,7 +80,7 @@ const ImageViewer = ({ imageSrc }) => {
 
   return (
     <div className="w-full h-full fixed inset-0 bg-transparent flex items-center justify-center">
-      <div className="flex flex-col bg-white rounded-2xl">
+      <div className="flex mt-16 flex-col bg-white rounded-2xl">
         <div className="w-full flex flex-row items-center justify-between py-2 pl-6 pr-4 rounded-2xl ">
           <ImageViewerControl handleClick={handleClick} />
           {/* <ResetIcon
@@ -83,13 +94,7 @@ const ImageViewer = ({ imageSrc }) => {
             <ResetIcon className="w-4 h-4" />
           </button>
         </div>
-        <div
-          className="rounded-2xl mx-4 mb-4"
-          style={{
-            width: `${window.innerWidth * ImgWidthFromScreen}px`,
-            height: `${getHeight()}px`,
-          }}
-        >
+        <div className="rounded-2xl mx-4 mb-4" style={calculateFrame()}>
           <ZoomPanImage src={imageSrc} ref={implRef} />
         </div>
       </div>

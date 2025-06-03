@@ -1,21 +1,19 @@
 export default function highlightMarkdownTable(markdown) {
+  // console.log("markdown : ", markdown);
+
+  const startTime = Date.now();
+
   const tableRegex = /(\|.+\|\n\|[-:\s|]+\|\n(?:\|.*\|\n?)*)/g;
 
-  return markdown.replace(tableRegex, (table) => {
+  const result = markdown.replace(tableRegex, (table) => {
     return processTable(table) + "\n\n" + "<br/><br/>";
   });
-}
 
-// Helper: strip markdown and emojis (anything non-digit, non-dot, non-plus, non-minus)
-function stripMarkdownAndEmoji(text) {
-  if (!text) return "";
-  // Remove bold/italic markdown
-  let stripped = text
-    .replace(/\*\*(.*?)\*\*/g, "$1")
-    .replace(/\*(.*?)\*/g, "$1");
-  // Remove emojis/non-numeric characters except + - .
-  stripped = stripped.replace(/[^\d.+-]/g, "");
-  return stripped;
+  const endTime = Date.now();
+  const durationSeconds = ((endTime - startTime) / 1000).toFixed(3);
+  console.log(`Table processed in ${durationSeconds} seconds`);
+
+  return result;
 }
 
 function processTable(tableMarkdown) {
@@ -49,6 +47,8 @@ function processTable(tableMarkdown) {
     let stripped = text
       .replace(/\*\*(.*?)\*\*/g, "$1")
       .replace(/\*(.*?)\*/g, "$1");
+    // Remove commas
+    stripped = stripped.replace(/,/g, "");
     // Remove emojis/non-numeric characters except + - .
     stripped = stripped.replace(/[^\d.+-]/g, "");
     return stripped;
@@ -134,12 +134,13 @@ function processTable(tableMarkdown) {
             return `<td style="text-align:${textAlign}; padding:6px; border:1px solid #ddd;">${cleanText}</td>`;
           }
 
-          const match = cleanText.match(/^([+\-]?\d*\.?\d+)(.*)$/);
+          // const match = cleanText.match(/^([+\-]?\d*\.?\d+)(.*)$/);
+          const match = cleanText.match(/^([+\-]?[\d,]*\.?\d+)(.*)$/);
           if (!match) {
             return `<td style="text-align:${textAlign}; padding:6px; border:1px solid #ddd;">${cleanText}</td>`;
           }
 
-          const numStr = match[1];
+          const numStr = match[1].replace(/,/g, "");
           const suffix = match[2] || "";
           const num = parseFloat(numStr);
 
@@ -147,9 +148,15 @@ function processTable(tableMarkdown) {
             return `<td style="text-align:${textAlign}; padding:6px; border:1px solid #ddd;">${cleanText}</td>`;
           }
 
+          // const formattedNum = Number.isInteger(num)
+          //   ? num.toString()
+          //   : num.toString().replace(/\.0+$/, "");
           const formattedNum = Number.isInteger(num)
-            ? num.toString()
-            : num.toString().replace(/\.0+$/, "");
+            ? num.toLocaleString()
+            : num.toLocaleString(undefined, {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2,
+              });
 
           const displayValue = formattedNum + suffix;
 
@@ -160,7 +167,7 @@ function processTable(tableMarkdown) {
             else if (num <= threshold.bottom10) color = lightRed;
           }
 
-          return `<td style="text-align:${textAlign}; font-weight:bold; color:${color}; padding:6px; border:1px solid #ddd;">${displayValue}</td>`;
+          return `<td style="text-align:${textAlign}; color:${color}; padding:6px; border:1px solid #ddd;">${displayValue}</td>`;
         })
         .join("")
     )

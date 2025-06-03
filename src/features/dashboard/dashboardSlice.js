@@ -5,6 +5,13 @@ import extractResponse from "../../utills/extractResponse";
 import extractClarificationResponse from "../../utills/extractClarificationResponse";
 import highlightMarkdownTable from "../../utills/highlightMarkdownTable";
 
+const markdownInput = `| Platform      | Avg Sentiment | Volume | Key Observation                                                                 |
+| :------------ | :------------ | :----- | :------------------------------------------------------------------------------ |
+| **Superdrug** | 52.7 ✨         | 10 📊   | Exceptionally high sentiment among platforms with data, though volume is relatively low.                  |
+| **Boots**     | 32.9 👍         | 164 📈  | Strong positive sentiment with significant volume.                              |
+| **Amazon UK** | 19.0 ⚖️         | 175 📊  | Moderate sentiment, highest volume among review platforms with data.                      |
+| *Other*       | *No Data*     | *No Data* | Data not available for Tesco or Waitrose this month.                            |`;
+
 const initialState = {
   isRightDrawerOpen: false,
   isLeftDrawer: true,
@@ -217,16 +224,11 @@ const dashboardSlice = createSlice({
 
       state.chatList[qPosition].timeStamp.end = Date.now();
 
+      // const fullMarkdown = markdownInput;
       const fullMarkdown =
         state.chatList[qPosition].response["ResponseSynthesizerAgent"];
 
       if (fullMarkdown != undefined) {
-        // console.log("---------------------");
-        // console.log("input :", fullMarkdown);
-        // console.log("---------------------");
-
-        // console.log("input : ", fullMarkdown);
-
         const updatedMarkdown = highlightMarkdownTable(fullMarkdown);
         // const updatedMarkdown = fullMarkdown;
         // console.log("updatedMarkdown : ", updatedMarkdown);
@@ -234,10 +236,6 @@ const dashboardSlice = createSlice({
         state.chatList[qPosition].response["ResponseSynthesizerAgent"] =
           updatedMarkdown;
         console.log("finished updating table");
-
-        // console.log("---------------------");
-        // console.log("output :", updatedMarkdown);
-        // console.log("---------------------");
       }
       // remove the loader from the bottom
       delete state.chatList[qPosition].response["VizCodeGeneratorAgent"];
@@ -311,14 +309,11 @@ const dashboardSlice = createSlice({
           state.chatList[qPosition].response["ResponseSynthesizerAgent"] =
             cleanedText;
 
-          console.log("cleanedText : ", cleanedText);
-
           // set only the buttons
           state.chatList[qPosition].whatIsNext = whatsNextSection;
         }
         return;
       }
-      console.log("xx");
 
       if (author == "ArtifactLoader") {
         // remove the loader
